@@ -1,0 +1,26 @@
+{
+  "name": "translate-app",
+  "version": "0.0.1",
+  "description": "Lightweight cross-platform translate tool, inspired by pot",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "dev:web": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "trigger": "bash electron/trigger.sh"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.5",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^31.0.0",
+    "vite": "^5.3.1",
+    "vue-router": "^4.4.0",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "lucide-vue-next": "^1.0.0",
+    "vue": "^3.4.31"
+  }
+}
