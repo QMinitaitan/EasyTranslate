@@ -24,7 +24,13 @@ function buildProviderDefaults() {
 const DEFAULTS = {
   providers: buildProviderDefaults(),
   target: '中文(简体)',
-  shortcut: 'Alt+Q'
+  shortcut: 'Alt+Q',
+  shortcuts: {
+    translate: 'Alt+Q',
+    input: 'Alt+D',
+    ocr: '',
+    show: 'Alt+E'
+  }
 }
 
 function load() {

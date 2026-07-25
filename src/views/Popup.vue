@@ -42,52 +42,43 @@
         </template>
         <template v-else>
           <div class="src-box">
-            <div class="box-label">原文</div>
-            <div class="src-text">{{ src }}</div>
+            <div class="box-label">
+              <span>原文</span>
+              <PenLine :size="11" :stroke-width="1.5" class="edit-hint" />
+            </div>
+            <div
+              ref="srcEl"
+              class="src-text editable"
+              contenteditable="true"
+              spellcheck="false"
+              @keydown.enter.prevent="onSrcEdit"
+              @blur="onSrcEdit"
+            >{{ src }}</div>
           </div>
           <div class="dst-box">
             <div class="box-label">译文 · {{ raceMode ? engineDisplayName(raceActive.engine) : engineLabel }}</div>
             <div class="dst-text">{{ raceMode ? raceActive.text : dst }}</div>
           </div>
-
-          <!-- race switcher -->
-          <template v-if="raceMode && raceOk.length > 1">
-            <div class="race-switcher">
-              <button
-                v-for="(r, i) in raceOk"
-                :key="r.engine"
-                class="race-switch-btn"
-                :class="{ active: i === raceActiveIdx }"
-                @click="raceActiveIdx = i"
-              >
-                <span class="race-engine-dot" :style="{ background: engineColor(r.engine) }"></span>
-                {{ r.engine }}
-                <span class="race-switch-ms">{{ r.ms }}ms</span>
-              </button>
-            </div>
-          </template>
         </template>
       </section>
 
       <footer class="popup-foot" @mousedown="startDrag">
         <div class="foot-main">
-          <button class="lang-btn" @click="toggleDirection" title="切换翻译方向">
-            <ArrowLeftRight :size="12" :stroke-width="1.75" />
+          <span class="lang-indicator" @click="toggleDirection" title="点击切换翻译方向">
             <span class="lang-pair">{{ langLabel }}</span>
-          </button>
+          </span>
           <button class="lang-btn" @click="cycleTheme()" title="切换主题">
             <Sun v-if="themeMode === 'light'" :size="12" :stroke-width="1.75" />
             <Moon v-else-if="themeMode === 'dark'" :size="12" :stroke-width="1.75" />
             <Monitor v-else :size="12" :stroke-width="1.75" />
           </button>
           <template v-if="raceMode && raceOk.length">
-            <span class="race-top3">
-              <span v-for="(r, i) in raceOk.slice(0, 3)" :key="r.engine" class="race-top3-item">
-                <span class="rank">{{ ['🥇','🥈','🥉'][i] }}</span>
-                <span class="race-engine-dot" :style="{ background: engineColor(r.engine) }"></span>
-                {{ r.engine }} {{ r.ms }}ms
-              </span>
-            </span>
+            <button class="race-cycle" @click="cycleRace" title="点击切换引擎">
+              <span class="race-medal">{{ ['🥇','🥈','🥉'][raceActiveIdx] || '#' }}</span>
+              <span class="race-engine-dot" :style="{ background: engineColor(raceActive.engine) }"></span>
+              {{ engineDisplayName(raceActive.engine) }} {{ raceActive.ms }}ms
+              <span class="race-count">{{ raceActiveIdx + 1 }}/{{ raceOk.length }}</span>
+            </button>
           </template>
           <span v-else-if="latency" class="latency">· {{ latency }}ms</span>
         </div>
@@ -124,7 +115,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Pin, X, Copy, AlertCircle, MoreHorizontal, MessageSquare, CornerDownLeft, MousePointerClick, ArrowLeftRight, Sun, Moon, Monitor, Settings } from 'lucide-vue-next'
+import { Pin, X, Copy, AlertCircle, MoreHorizontal, MessageSquare, CornerDownLeft, MousePointerClick, Sun, Moon, Monitor, Settings, PenLine } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { setBrand } from '../composables/useBrand'
 import { useTheme } from '../composables/useTheme'
@@ -180,6 +171,11 @@ function engineDisplayName(raw) {
   return found ? found.name : raw
 }
 
+const currentEngineId = computed(() => {
+  const match = engines.value.find(e => e.name === current.value)
+  return match ? match.id : null
+})
+
 const current = ref('')
 const raceMode = ref(true)
 const pinned = ref(false)
@@ -198,12 +194,25 @@ const copied = ref(false)
 
 const targetLangMap = ['中文(简体)', 'English']
 const targetIdx = ref(0)
+const manualDir = ref(false)
 const targetLang = computed(() => targetLangMap[targetIdx.value])
 const langLabel = computed(() => targetIdx.value === 0 ? '英 → 中' : '中 → 英')
+const srcEl = ref(null)
+function onSrcEdit() {
+  const el = srcEl.value
+  if (!el) return
+  const text = el.textContent?.trim() || ''
+  if (text && text !== src.value) {
+    manualDir.value = false
+    doTranslate(text)
+  }
+}
 function toggleDirection() {
   targetIdx.value = targetIdx.value === 0 ? 1 : 0
+  manualDir.value = true
   if (src.value) doTranslate(src.value)
 }
+function hasCJK(t) { return /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/.test(t) }
 
 const state = ref('idle')
 const src = ref('')
@@ -213,8 +222,15 @@ const latency = ref(0)
 const engineLabel = ref('')
 const raceResults = ref([])
 const raceActiveIdx = ref(0)
+const firstDone = ref(false)
 const raceOk = computed(() => raceResults.value.filter(r => !r.error))
 const raceActive = computed(() => raceOk.value[raceActiveIdx.value] || { text: '', engine: '', ms: 0 })
+
+function cycleRace() {
+  if (raceOk.value.length) {
+    raceActiveIdx.value = (raceActiveIdx.value + 1) % raceOk.value.length
+  }
+}
 
 const fontScale = ref(1.0)
 const ctrlHeld = ref(false)
@@ -263,6 +279,8 @@ function onDragMove(e) {
 function stopDrag() { dragging.value = false }
 
 let offTrigger = null
+let raceOffProgress = null
+let raceOffDone = null
 
 function onEngineChange(payload) {
   if (payload && payload.race) { raceMode.value = true; return }
@@ -280,19 +298,41 @@ async function doTranslate(text) {
   raceResults.value = []
   raceActiveIdx.value = 0
   state.value = 'loading'
+  if (!manualDir.value) targetIdx.value = hasCJK(text) ? 1 : 0
   if (raceMode.value) {
-    const r = await window.api.raceTranslate(text, targetLang.value)
-    if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
-    raceResults.value = r.results
-    const best = r.best
-    if (best) {
-      dst.value = best.text
-      latency.value = best.ms
-      engineLabel.value = engineDisplayName(best.engine)
-    }
-    state.value = 'idle'
+    raceOffProgress?.()
+    raceOffDone?.()
+    raceResults.value = []
+    raceActiveIdx.value = 0
+    firstDone.value = false
+    raceOffProgress = window.api.onRaceProgress((result) => {
+      raceResults.value.push(result)
+      if (!result.error && !firstDone.value) {
+        firstDone.value = true
+        dst.value = result.text
+        latency.value = result.ms
+        engineLabel.value = engineDisplayName(result.engine)
+        state.value = 'idle'
+      }
+    })
+    raceOffDone = window.api.onRaceDone((data) => {
+      if (data.error && !firstDone.value) {
+        state.value = 'error'
+        errorMsg.value = data.error
+        return
+      }
+      if (!firstDone.value && data.best) {
+        dst.value = data.best.text
+        latency.value = data.best.ms
+        engineLabel.value = engineDisplayName(data.best.engine)
+        state.value = 'idle'
+      }
+      raceResults.value = data.results || []
+    })
+    window.api.startRaceTranslate(text, targetLang.value)
+    return
   } else {
-    const r = await window.api.translate(text, targetLang.value)
+    const r = await window.api.translate(text, targetLang.value, currentEngineId.value)
     if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
     dst.value = r.text
     latency.value = r.ms
@@ -326,7 +366,7 @@ async function sendChat() {
   const combined = `${src.value}\n\n[追加要求] ${ask}`
   src.value = combined
   state.value = 'loading'
-  const r = await window.api.translate(combined, targetLang.value)
+  const r = await window.api.translate(combined, targetLang.value, currentEngineId.value)
   if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
   dst.value = r.text
   latency.value = r.ms
@@ -356,6 +396,8 @@ onUnmounted(() => {
   document.removeEventListener('mousemove', onDragMove)
   document.removeEventListener('mouseup', stopDrag)
   offTrigger?.()
+  raceOffProgress?.()
+  raceOffDone?.()
 })
 </script>
 
@@ -406,12 +448,29 @@ onUnmounted(() => {
   flex: 1;
   overflow-y: auto;
 }
-.box-label { font-size: var(--fs-xs); color: var(--text-dim); margin-bottom: var(--space-1); }
+.box-label {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--fs-xs); color: var(--text-dim); margin-bottom: var(--space-1);
+}
 .src-box { padding-bottom: var(--space-3); }
-.src-text { font-size: var(--fs-sm); color: var(--text-dim); }
+.src-text { font-size: var(--fs-sm); color: var(--text-dim); font-weight: 500; }
 .src-text.live { color: var(--text); }
+.src-text.editable {
+  border-radius: var(--radius-sm);
+  outline: none;
+  border: 1.5px solid transparent;
+  transition: border-color 0.15s;
+  caret-color: var(--brand);
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+.src-text.editable:focus {
+  border-color: color-mix(in srgb, var(--brand) 25%, transparent);
+}
+.edit-hint { opacity: 0.4; transition: opacity 0.15s; }
+.box-label:hover .edit-hint { opacity: 0.8; }
 .dst-box { padding-top: var(--space-3); }
-.dst-text { font-size: var(--fs-md); color: var(--text-strong); line-height: 1.5; white-space: pre-wrap; }
+.dst-text { font-size: var(--fs-md); font-weight: 500; color: var(--text-strong); line-height: 1.55; white-space: pre-wrap; }
 
 .popup-foot {
   position: relative;
@@ -435,46 +494,30 @@ onUnmounted(() => {
 }
 .lang-btn:hover { border-color: var(--border-strong); background: var(--bg-active); }
 .lang-pair { font-weight: 500; color: var(--text); }
+.lang-indicator { cursor: pointer; padding: 2px 0; font-size: var(--fs-xs); }
+.lang-indicator:hover .lang-pair { color: var(--brand); }
 .foot-tools { display: flex; gap: 2px; }
 
-/* race switcher */
-.race-switcher {
-  display: flex; gap: var(--space-1);
-  margin-top: var(--space-3);
-  flex-wrap: wrap;
-}
-.race-switch-btn {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px var(--space-2);
+.race-medal { font-size: 11px; line-height: 1; }
+.race-engine-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.race-cycle {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  padding: 2px 6px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--bg-subtle);
+  background: var(--bg-hover);
   font-size: var(--fs-xs); font-family: inherit;
-  color: var(--text-dim);
+  color: var(--text);
   cursor: pointer;
   transition: all var(--transition);
-}
-.race-switch-btn:hover { border-color: var(--border-strong); color: var(--text); }
-.race-switch-btn.active {
-  border-color: var(--brand);
-  background: var(--brand-soft);
-  color: var(--brand);
-}
-.race-switch-ms {
   font-variant-numeric: tabular-nums;
-  opacity: 0.7;
-}
-
-.race-engine-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.race-top3 {
-  display: flex; align-items: center; gap: var(--space-2);
-  font-variant-numeric: tabular-nums;
-}
-.race-top3-item {
-  display: inline-flex; align-items: center; gap: 3px;
   white-space: nowrap;
 }
-.rank { font-size: 10px; }
+.race-cycle:hover { border-color: var(--border-strong); background: var(--bg-active); }
+.race-count {
+  font-size: 10px; color: var(--text-dim);
+  margin-left: 2px;
+}
 
 .icon-btn.active { color: var(--brand); transform: rotate(-45deg); }
 .icon-btn.copied { color: var(--brand); transform: scale(1.2); transition: all 0.15s ease; }

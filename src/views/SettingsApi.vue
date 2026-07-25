@@ -48,19 +48,12 @@
 
           <div v-if="p.hasRegion" class="field">
             <label>区域</label>
-            <select class="select" v-model="p.region" style="max-width: 180px;">
-              <option>eastasia</option>
-              <option>southeastasia</option>
-              <option>eastus</option>
-              <option>westeurope</option>
-            </select>
+            <BaseSelect v-model="p.region" :options="regions" />
           </div>
 
           <div v-if="p.hasModel" class="field">
             <label>模型</label>
-            <select class="select" v-model="p.model" style="max-width: 200px;">
-              <option v-for="m in p.models" :key="m">{{ m }}</option>
-            </select>
+            <BaseSelect v-model="p.model" :options="p.models || []" />
           </div>
 
           <div v-if="p.hasEndpoint" class="field">
@@ -92,6 +85,9 @@
 import { reactive, ref, onMounted, watch } from 'vue'
 import { Plug, Check, XCircle, Loader2, AlertTriangle, ChevronRight } from 'lucide-vue-next'
 import InputKey from '../components/InputKey.vue'
+import BaseSelect from '../components/BaseSelect.vue'
+
+const regions = ['eastasia', 'southeastasia', 'eastus', 'westeurope']
 
 const expanded = ref(null)
 const providers = reactive([])

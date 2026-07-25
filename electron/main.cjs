@@ -4,10 +4,16 @@ const fs = require('fs')
 const net = require('net')
 const { getSelection } = require('./selection.cjs')
 const { translateWith } = require('./translate.cjs')
-const { getAll: getAllProviders } = require('./providers.cjs')
+const { getProvider, getAll: getAllProviders } = require('./providers.cjs')
 const { load: loadConfig, save: saveConfig } = require('./config.cjs')
+const history = require('./history.cjs')
 
 const isDev = !!process.env.VITE_DEV_SERVER_URL
+
+// Force X11 on Wayland so globalShortcut works
+if (process.env.XDG_SESSION_TYPE === 'wayland' || process.env.WAYLAND_DISPLAY) {
+  app.commandLine.appendSwitch('ozone-platform', 'x11')
+}
 
 Menu.setApplicationMenu(null)
 
@@ -188,62 +194,122 @@ function startSocketServer() {
   return server
 }
 
-// 同时尝试 globalShortcut(X11 下有效,失败了也不影响,socket 兜底)
-function registerShortcutFallback() {
+const SHORTCUT_ACTIONS = {
+  translate: onShortcut,
+  input: () => { if (mainWin) { mainWin.show(); mainWin.focus() } },
+  show: () => {
+    if (!mainWin) return
+    if (mainWin.isVisible()) mainWin.hide()
+    else { mainWin.show(); mainWin.focus() }
+  },
+  ocr: () => { console.log('[translate] OCR not implemented yet') }
+}
+
+function getShortcutMap(cfg) {
+  return cfg.shortcuts || {
+    translate: cfg.shortcut || 'Alt+Q',
+    input: 'Alt+D',
+    ocr: '',
+    show: 'Alt+E'
+  }
+}
+
+function registerShortcuts(shortcutMap) {
   try {
     const { globalShortcut } = require('electron')
-    const cfg = loadConfig()
-    const accel = cfg.shortcut || 'Alt+Q'
-    const ok = globalShortcut.register(accel, onShortcut)
-    console.log('[translate] globalShortcut', accel, '→', ok ? 'OK' : 'FAILED (use socket trigger)')
+    globalShortcut.unregisterAll()
+    for (const [id, accel] of Object.entries(shortcutMap)) {
+      if (!accel) continue
+      const action = SHORTCUT_ACTIONS[id]
+      if (!action) continue
+      const ok = globalShortcut.register(accel, action)
+      console.log(`[translate] globalShortcut ${id}: ${accel} → ${ok ? 'OK' : 'FAILED'}`)
+    }
   } catch (_) {
-    console.log('[translate] globalShortcut not available, use socket trigger')
+    console.log('[translate] globalShortcut not available')
   }
+}
+
+function broadcastHistoryUpdate() {
+  for (const w of BrowserWindow.getAllWindows()) {
+    if (!w.isDestroyed()) w.webContents.send('history:updated')
+  }
+}
+
+function addToHistory(src, dst, providerId, targetLang) {
+  const p = getProvider(providerId)
+  history.add({
+    engine: p ? p.name : providerId,
+    color: p ? p.color : '#888',
+    lang: targetLang,
+    src, dst, ts: Date.now()
+  })
+  broadcastHistoryUpdate()
 }
 
 app.whenReady().then(() => {
   createMainWindow()
   createTray()
   const server = startSocketServer()
-  registerShortcutFallback()
+  const _cfg = loadConfig()
+  registerShortcuts(getShortcutMap(_cfg))
   app.on('will-quit', () => { try { server.close(); fs.unlinkSync(SOCK_PATH) } catch (_) {} })
 
   ipcMain.handle('config:load', () => loadConfig())
   ipcMain.handle('config:save', (_evt, cfg) => { saveConfig(cfg) })
-  ipcMain.handle('translate:do', async (_evt, { text, target }) => {
+  ipcMain.handle('translate:do', async (_evt, { text, target, providerId }) => {
     const cfg = loadConfig()
     const providers = cfg.providers || {}
-    const [id, p] = Object.entries(providers).find(([, v]) => v && v.enabled && v.apiKey) || []
-    if (!p) {
-      return { error: '未配置启用的翻译接口,请到设置中填写 API Key' }
+    let id, p
+    if (providerId) {
+      p = providers[providerId]
+      id = providerId
+      if (!p || !p.enabled || !p.apiKey) {
+        return { error: `所选引擎未配置或未启用` }
+      }
+    } else {
+      const entry = Object.entries(providers).find(([, v]) => v && v.enabled && v.apiKey)
+      if (!entry) return { error: '未配置启用的翻译接口,请到设置中填写 API Key' }
+      ;[id, p] = entry
     }
     const targetLang = target || (cfg.target || '中文(简体)')
     try {
       const t0 = Date.now()
       const r = await translateWith(p, id, { text, target: targetLang })
+      if (r.text) addToHistory(text, r.text, id, targetLang)
       return { text: r.text, ms: Date.now() - t0, engine: id }
     } catch (e) {
       return { error: e.message || String(e) }
     }
   })
-  ipcMain.handle('translate:race', async (_evt, { text, target }) => {
+  ipcMain.on('translate:race:start', async (event, { text, target }) => {
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')
     const enabled = Object.entries(providers).filter(([, v]) => v && v.enabled && v.apiKey)
     if (!enabled.length) {
-      return { error: '未配置启用的翻译接口,请到设置中填写 API Key' }
+      event.sender.send('translate:race:done', { error: '未配置启用的翻译接口,请到设置中填写 API Key' })
+      return
     }
-    const jobs = enabled.map(([id, p]) => {
+    let saved = false
+    const handler = async ([id, p]) => {
       const t0 = Date.now()
-      return translateWith(p, id, { text, target: targetLang })
-        .then(r => ({ text: r.text, ms: Date.now() - t0, engine: id, error: null }))
-        .catch(e => ({ text: null, ms: Date.now() - t0, engine: id, error: e.message || String(e) }))
-    })
-    const results = await Promise.all(jobs)
-    const ok = results.filter(r => !r.error)
-    results.sort((a, b) => a.ms - b.ms)
-    return { results, best: ok[0] || null }
+      try {
+        const r = await translateWith(p, id, { text, target: targetLang })
+        const result = { text: r.text, ms: Date.now() - t0, engine: id, error: null }
+        if (!saved && r.text) { saved = true; addToHistory(text, r.text, id, targetLang) }
+        event.sender.send('translate:race:progress', result)
+        return result
+      } catch (e) {
+        const result = { text: null, ms: Date.now() - t0, engine: id, error: e.message || String(e) }
+        event.sender.send('translate:race:progress', result)
+        return result
+      }
+    }
+    const all = await Promise.all(enabled.map(handler))
+    const ok = all.filter(r => !r.error)
+    all.sort((a, b) => a.ms - b.ms)
+    event.sender.send('translate:race:done', { results: all, best: ok[0] || null })
   })
   ipcMain.handle('providers:list', () => getAllProviders())
   ipcMain.on('settings:open', () => {
@@ -274,6 +340,16 @@ app.whenReady().then(() => {
       popupWin.setPosition(x + dx, y + dy)
     }
   })
+  ipcMain.handle('shortcuts:load', () => getShortcutMap(loadConfig()))
+  ipcMain.handle('shortcuts:save', (_evt, shortcuts) => {
+    const cfg = loadConfig()
+    cfg.shortcuts = shortcuts
+    saveConfig(cfg)
+    registerShortcuts(shortcuts)
+  })
+  ipcMain.handle('history:load', () => history.load())
+  ipcMain.handle('history:delete', (_evt, id) => history.remove(id))
+  ipcMain.handle('history:clear', () => history.clearAll())
   ipcMain.on('popup:dismiss', () => {
     if (popupPinned) return
     if (popupWin && !popupWin.isDestroyed()) popupWin.hide()

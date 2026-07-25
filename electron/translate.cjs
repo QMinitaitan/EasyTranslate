@@ -65,10 +65,50 @@ const adapters = {
     target
   }),
 
+  // ── DeepL adapter ──
+  // Uses api-free.deepl.com (Free API). For Pro, change host to api.deepl.com.
+  deepl: (cfg, { text, target }) => {
+    const langMap = {
+      '中文(简体)': 'ZH',
+      '中文(繁体)': 'ZH-HANT',
+      'English': 'EN',
+      '日本語': 'JA'
+    }
+    const targetLang = langMap[target] || 'ZH'
+    return new Promise((resolve, reject) => {
+      const body = JSON.stringify({ text: [text], target_lang: targetLang })
+      const req = https.request('https://api-free.deepl.com/v2/translate', {
+        method: 'POST',
+        headers: {
+          'Authorization': `DeepL-Auth-Key ${cfg.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 20000
+      }, (res) => {
+        let data = ''
+        res.on('data', c => data += c)
+        res.on('end', () => {
+          if (res.statusCode !== 200) {
+            reject(new Error(`DeepL HTTP ${res.statusCode}: ${data.slice(0, 200)}`))
+            return
+          }
+          try {
+            const json = JSON.parse(data)
+            const out = json.translations?.[0]?.text || ''
+            resolve({ text: out.trim() })
+          } catch(e) { reject(e) }
+        })
+      })
+      req.on('error', reject)
+      req.on('timeout', () => req.destroy(new Error('timeout')))
+      req.write(body)
+      req.end()
+    })
+  },
+
   // Stubs for providers that need non-OpenAI APIs
   youdao: () => Promise.reject(new Error('有道翻译适配器尚未实现')),
   tencent: () => Promise.reject(new Error('腾讯翻译适配器尚未实现')),
-  deepl: () => Promise.reject(new Error('DeepL 适配器尚未实现')),
   caiyun: () => Promise.reject(new Error('彩云小译适配器尚未实现')),
   baidu: () => Promise.reject(new Error('百度翻译适配器尚未实现'))
 }

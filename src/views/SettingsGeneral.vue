@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <h2 class="page-title">通用</h2>
-    <p class="page-sub">翻译行为与应用偏好</p>
+    <p class="page-sub">翻译行为、应用偏好</p>
 
     <div class="setting-section">
       <div class="setting-row">
@@ -12,12 +12,7 @@
           </div>
         </div>
         <div class="setting-row-control">
-          <select class="select native" v-model="targetLang" style="width: 140px;">
-            <option>中文(简体)</option>
-            <option>中文(繁体)</option>
-            <option>English</option>
-            <option>日本語</option>
-          </select>
+          <BaseSelect v-model="targetLang" :options="targetLangs" />
         </div>
       </div>
 
@@ -29,10 +24,7 @@
           </div>
         </div>
         <div class="setting-row-control">
-          <select class="select native" v-model="closeAction" style="width: 140px;">
-            <option value="tray">保留在托盘</option>
-            <option value="quit">退出程序</option>
-          </select>
+          <BaseSelect v-model="closeAction" :options="closeOptions" />
         </div>
       </div>
 
@@ -71,27 +63,16 @@
 
 <script setup>
 import { ref } from 'vue'
+import BaseSelect from '../components/BaseSelect.vue'
+
+const targetLangs = ['中文(简体)', '中文(繁体)', 'English', '日本語']
+const closeOptions = [
+  { label: '保留在托盘', value: 'tray' },
+  { label: '退出程序', value: 'quit' }
+]
+
 const targetLang = ref('中文(简体)')
 const closeAction = ref('tray')
 const launchToTray = ref(true)
 const raceMode = ref(true)
 </script>
-
-<style scoped>
-.select.native {
-  width: auto;
-  font-size: var(--fs-sm);
-  border: none;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  outline: none;
-  padding: 2px 0;
-  text-align: right;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.select.native:focus {
-  box-shadow: none;
-}
-</style>

@@ -5,25 +5,23 @@
   <div v-else class="app-shell">
     <aside class="sidebar">
       <div class="logo drag">
-        <span class="logo-dot"></span>
         <span class="logo-text">设置</span>
       </div>
       <nav class="nav no-drag">
-        <div class="nav-section">设置</div>
         <router-link class="nav-item" to="/" exact-active-class="active">
-          <History :size="15" :stroke-width="1.75" />历史
+          历史
         </router-link>
         <router-link class="nav-item" to="/settings/general" active-class="active">
-          <Settings2 :size="15" :stroke-width="1.75" />通用
+          通用
         </router-link>
         <router-link class="nav-item" to="/settings/api" active-class="active">
-          <Plug :size="15" :stroke-width="1.75" />翻译接口
+          翻译接口
         </router-link>
         <router-link class="nav-item" to="/settings/shortcut" active-class="active">
-          <Keyboard :size="15" :stroke-width="1.75" />快捷键
+          快捷键
         </router-link>
         <router-link class="nav-item" to="/settings/about" active-class="active">
-          <Info :size="15" :stroke-width="1.75" />关于
+          关于
         </router-link>
       </nav>
       <div class="sidebar-footer no-drag">
@@ -64,7 +62,7 @@
 </template>
 
 <script setup>
-import { History, Settings2, Plug, Keyboard, Info, Sun, Moon, Monitor } from 'lucide-vue-next'
+import { Sun, Moon, Monitor } from 'lucide-vue-next'
 import { useTheme } from './composables/useTheme'
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -95,14 +93,10 @@ const isPopupRoute = computed(() => route.path.startsWith('/popup') && route.que
   user-select: none;
 }
 .logo {
-  display: flex; align-items: center; gap: var(--space-3);
+  display: flex; align-items: center;
   padding: 32px var(--space-3) var(--space-5);
   font-weight: 600; font-size: var(--fs-md);
   color: var(--text-strong);
-}
-.logo-dot {
-  width: 10px; height: 10px; border-radius: 3px;
-  background: linear-gradient(135deg, var(--brand), #38bdf8);
 }
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav-section {

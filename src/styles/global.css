@@ -222,8 +222,7 @@ body {
 
 /* ── macOS-style settings rows ── */
 .setting-section {
-  max-width: 760px;
-  margin: 0 auto;
+  max-width: none;
 }
 .setting-row {
   display: flex;
