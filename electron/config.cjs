@@ -24,11 +24,14 @@ function buildProviderDefaults() {
 const DEFAULTS = {
   providers: buildProviderDefaults(),
   target: '中文(简体)',
+  closeAction: 'tray',
+  launchToTray: false,
+  autoLaunch: false,
+  raceMode: true,
   shortcut: 'Alt+Q',
   shortcuts: {
     translate: 'Alt+Q',
     input: 'Alt+D',
-    ocr: '',
     show: 'Alt+E'
   }
 }

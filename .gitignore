@@ -3,3 +3,6 @@ dist/
 .DS_Store
 *.log
 .vite/
+.runtime/
+.npm-cache/
+.playwright-cli/

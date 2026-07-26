@@ -64,14 +64,22 @@
 <script setup>
 import { Sun, Moon, Monitor } from 'lucide-vue-next'
 import { useTheme } from './composables/useTheme'
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import CommandPalette from './components/CommandPalette.vue'
 
 const { mode, setMode } = useTheme()
 const paletteOpen = ref(false)
 const route = useRoute()
+const router = useRouter()
 const isPopupRoute = computed(() => route.path.startsWith('/popup') && route.query.window === 'popup')
+let offNavigate = null
+
+onMounted(() => {
+  offNavigate = window.api?.onNavigate?.((path) => router.push(path))
+})
+
+onUnmounted(() => offNavigate?.())
 </script>
 
 <style scoped>

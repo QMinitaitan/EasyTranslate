@@ -23,6 +23,14 @@
               <span class="h-lang">{{ langLabel(h.lang) }}</span>
               <span class="h-time">{{ formatTime(h.ts) }}</span>
               <span class="h-actions">
+                <button
+                  class="icon-btn"
+                  :class="{ favorite: h.favorite }"
+                  :title="h.favorite ? '取消收藏' : '收藏'"
+                  @click="toggleFavorite(h)"
+                >
+                  <Star :size="13" :stroke-width="1.75" :fill="h.favorite ? 'currentColor' : 'none'" />
+                </button>
                 <button class="icon-btn" title="复制译文" @click="copyDst(h)"><Copy :size="13" :stroke-width="1.75" /></button>
                 <button class="icon-btn" title="删除" @click="removeItem(h)"><Trash2 :size="13" :stroke-width="1.75" /></button>
               </span>
@@ -54,7 +62,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Search, Copy, Trash2, Inbox } from 'lucide-vue-next'
+import { Search, Copy, Trash2, Inbox, Star } from 'lucide-vue-next'
 import BaseSelect from '../components/BaseSelect.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 
@@ -126,6 +134,13 @@ const grouped = computed(() => {
 
 function copyDst(h) {
   navigator.clipboard.writeText(h.dst)
+}
+
+async function toggleFavorite(h) {
+  try {
+    const updated = await window.api.setFavorite(h.id, !h.favorite)
+    if (updated) h.favorite = updated.favorite
+  } catch (_) {}
 }
 
 async function removeItem(h) {
@@ -244,6 +259,7 @@ onUnmounted(() => {
   transition: opacity var(--transition);
 }
 .history-item:hover .h-actions { opacity: 1; }
+.icon-btn.favorite { color: #d97706; }
 .h-src {
   font-size: var(--fs-sm);
   color: var(--text-dim);

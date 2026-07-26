@@ -3,7 +3,7 @@
     <button class="es-trigger" :style="{ color: currentColor }" @click="open = !open">
       <span v-if="!isRace" class="dot" :style="{ background: currentColor }"></span>
       <Zap v-else :size="12" :stroke-width="2.4" />
-      <span class="label">{{ current?.name }}</span>
+      <span class="label">{{ isRace ? 'Race' : current?.name }}</span>
       <ChevronDown :size="12" :stroke-width="2" class="caret" :class="{ flip: open }" />
     </button>
 
@@ -30,7 +30,7 @@
         >
           <Zap :size="12" :stroke-width="2.4" />
           <span class="name">Race</span>
-          <span class="race-hint">并发翻译全部</span>
+          <span class="race-hint">Run all engines</span>
           <Check v-if="isRace" :size="12" :stroke-width="2.4" class="tick" />
         </button>
       </div>
@@ -53,8 +53,8 @@ const open = ref(false)
 const root = ref(null)
 
 const current = computed(() => props.engines.find(e => e.name === props.modelValue))
-const currentColor = computed(() => current.value?.color || 'var(--brand)')
 const isRace = computed(() => props.raceMode)
+const currentColor = computed(() => isRace.value ? '#7c3aed' : (current.value?.color || 'var(--brand)'))
 
 function pickEngine(e) {
   emit('update:raceMode', false)

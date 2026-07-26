@@ -8,7 +8,7 @@ const PROVIDERS = [
     desc: '国内大模型,翻译质量高,价格极低',
     adapter: 'openai-compat',
     enabled: true,
-    apiKey: 'sk-b779edcb4e4b420a8431fe7e56688c82',
+    apiKey: '',
     endpoint: 'https://api.deepseek.com',
     model: 'deepseek-v4-flash',
     models: ['deepseek-v4-pro', 'deepseek-v4-flash'],

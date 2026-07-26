@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('api', {
     return () => ipcRenderer.removeListener('translate:trigger', handler)
   },
   translate: (text, target, providerId) => ipcRenderer.invoke('translate:do', { text, target, providerId }),
-  startRaceTranslate: (text, target) => ipcRenderer.send('translate:race:start', { text, target }),
+  startRaceTranslate: (text, target, requestId) => ipcRenderer.send('translate:race:start', { text, target, requestId }),
   onRaceProgress: (cb) => {
     const handler = (_e, result) => cb(result)
     ipcRenderer.on('translate:race:progress', handler)
@@ -23,9 +23,15 @@ contextBridge.exposeInMainWorld('api', {
   loadConfig: () => ipcRenderer.invoke('config:load'),
   listProviders: () => ipcRenderer.invoke('providers:list'),
   saveConfig: (cfg) => ipcRenderer.invoke('config:save', cfg),
+  getAutoLaunch: () => ipcRenderer.invoke('autostart:get'),
+  setAutoLaunch: (enabled) => ipcRenderer.invoke('autostart:set', enabled),
+  resetPopupBounds: () => ipcRenderer.invoke('popup:bounds:reset'),
+  copyText: (text) => ipcRenderer.invoke('clipboard:write', text),
   loadShortcuts: () => ipcRenderer.invoke('shortcuts:load'),
   saveShortcuts: (shortcuts) => ipcRenderer.invoke('shortcuts:save', shortcuts),
   loadHistory: () => ipcRenderer.invoke('history:load'),
+  saveFavorite: (payload) => ipcRenderer.invoke('history:favorite', payload),
+  setFavorite: (id, favorite) => ipcRenderer.invoke('history:favorite:set', id, favorite),
   deleteHistory: (id) => ipcRenderer.invoke('history:delete', id),
   clearHistory: () => ipcRenderer.invoke('history:clear'),
   onHistoryUpdate: (cb) => {
@@ -34,6 +40,12 @@ contextBridge.exposeInMainWorld('api', {
     return () => ipcRenderer.removeListener('history:updated', handler)
   },
   openSettings: () => ipcRenderer.send('settings:open'),
+  openMain: () => ipcRenderer.send('main:open'),
+  onNavigate: (cb) => {
+    const handler = (_e, path) => cb(path)
+    ipcRenderer.on('main:navigate', handler)
+    return () => ipcRenderer.removeListener('main:navigate', handler)
+  },
   closePopup: () => ipcRenderer.send('popup:close'),
   pinPopup: (on) => ipcRenderer.send('popup:pin', on),
   movePopup: (dx, dy) => ipcRenderer.send('popup:move', { dx, dy }),

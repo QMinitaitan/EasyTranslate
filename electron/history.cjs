@@ -28,11 +28,21 @@ function nextId() {
 
 function add(entry) {
   const items = load()
-  entry.id = nextId()
-  items.unshift(entry)
-  if (items.length > MAX_ITEMS) items.length = MAX_ITEMS
+  const item = { favorite: false, ...entry, id: nextId() }
+  items.unshift(item)
+  const favorites = items.filter(i => i.favorite)
+  const recent = items.filter(i => !i.favorite).slice(0, MAX_ITEMS)
+  save([...favorites, ...recent].sort((a, b) => b.ts - a.ts))
+  return item
+}
+
+function setFavorite(id, favorite) {
+  const items = load()
+  const item = items.find(i => i.id === id)
+  if (!item) return null
+  item.favorite = !!favorite
   save(items)
-  return items
+  return item
 }
 
 function remove(id) {
@@ -47,4 +57,4 @@ function clearAll() {
   return []
 }
 
-module.exports = { load, add, remove, clearAll }
+module.exports = { load, add, setFavorite, remove, clearAll }

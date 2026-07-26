@@ -7,6 +7,13 @@ const { translateWith } = require('./translate.cjs')
 const { getProvider, getAll: getAllProviders } = require('./providers.cjs')
 const { load: loadConfig, save: saveConfig } = require('./config.cjs')
 const history = require('./history.cjs')
+const autoStart = require('./autostart.cjs')
+const { runTranslationRace } = require('./race.cjs')
+const {
+  DEFAULT_POPUP_BOUNDS,
+  MIN_POPUP_BOUNDS,
+  createPopupBoundsStore
+} = require('./popup-bounds.cjs')
 
 const isDev = !!process.env.VITE_DEV_SERVER_URL
 
@@ -21,7 +28,7 @@ let mainWin = null
 let popupWin = null
 let popupPinned = false
 let tray = null
-const POPUP_BOUNDS_KEY = 'popupBounds'
+const popupBoundsStore = createPopupBoundsStore({ loadConfig, saveConfig })
 
 function createTray() {
   const iconPath = path.join(__dirname, '../assets/icon-16.png')
@@ -42,14 +49,12 @@ function createTray() {
   }
 }
 
-function getStoredBounds() {
-  const cfg = loadConfig()
-  return cfg[POPUP_BOUNDS_KEY] || { width: 420, height: 320 }
-}
-function storeBounds(bounds) {
-  const cfg = loadConfig()
-  cfg[POPUP_BOUNDS_KEY] = { ...cfg[POPUP_BOUNDS_KEY], ...bounds }
-  saveConfig(cfg)
+function resetPopupBounds() {
+  const bounds = popupBoundsStore.reset()
+  if (popupWin && !popupWin.isDestroyed()) {
+    popupWin.setSize(bounds.width, bounds.height)
+  }
+  return bounds
 }
 
 function createMainWindow() {
@@ -67,11 +72,21 @@ function createMainWindow() {
   if (isDev) mainWin.loadURL(process.env.VITE_DEV_SERVER_URL)
   else mainWin.loadFile(path.join(__dirname, '../dist/index.html'))
   mainWin.once('ready-to-show', () => {
+    const cfg = loadConfig()
+    const forceShow = process.argv.includes('--show')
+    const forceHidden = process.argv.includes('--hidden')
+    if (!forceShow && (forceHidden || cfg.launchToTray)) return
     mainWin.show()
     mainWin.focus()
   })
   mainWin.on('close', (e) => {
     if (app.isQuiting) return
+    const cfg = loadConfig()
+    if (cfg.closeAction === 'quit') {
+      app.isQuiting = true
+      app.quit()
+      return
+    }
     e.preventDefault()
     mainWin.hide()
   })
@@ -80,10 +95,10 @@ function createMainWindow() {
 function ensurePopupWindow() {
   if (popupWin && !popupWin.isDestroyed()) return popupWin
 
-  const stored = getStoredBounds()
+  const stored = popupBoundsStore.get()
   popupWin = new BrowserWindow({
-    width: stored.width || 420,
-    height: stored.height || 320,
+    width: stored.width || DEFAULT_POPUP_BOUNDS.width,
+    height: stored.height || DEFAULT_POPUP_BOUNDS.height,
     x: stored.x,
     y: stored.y,
     frame: false,
@@ -91,8 +106,8 @@ function ensurePopupWindow() {
     alwaysOnTop: true,
     skipTaskbar: true,
     resizable: true,
-    minWidth: 280,
-    minHeight: 200,
+    minWidth: MIN_POPUP_BOUNDS.width,
+    minHeight: MIN_POPUP_BOUNDS.height,
     show: false,
     backgroundColor: '#fafafa',
     webPreferences: {
@@ -123,7 +138,7 @@ function ensurePopupWindow() {
       clearTimeout(t)
       t = setTimeout(() => {
         if (popupWin && !popupWin.isDestroyed()) {
-          storeBounds(popupWin.getBounds())
+          popupBoundsStore.update(popupWin.getBounds())
         }
       }, 200)
     }
@@ -136,8 +151,12 @@ function ensurePopupWindow() {
 
 function showPopupNearCursor(text) {
   const win = ensurePopupWindow()
-  // 首次创建时若无保存位置,放到鼠标附近
-  const stored = getStoredBounds()
+  const stored = popupBoundsStore.get()
+  const current = win.getBounds()
+  if (current.width !== stored.width || current.height !== stored.height) {
+    win.setSize(stored.width, stored.height)
+  }
+  // 首次创建或尺寸迁移后若无保存位置,放到鼠标附近
   if (stored.x === undefined || stored.y === undefined) {
     const cursor = screen.getCursorScreenPoint()
     const display = screen.getDisplayNearestPoint(cursor)
@@ -168,9 +187,18 @@ function showPopupNearCursor(text) {
   }
 }
 
+let selectionCaptureBusy = false
 async function onShortcut() {
-  const { text } = await getSelection()
-  showPopupNearCursor(text || '')
+  if (selectionCaptureBusy) return
+  selectionCaptureBusy = true
+  try {
+    const { text, source, reason } = await getSelection()
+    const detail = reason ? `${source}/${reason}` : source
+    console.log(`[translate] selection capture: ${detail}, ${text.length} chars`)
+    showPopupNearCursor(text || '')
+  } finally {
+    selectionCaptureBusy = false
+  }
 }
 
 const SOCK_PATH = path.join(process.env.HOME || '/tmp', '.translate-app.sock')
@@ -201,16 +229,15 @@ const SHORTCUT_ACTIONS = {
     if (!mainWin) return
     if (mainWin.isVisible()) mainWin.hide()
     else { mainWin.show(); mainWin.focus() }
-  },
-  ocr: () => { console.log('[translate] OCR not implemented yet') }
+  }
 }
 
 function getShortcutMap(cfg) {
-  return cfg.shortcuts || {
-    translate: cfg.shortcut || 'Alt+Q',
-    input: 'Alt+D',
-    ocr: '',
-    show: 'Alt+E'
+  const saved = cfg.shortcuts || {}
+  return {
+    translate: saved.translate ?? cfg.shortcut ?? 'Alt+Q',
+    input: saved.input ?? 'Alt+D',
+    show: saved.show ?? 'Alt+E'
   }
 }
 
@@ -236,27 +263,48 @@ function broadcastHistoryUpdate() {
   }
 }
 
-function addToHistory(src, dst, providerId, targetLang) {
+function addToHistory(src, dst, providerId, targetLang, extra = {}) {
   const p = getProvider(providerId)
-  history.add({
+  const item = history.add({
     engine: p ? p.name : providerId,
     color: p ? p.color : '#888',
     lang: targetLang,
-    src, dst, ts: Date.now()
+    src, dst, ts: Date.now(),
+    ...extra
   })
   broadcastHistoryUpdate()
+  return item
 }
 
 app.whenReady().then(() => {
   createMainWindow()
   createTray()
-  const server = startSocketServer()
+  const server = process.platform === 'win32' ? null : startSocketServer()
   const _cfg = loadConfig()
   registerShortcuts(getShortcutMap(_cfg))
-  app.on('will-quit', () => { try { server.close(); fs.unlinkSync(SOCK_PATH) } catch (_) {} })
+  app.on('will-quit', () => {
+    try {
+      server?.close()
+      if (process.platform !== 'win32') fs.unlinkSync(SOCK_PATH)
+    } catch (_) {}
+  })
 
   ipcMain.handle('config:load', () => loadConfig())
-  ipcMain.handle('config:save', (_evt, cfg) => { saveConfig(cfg) })
+  ipcMain.handle('config:save', (_evt, partial) => {
+    const current = loadConfig()
+    const next = {
+      ...current,
+      ...partial,
+      providers: partial.providers
+        ? { ...current.providers, ...partial.providers }
+        : current.providers,
+      shortcuts: partial.shortcuts
+        ? { ...current.shortcuts, ...partial.shortcuts }
+        : current.shortcuts
+    }
+    saveConfig(next)
+    return next
+  })
   ipcMain.handle('translate:do', async (_evt, { text, target, providerId }) => {
     const cfg = loadConfig()
     const providers = cfg.providers || {}
@@ -276,44 +324,67 @@ app.whenReady().then(() => {
     try {
       const t0 = Date.now()
       const r = await translateWith(p, id, { text, target: targetLang })
-      if (r.text) addToHistory(text, r.text, id, targetLang)
-      return { text: r.text, ms: Date.now() - t0, engine: id }
+      const historyItem = r.text ? addToHistory(text, r.text, id, targetLang) : null
+      return { text: r.text, ms: Date.now() - t0, engine: id, historyId: historyItem?.id }
     } catch (e) {
       return { error: e.message || String(e) }
     }
   })
-  ipcMain.on('translate:race:start', async (event, { text, target }) => {
+  ipcMain.on('translate:race:start', async (event, { text, target, requestId }) => {
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')
     const enabled = Object.entries(providers).filter(([, v]) => v && v.enabled && v.apiKey)
     if (!enabled.length) {
-      event.sender.send('translate:race:done', { error: '未配置启用的翻译接口,请到设置中填写 API Key' })
+      event.sender.send('translate:race:done', {
+        requestId,
+        error: '未配置启用的翻译接口,请到设置中填写 API Key'
+      })
       return
     }
-    let saved = false
-    const handler = async ([id, p]) => {
-      const t0 = Date.now()
-      try {
-        const r = await translateWith(p, id, { text, target: targetLang })
-        const result = { text: r.text, ms: Date.now() - t0, engine: id, error: null }
-        if (!saved && r.text) { saved = true; addToHistory(text, r.text, id, targetLang) }
-        event.sender.send('translate:race:progress', result)
-        return result
-      } catch (e) {
-        const result = { text: null, ms: Date.now() - t0, engine: id, error: e.message || String(e) }
-        event.sender.send('translate:race:progress', result)
-        return result
+    const race = await runTranslationRace({
+      requestId,
+      engines: enabled.map(([id, provider]) => ({ id, provider })),
+      execute: ({ id, provider }) =>
+        translateWith(provider, id, { text, target: targetLang }),
+      onFirstSuccess: (result, engine) =>
+        addToHistory(text, result.text, engine.id, targetLang),
+      onProgress: (result) => {
+        if (!event.sender.isDestroyed()) {
+          event.sender.send('translate:race:progress', result)
+        }
       }
+    })
+    if (!event.sender.isDestroyed()) {
+      event.sender.send('translate:race:done', race)
     }
-    const all = await Promise.all(enabled.map(handler))
-    const ok = all.filter(r => !r.error)
-    all.sort((a, b) => a.ms - b.ms)
-    event.sender.send('translate:race:done', { results: all, best: ok[0] || null })
   })
   ipcMain.handle('providers:list', () => getAllProviders())
   ipcMain.on('settings:open', () => {
-    if (mainWin) { mainWin.show(); mainWin.focus() }
+    if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
+    if (mainWin && !mainWin.isDestroyed()) {
+      mainWin.show()
+      mainWin.focus()
+      mainWin.webContents.send('main:navigate', '/settings/general')
+    }
+  })
+  ipcMain.on('main:open', () => {
+    if (!mainWin || mainWin.isDestroyed()) return
+    mainWin.show()
+    mainWin.focus()
+    mainWin.webContents.send('main:navigate', '/')
+  })
+  ipcMain.handle('clipboard:write', (_evt, text) => {
+    clipboard.writeText(String(text || ''))
+    return true
+  })
+  ipcMain.handle('autostart:get', () => autoStart.isEnabled(app))
+  ipcMain.handle('autostart:set', (_evt, enabled) => {
+    const actual = autoStart.setEnabled(app, enabled)
+    const cfg = loadConfig()
+    cfg.autoLaunch = actual
+    saveConfig(cfg)
+    return actual
   })
   ipcMain.on('popup:close', () => {
     if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
@@ -330,7 +401,7 @@ app.whenReady().then(() => {
     if (popupWin && !popupWin.isDestroyed()) {
       const b = popupWin.getBounds()
       popupWin.setBounds({ x: b.x, y: b.y, width, height })
-      storeBounds({ width, height })
+      popupBoundsStore.update({ width, height })
     }
   })
   // 主动让悬浮窗消失(自由模式触发,例如点击空白)
@@ -343,11 +414,34 @@ app.whenReady().then(() => {
   ipcMain.handle('shortcuts:load', () => getShortcutMap(loadConfig()))
   ipcMain.handle('shortcuts:save', (_evt, shortcuts) => {
     const cfg = loadConfig()
-    cfg.shortcuts = shortcuts
+    cfg.shortcuts = getShortcutMap({ shortcuts })
     saveConfig(cfg)
-    registerShortcuts(shortcuts)
+    registerShortcuts(cfg.shortcuts)
   })
+  ipcMain.handle('popup:bounds:reset', () => resetPopupBounds())
   ipcMain.handle('history:load', () => history.load())
+  ipcMain.handle('history:favorite', (_evt, payload) => {
+    let item = payload.historyId
+      ? history.setFavorite(payload.historyId, true)
+      : null
+    if (!item) {
+      item = addToHistory(
+        payload.src,
+        payload.dst,
+        payload.providerId,
+        payload.target,
+        { favorite: true }
+      )
+    } else {
+      broadcastHistoryUpdate()
+    }
+    return item
+  })
+  ipcMain.handle('history:favorite:set', (_evt, id, favorite) => {
+    const item = history.setFavorite(id, favorite)
+    broadcastHistoryUpdate()
+    return item
+  })
   ipcMain.handle('history:delete', (_evt, id) => history.remove(id))
   ipcMain.handle('history:clear', () => history.clearAll())
   ipcMain.on('popup:dismiss', () => {

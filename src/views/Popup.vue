@@ -18,7 +18,10 @@
         </div>
       </header>
 
-      <section class="popup-body">
+      <section class="popup-body" @dblclick="togglePinFromBody">
+        <transition name="pin-feedback">
+          <div v-if="pinNotice" class="pin-feedback" role="status">{{ pinNotice }}</div>
+        </transition>
         <template v-if="state === 'loading'">
           <div class="box-label">原文</div>
           <div class="src-text live">{{ src || '—' }}</div>
@@ -83,42 +86,29 @@
           <span v-else-if="latency" class="latency">· {{ latency }}ms</span>
         </div>
         <div class="foot-tools no-drag">
-          <button class="icon-btn" :class="{ copied: copied }" title="复制译文" @click="copyDst"><Copy :size="13" :stroke-width="1.75" /></button>
-          <button class="icon-btn" ref="moreBtn" title="更多" @click="moreOpen = !moreOpen">
-            <MoreHorizontal :size="13" :stroke-width="1.75" />
+          <button class="icon-btn" :class="{ copied: copied }" :disabled="!activeTranslation" title="复制译文" @click="copyDst">
+            <Copy :size="13" :stroke-width="1.75" />
+          </button>
+          <button class="icon-btn" :disabled="!activeTranslation" :title="speaking ? '停止朗读' : '朗读译文'" @click="toggleSpeech">
+            <Square v-if="speaking" :size="12" :stroke-width="1.75" />
+            <Volume2 v-else :size="13" :stroke-width="1.75" />
+          </button>
+          <button class="icon-btn" title="打开设置" @click="openSettings">
+            <Settings :size="13" :stroke-width="1.75" />
           </button>
         </div>
-
-        <transition name="fade">
-          <div v-if="moreOpen" ref="morePop" class="more-pop">
-            <button class="more-item" @click="chatOpen = !chatOpen">
-              <MessageSquare :size="13" :stroke-width="1.75" :class="{ active: chatOpen }" />
-              {{ chatOpen ? '关闭追问' : '追问 / 改写' }}
-            </button>
-            <button class="more-item" @click="openSettings">
-              <Settings :size="13" :stroke-width="1.75" />
-              打开设置
-            </button>
-          </div>
-        </transition>
       </footer>
-
-      <transition name="expand">
-        <div v-if="chatOpen" class="chat-bar">
-          <input class="chat-input" placeholder="追加提问,例如:换成更口语化的表达" v-model="chatText" @keyup.enter="sendChat" />
-          <button class="icon-btn" title="发送" @click="sendChat"><CornerDownLeft :size="13" :stroke-width="1.75" /></button>
-        </div>
-      </transition>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Pin, X, Copy, AlertCircle, MoreHorizontal, MessageSquare, CornerDownLeft, MousePointerClick, Sun, Moon, Monitor, Settings, PenLine } from 'lucide-vue-next'
+import { Pin, X, Copy, AlertCircle, MousePointerClick, Sun, Moon, Monitor, Settings, PenLine, Volume2, Square } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { setBrand } from '../composables/useBrand'
 import { useTheme } from '../composables/useTheme'
+import { useSpeech } from '../composables/useSpeech'
 import EngineSelect from '../components/EngineSelect.vue'
 
 const route = useRoute()
@@ -136,6 +126,7 @@ async function loadEngines() {
       window.api.listProviders()
     ])
     providerMeta.value = meta
+    raceMode.value = cfg.raceMode !== false
     const providers = cfg.providers || {}
     const list = []
     for (const m of meta) {
@@ -179,18 +170,8 @@ const currentEngineId = computed(() => {
 const current = ref('')
 const raceMode = ref(true)
 const pinned = ref(false)
-const moreOpen = ref(false)
-const moreBtn = ref(null)
-const morePop = ref(null)
-
-function onMouseDown(e) {
-  if (morePop.value && !morePop.value.contains(e.target) && moreBtn.value && !moreBtn.value.contains(e.target)) {
-    moreOpen.value = false
-  }
-}
-const chatOpen = ref(false)
-const chatText = ref('')
 const copied = ref(false)
+const pinNotice = ref('')
 
 const targetLangMap = ['中文(简体)', 'English']
 const targetIdx = ref(0)
@@ -231,6 +212,16 @@ function cycleRace() {
     raceActiveIdx.value = (raceActiveIdx.value + 1) % raceOk.value.length
   }
 }
+
+const activeTranslation = computed(() => raceMode.value ? raceActive.value.text : dst.value)
+const {
+  speaking,
+  stop: stopSpeech,
+  toggle: toggleSpeech
+} = useSpeech({
+  getText: () => activeTranslation.value,
+  getLanguage: () => targetLang.value === 'English' ? 'en-US' : 'zh-CN'
+})
 
 const fontScale = ref(1.0)
 const ctrlHeld = ref(false)
@@ -281,18 +272,32 @@ function stopDrag() { dragging.value = false }
 let offTrigger = null
 let raceOffProgress = null
 let raceOffDone = null
+let raceRequestSeq = 0
+let activeRaceRequestId = null
+let pinNoticeTimer = null
 
 function onEngineChange(payload) {
-  if (payload && payload.race) { raceMode.value = true; return }
+  if (payload && payload.race) {
+    raceMode.value = true
+    window.api.saveConfig?.({ raceMode: true })
+    return
+  }
   if (payload && payload.color) {
     setBrand(payload.color)
     engineLabel.value = payload.name
     raceMode.value = false
+    window.api.saveConfig?.({ raceMode: false })
   }
 }
 
 async function doTranslate(text) {
+  stopSpeech()
   if (!text) { state.value = 'empty'; return }
+  raceOffProgress?.()
+  raceOffDone?.()
+  raceOffProgress = null
+  raceOffDone = null
+  activeRaceRequestId = null
   src.value = text
   dst.value = ''
   raceResults.value = []
@@ -300,12 +305,13 @@ async function doTranslate(text) {
   state.value = 'loading'
   if (!manualDir.value) targetIdx.value = hasCJK(text) ? 1 : 0
   if (raceMode.value) {
-    raceOffProgress?.()
-    raceOffDone?.()
     raceResults.value = []
     raceActiveIdx.value = 0
     firstDone.value = false
+    const requestId = `${Date.now()}-${++raceRequestSeq}`
+    activeRaceRequestId = requestId
     raceOffProgress = window.api.onRaceProgress((result) => {
+      if (result.requestId !== activeRaceRequestId) return
       raceResults.value.push(result)
       if (!result.error && !firstDone.value) {
         firstDone.value = true
@@ -316,6 +322,7 @@ async function doTranslate(text) {
       }
     })
     raceOffDone = window.api.onRaceDone((data) => {
+      if (data.requestId !== activeRaceRequestId) return
       if (data.error && !firstDone.value) {
         state.value = 'error'
         errorMsg.value = data.error
@@ -328,8 +335,9 @@ async function doTranslate(text) {
         state.value = 'idle'
       }
       raceResults.value = data.results || []
+      raceActiveIdx.value = 0
     })
-    window.api.startRaceTranslate(text, targetLang.value)
+    window.api.startRaceTranslate(text, targetLang.value, requestId)
     return
   } else {
     const r = await window.api.translate(text, targetLang.value, currentEngineId.value)
@@ -342,44 +350,46 @@ async function doTranslate(text) {
 }
 
 function retry() { if (src.value) doTranslate(src.value) }
-function close() { window.api.closePopup?.() }
+function close() {
+  stopSpeech()
+  window.api.closePopup?.()
+}
 function openSettings() {
-  moreOpen.value = false
+  stopSpeech()
   window.api.openSettings?.()
 }
 function togglePin() {
   pinned.value = !pinned.value
   window.api.pinPopup?.(pinned.value)
 }
-function copyDst() {
-  const text = raceMode.value ? raceActive.value.text : dst.value
+function togglePinFromBody(e) {
+  if (e.button !== 0) return
+  if (e.target.closest?.('button, a, input, textarea, select, [contenteditable="true"], [role="button"], .no-pin-toggle')) return
+  togglePin()
+  pinNotice.value = pinned.value ? '悬浮窗已固定' : '悬浮窗已取消固定'
+  clearTimeout(pinNoticeTimer)
+  pinNoticeTimer = setTimeout(() => { pinNotice.value = '' }, 900)
+}
+async function writeClipboard(text) {
   if (!text) return
-  navigator.clipboard.writeText(text).then(() => {
+  if (window.api?.copyText) await window.api.copyText(text)
+  else await navigator.clipboard.writeText(text)
+}
+async function copyDst() {
+  const text = activeTranslation.value
+  if (!text) return
+  try {
+    await writeClipboard(text)
     copied.value = true
     setTimeout(() => { copied.value = false }, 600)
-  })
+  } catch (_) {}
 }
-async function sendChat() {
-  if (!chatText.value.trim() || !dst.value) return
-  const ask = chatText.value
-  chatText.value = ''
-  const combined = `${src.value}\n\n[追加要求] ${ask}`
-  src.value = combined
-  state.value = 'loading'
-  const r = await window.api.translate(combined, targetLang.value, currentEngineId.value)
-  if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
-  dst.value = r.text
-  latency.value = r.ms
-  state.value = 'idle'
-}
-
 onMounted(async () => {
   await loadEngines()
   document.addEventListener('wheel', onWheel, { passive: false, capture: true })
   document.addEventListener('keydown', onKeyDown)
   document.addEventListener('keyup', onKeyUp)
   document.addEventListener('mousemove', onDragMove)
-  document.addEventListener('mousedown', onMouseDown)
   document.addEventListener('mouseup', stopDrag)
   if (window.api?.triggerTranslate) {
     offTrigger = window.api.triggerTranslate(async (payload) => {
@@ -390,11 +400,11 @@ onMounted(async () => {
 })
 onUnmounted(() => {
   document.removeEventListener('wheel', onWheel, { capture: true })
-  document.removeEventListener('mousedown', onMouseDown)
   document.removeEventListener('keydown', onKeyDown)
   document.removeEventListener('keyup', onKeyUp)
   document.removeEventListener('mousemove', onDragMove)
   document.removeEventListener('mouseup', stopDrag)
+  clearTimeout(pinNoticeTimer)
   offTrigger?.()
   raceOffProgress?.()
   raceOffDone?.()
@@ -480,7 +490,7 @@ onUnmounted(() => {
   border-top: 1px solid var(--border);
   background: var(--bg-subtle);
 }
-.foot-main { display: flex; align-items: center; gap: var(--space-2); flex: 1; }
+.foot-main { display: flex; align-items: center; gap: var(--space-2); flex: 1; min-width: 0; }
 .lang-btn {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 2px 5px;
@@ -522,43 +532,24 @@ onUnmounted(() => {
 .icon-btn.active { color: var(--brand); transform: rotate(-45deg); }
 .icon-btn.copied { color: var(--brand); transform: scale(1.2); transition: all 0.15s ease; }
 .icon-btn:not(.copied) { transition: all 0.3s ease; }
+.icon-btn:disabled { opacity: 0.35; cursor: default; }
+.icon-btn:disabled:hover { background: transparent; color: inherit; }
 
-.more-pop {
+.pin-feedback {
   position: absolute;
-  bottom: calc(100% + 4px);
-  right: var(--space-4);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-popup);
-  padding: var(--space-1);
-  display: flex; flex-direction: column;
-  min-width: 140px;
+  top: 54px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10;
-}
-.more-item {
-  display: flex; align-items: center; gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border: none; background: transparent;
-  border-radius: var(--radius-sm);
-  font-size: var(--fs-sm);
-  color: var(--text);
-  cursor: pointer;
-  text-align: left;
-}
-.more-item:hover { background: var(--bg-hover); }
-.more-item .active { color: var(--brand); }
-
-.chat-bar {
-  display: flex; align-items: center; gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border-top: 1px solid var(--border);
-  background: var(--bg-card);
-}
-.chat-input {
-  flex: 1; border: none; background: transparent;
-  font-size: var(--fs-sm); font-family: inherit;
-  color: var(--text); outline: none;
+  padding: 5px 10px;
+  color: var(--text-strong);
+  background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-popup);
+  font-size: var(--fs-xs);
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .error-bar {
@@ -591,9 +582,6 @@ onUnmounted(() => {
   100% { background-position: -200% 0; }
 }
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.12s, transform 0.12s; }
-.fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(4px); }
-.expand-enter-active, .expand-leave-active { transition: max-height 0.18s ease, opacity 0.15s; overflow: hidden; }
-.expand-enter-from, .expand-leave-to { max-height: 0; opacity: 0; }
-.expand-enter-to, .expand-leave-from { max-height: 80px; opacity: 1; }
+.pin-feedback-enter-active, .pin-feedback-leave-active { transition: opacity 0.15s, transform 0.15s; }
+.pin-feedback-enter-from, .pin-feedback-leave-to { opacity: 0; transform: translate(-50%, -4px); }
 </style>
