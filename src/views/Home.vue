@@ -1,15 +1,15 @@
 <template>
   <div class="page">
-    <h2 class="page-title">历史记录</h2>
-    <p class="page-sub">最近的划词与输入翻译历史</p>
+    <h2 class="page-title">{{ text.title }}</h2>
+    <p class="page-sub">{{ text.subtitle }}</p>
 
     <div class="toolbar">
       <div class="search-wrap">
         <Search class="search-ico" :size="14" :stroke-width="1.75" />
-        <input class="search-input" placeholder="搜索历史..." v-model="keyword" />
+        <input class="search-input" :placeholder="text.search" v-model="keyword" />
       </div>
       <BaseSelect v-model="engineFilter" :options="engineOptions" />
-      <button class="btn btn-sm btn-ghost" @click="clearAll"><Trash2 :size="13" :stroke-width="1.75" />清空</button>
+      <button class="btn btn-sm btn-ghost" @click="clearAll"><Trash2 :size="13" :stroke-width="1.75" />{{ text.clear }}</button>
     </div>
 
     <div class="history">
@@ -26,13 +26,13 @@
                 <button
                   class="icon-btn"
                   :class="{ favorite: h.favorite }"
-                  :title="h.favorite ? '取消收藏' : '收藏'"
+                  :title="h.favorite ? text.unfavorite : text.favorite"
                   @click="toggleFavorite(h)"
                 >
                   <Star :size="13" :stroke-width="1.75" :fill="h.favorite ? 'currentColor' : 'none'" />
                 </button>
-                <button class="icon-btn" title="复制译文" @click="copyDst(h)"><Copy :size="13" :stroke-width="1.75" /></button>
-                <button class="icon-btn" title="删除" @click="removeItem(h)"><Trash2 :size="13" :stroke-width="1.75" /></button>
+                <button class="icon-btn" :title="text.copy" @click="copyDst(h)"><Copy :size="13" :stroke-width="1.75" /></button>
+                <button class="icon-btn" :title="text.delete" @click="removeItem(h)"><Trash2 :size="13" :stroke-width="1.75" /></button>
               </span>
             </div>
             <div class="h-src">{{ h.src }}</div>
@@ -42,19 +42,19 @@
       </template>
       <div v-if="!grouped.length" class="empty">
         <div class="empty-ico"><Inbox :size="42" :stroke-width="1.5" /></div>
-        <div class="empty-title">暂无记录</div>
-        <div class="empty-sub">在任意应用中选中文字,按快捷键即可翻译</div>
+        <div class="empty-title">{{ text.empty }}</div>
+        <div class="empty-sub">{{ text.emptyDesc }}</div>
         <div class="empty-cta">
-          <router-link to="/settings/api" class="btn btn-primary btn-sm">配置翻译接口</router-link>
-          <router-link to="/settings/shortcut" class="btn btn-sm">设置快捷键</router-link>
+          <router-link to="/settings/api" class="btn btn-primary btn-sm">{{ text.configureApi }}</router-link>
+          <router-link to="/settings/shortcut" class="btn btn-sm">{{ text.configureShortcuts }}</router-link>
         </div>
       </div>
     </div>
   </div>
   <ConfirmDialog
     :open="showConfirm"
-    title="清空记录"
-    message="确定清空所有翻译记录?"
+    :title="text.clearTitle"
+    :message="text.clearMessage"
     @confirm="doClear"
     @cancel="showConfirm = false"
   />
@@ -65,11 +65,60 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Search, Copy, Trash2, Inbox, Star } from 'lucide-vue-next'
 import BaseSelect from '../components/BaseSelect.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import { useLocale } from '../composables/useLocale'
 
-const engineOptions = [
-  { label: '全部引擎', value: '' },
-  'Bing', 'DeepSeek', '有道', '腾讯', 'OpenAI', 'DeepL', '彩云小译', '百度翻译'
-]
+const { isEnglish } = useLocale()
+const text = computed(() => isEnglish.value ? {
+  title: 'History',
+  subtitle: 'Recent selection and input translations',
+  search: 'Search history…',
+  clear: 'Clear',
+  favorite: 'Favorite',
+  unfavorite: 'Remove from favorites',
+  copy: 'Copy translation',
+  delete: 'Delete',
+  empty: 'No history yet',
+  emptyDesc: 'Select text in any app and press your translation shortcut',
+  configureApi: 'Configure APIs',
+  configureShortcuts: 'Configure Shortcuts',
+  clearTitle: 'Clear History',
+  clearMessage: 'Clear all translation history?',
+  today: 'Today',
+  yesterday: 'Yesterday',
+  thisWeek: 'This Week',
+  thisMonth: 'This Month'
+} : {
+  title: '历史记录',
+  subtitle: '最近的划词与输入翻译历史',
+  search: '搜索历史…',
+  clear: '清空',
+  favorite: '收藏',
+  unfavorite: '取消收藏',
+  copy: '复制译文',
+  delete: '删除',
+  empty: '暂无记录',
+  emptyDesc: '在任意应用中选中文字，按快捷键即可翻译',
+  configureApi: '配置翻译接口',
+  configureShortcuts: '设置快捷键',
+  clearTitle: '清空记录',
+  clearMessage: '确定清空所有翻译记录？',
+  today: '今天',
+  yesterday: '昨天',
+  thisWeek: '本周',
+  thisMonth: '本月'
+})
+const engineOptions = computed(() => [
+  { label: isEnglish.value ? 'All Engines' : '全部引擎', value: '' },
+  { label: isEnglish.value ? 'Bing Translator' : 'Bing 微软翻译', value: 'Bing 微软翻译' },
+  'DeepSeek',
+  { label: isEnglish.value ? 'Youdao Translate' : '有道翻译', value: '有道翻译' },
+  { label: isEnglish.value ? 'Tencent TMT' : '腾讯交互翻译 TMT', value: '腾讯交互翻译 TMT' },
+  'OpenAI',
+  'DeepL',
+  { label: isEnglish.value ? 'Caiyun Translate' : '彩云小译', value: '彩云小译' },
+  { label: isEnglish.value ? 'Baidu Translate' : '百度翻译', value: '百度翻译' },
+  { label: isEnglish.value ? 'Google Translate' : 'Google 翻译', value: 'Google 翻译' }
+])
 
 const keyword = ref('')
 const engineFilter = ref('')
@@ -78,7 +127,9 @@ const showConfirm = ref(false)
 let unsubHistory = null
 
 function langLabel(lang) {
-  return lang === '中文(简体)' ? '英 → 中' : lang === 'English' ? '中 → 英' : lang
+  if (lang === '中文(简体)') return isEnglish.value ? 'EN → ZH' : '英 → 中'
+  if (lang === 'English') return isEnglish.value ? 'ZH → EN' : '中 → 英'
+  return lang
 }
 function formatTime(ts) {
   const d = new Date(ts)
@@ -98,13 +149,13 @@ function dateLabel(dateStr) {
   yesterday.setDate(yesterday.getDate() - 1)
   const yesterdayStr = ymd(yesterday)
 
-  if (dateStr === todayStr) return '今天'
-  if (dateStr === yesterdayStr) return '昨天'
+  if (dateStr === todayStr) return text.value.today
+  if (dateStr === yesterdayStr) return text.value.yesterday
 
   const d = new Date(dateStr)
   const diffDays = Math.floor((today - d) / (1000 * 60 * 60 * 24))
-  if (diffDays <= 7) return '本周'
-  if (diffDays <= 30) return '本月'
+  if (diffDays <= 7) return text.value.thisWeek
+  if (diffDays <= 30) return text.value.thisMonth
   return dateStr
 }
 
@@ -123,7 +174,7 @@ const grouped = computed(() => {
     if (!groups[label]) groups[label] = { label, items: [] }
     groups[label].items.push(h)
   }
-  const order = ['今天', '昨天', '本周', '本月']
+  const order = [text.value.today, text.value.yesterday, text.value.thisWeek, text.value.thisMonth]
   return Object.entries(groups)
     .sort(([a], [b]) => {
       const ai = order.indexOf(a); const bi = order.indexOf(b)

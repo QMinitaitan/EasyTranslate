@@ -28,6 +28,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
+import { useLocale } from '../composables/useLocale'
+
+const { isEnglish } = useLocale()
 
 const props = defineProps({
   modelValue: { type: [String, Number], default: '' },
@@ -49,7 +52,8 @@ const normalizedOptions = computed(() =>
 
 const displayText = computed(() => {
   const found = normalizedOptions.value.find(o => o.value === props.modelValue)
-  return found ? found.label : props.placeholder
+  const placeholder = props.placeholder === '请选择' && isEnglish.value ? 'Select' : props.placeholder
+  return found ? found.label : placeholder
 })
 
 function toggle(e) {

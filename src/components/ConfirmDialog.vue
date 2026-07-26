@@ -11,8 +11,8 @@
             <div class="confirm-msg">{{ message }}</div>
           </div>
           <div class="confirm-actions">
-            <button class="btn btn-sm" @click="onCancel">取消</button>
-            <button class="btn btn-sm btn-danger" @click="onConfirm">确定</button>
+            <button class="btn btn-sm" @click="onCancel">{{ isEnglish ? 'Cancel' : '取消' }}</button>
+            <button class="btn btn-sm btn-danger" @click="onConfirm">{{ isEnglish ? 'Confirm' : '确定' }}</button>
           </div>
         </div>
       </div>
@@ -22,6 +22,9 @@
 
 <script setup>
 import { AlertTriangle } from 'lucide-vue-next'
+import { useLocale } from '../composables/useLocale'
+
+const { isEnglish } = useLocale()
 
 defineProps({
   open: Boolean,

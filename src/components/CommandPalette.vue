@@ -7,7 +7,7 @@
           <input
             ref="inputEl"
             class="cmd-input"
-            placeholder="输入命令、跳转页面或搜索历史..."
+            :placeholder="isEnglish ? 'Type a command, open a page, or search history…' : '输入命令、跳转页面或搜索历史…'"
             v-model="q"
             @keydown.esc="close"
             @keydown.down.prevent="move(1)"
@@ -28,7 +28,7 @@
             <span class="cmd-label">{{ item.label }}</span>
             <span class="cmd-hint">{{ item.hint }}</span>
           </div>
-          <div v-if="!filtered.length" class="cmd-empty">无匹配项</div>
+          <div v-if="!filtered.length" class="cmd-empty">{{ isEnglish ? 'No matches' : '无匹配项' }}</div>
         </div>
       </div>
     </div>
@@ -40,27 +40,29 @@ import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, Home, SquareArrowOutUpRight, Settings2, Plug, Keyboard, Palette, Info, Sun, Moon, Monitor, Zap } from 'lucide-vue-next'
 import { useTheme } from '../composables/useTheme'
+import { useLocale } from '../composables/useLocale'
 
 const props = defineProps({ open: Boolean })
 const emit = defineEmits(['update:open'])
 
 const router = useRouter()
 const { mode, setMode } = useTheme()
+const { isEnglish } = useLocale()
 const q = ref('')
 const cursor = ref(0)
 const inputEl = ref(null)
 
 const commands = computed(() => [
-  { key: 'go-home', label: '前往主页', hint: '⌘', icon: Home, run: () => router.push('/') },
-  { key: 'go-popup', label: '悬浮窗预览', hint: '', icon: SquareArrowOutUpRight, run: () => router.push('/popup') },
-  { key: 'go-general', label: '设置 · 通用', hint: '', icon: Settings2, run: () => router.push('/settings/general') },
-  { key: 'go-api', label: '设置 · 翻译接口', hint: '', icon: Plug, run: () => router.push('/settings/api') },
-  { key: 'go-shortcut', label: '设置 · 快捷键', hint: '', icon: Keyboard, run: () => router.push('/settings/shortcut') },
-  { key: 'go-appearance', label: '设置 · 外观', hint: '', icon: Palette, run: () => router.push('/settings/appearance') },
-  { key: 'go-about', label: '设置 · 关于', hint: '', icon: Info, run: () => router.push('/settings/about') },
-  { key: 'theme-system', label: '主题 · 跟随系统', hint: '', icon: Monitor, run: () => setMode('system') },
-  { key: 'theme-light', label: '主题 · 浅色', hint: '', icon: Sun, run: () => setMode('light') },
-  { key: 'theme-dark', label: '主题 · 深色', hint: '', icon: Moon, run: () => setMode('dark') }
+  { key: 'go-home', label: isEnglish.value ? 'Go to History' : '前往历史', hint: '⌘', icon: Home, run: () => router.push('/') },
+  { key: 'go-popup', label: isEnglish.value ? 'Preview Translation Popup' : '悬浮窗预览', hint: '', icon: SquareArrowOutUpRight, run: () => router.push('/popup') },
+  { key: 'go-general', label: isEnglish.value ? 'Settings · General' : '设置 · 通用', hint: '', icon: Settings2, run: () => router.push('/settings/general') },
+  { key: 'go-api', label: isEnglish.value ? 'Settings · Translation APIs' : '设置 · 翻译接口', hint: '', icon: Plug, run: () => router.push('/settings/api') },
+  { key: 'go-shortcut', label: isEnglish.value ? 'Settings · Shortcuts' : '设置 · 快捷键', hint: '', icon: Keyboard, run: () => router.push('/settings/shortcut') },
+  { key: 'go-appearance', label: isEnglish.value ? 'Settings · Appearance' : '设置 · 外观', hint: '', icon: Palette, run: () => router.push('/settings/appearance') },
+  { key: 'go-about', label: isEnglish.value ? 'Settings · About' : '设置 · 关于', hint: '', icon: Info, run: () => router.push('/settings/about') },
+  { key: 'theme-system', label: isEnglish.value ? 'Theme · System' : '主题 · 跟随系统', hint: '', icon: Monitor, run: () => setMode('system') },
+  { key: 'theme-light', label: isEnglish.value ? 'Theme · Light' : '主题 · 浅色', hint: '', icon: Sun, run: () => setMode('light') },
+  { key: 'theme-dark', label: isEnglish.value ? 'Theme · Dark' : '主题 · 深色', hint: '', icon: Moon, run: () => setMode('dark') }
 ])
 
 const filtered = computed(() => {

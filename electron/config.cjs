@@ -24,6 +24,7 @@ function buildProviderDefaults() {
 const DEFAULTS = {
   providers: buildProviderDefaults(),
   target: '中文(简体)',
+  uiLanguage: 'system',
   closeAction: 'tray',
   launchToTray: false,
   autoLaunch: false,

@@ -1,7 +1,7 @@
 <template>
   <div class="page">
-    <h2 class="page-title">快捷键</h2>
-    <p class="page-sub">配置全局快捷键，修改后立即生效</p>
+    <h2 class="page-title">{{ text.title }}</h2>
+    <p class="page-sub">{{ text.subtitle }}</p>
 
     <div class="setting-section">
       <div
@@ -11,25 +11,25 @@
         :class="{ recording: recording === s.id }"
       >
         <div class="sc-info">
-          <div class="sc-name">{{ s.name }}</div>
-          <div class="sc-desc">{{ s.desc }}</div>
+          <div class="sc-name">{{ shortcutText[s.id].name }}</div>
+          <div class="sc-desc">{{ shortcutText[s.id].desc }}</div>
         </div>
         <div class="sc-binding">
           <template v-if="recording === s.id">
             <span class="rec-badge">
               <span class="rec-dot"></span>
-              按下快捷键
+              {{ text.pressShortcut }}
               <span class="rec-sep">·</span>
-              <span class="rec-esc" @click="cancelRecord">ESC 取消</span>
+              <span class="rec-esc" @click="cancelRecord">ESC {{ text.cancel }}</span>
             </span>
           </template>
           <template v-else>
             <div class="keys">
               <span v-for="(k, i) in s.keys" :key="i" class="key">{{ k }}</span>
-              <span v-if="!s.keys.length" class="empty-key">未设置</span>
+              <span v-if="!s.keys.length" class="empty-key">{{ text.notSet }}</span>
             </div>
-            <button class="btn btn-sm" @click="startRecord(s.id)">{{ s.keys.length ? '更改' : '设置' }}</button>
-            <button v-if="s.keys.length" class="icon-btn" title="清除" @click="clearShortcut(s)">
+            <button class="btn btn-sm" @click="startRecord(s.id)">{{ s.keys.length ? text.change : text.set }}</button>
+            <button v-if="s.keys.length" class="icon-btn" :title="text.clear" @click="clearShortcut(s)">
               <X :size="13" :stroke-width="1.75" />
             </button>
           </template>
@@ -40,11 +40,41 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { X } from 'lucide-vue-next'
+import { useLocale } from '../composables/useLocale'
 
 const recording = ref(null)
 let recordingTarget = null
+const { isEnglish } = useLocale()
+const text = computed(() => isEnglish.value ? {
+  title: 'Shortcuts',
+  subtitle: 'Configure global shortcuts; changes take effect immediately',
+  pressShortcut: 'Press a shortcut',
+  cancel: 'Cancel',
+  notSet: 'Not set',
+  change: 'Change',
+  set: 'Set',
+  clear: 'Clear'
+} : {
+  title: '快捷键',
+  subtitle: '配置全局快捷键，修改后立即生效',
+  pressShortcut: '按下快捷键',
+  cancel: '取消',
+  notSet: '未设置',
+  change: '更改',
+  set: '设置',
+  clear: '清除'
+})
+const shortcutText = computed(() => isEnglish.value ? {
+  translate: { name: 'Selection Translation', desc: 'Show the translation popup for selected text' },
+  input: { name: 'Input Translation', desc: 'Open the main window and focus the input field' },
+  show: { name: 'Show/Hide Main Window', desc: 'Quickly show or hide EasyTranslate' }
+} : {
+  translate: { name: '划词翻译', desc: '选中文本后弹悬浮窗显示译文' },
+  input: { name: '输入翻译', desc: '打开主窗口并聚焦输入框' },
+  show: { name: '显示/隐藏主窗口', desc: '快速唤出或隐藏程序' }
+})
 
 const DEFAULT_MAP = {
   translate: ['Alt', 'Q'],

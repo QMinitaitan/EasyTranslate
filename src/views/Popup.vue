@@ -1,6 +1,6 @@
 <template>
   <div class="popup-standalone" :class="{ 'is-window': isWindow }" ref="rootEl">
-    <div class="popup pop-in" :style="{ fontSize: 'calc(var(--fs-base) * ' + fontScale + ')' }">
+    <div class="popup pop-in" :style="popupFontStyle">
       <header class="popup-head" @mousedown="startDrag">
         <div class="popup-head-controls">
           <EngineSelect
@@ -9,6 +9,13 @@
             v-model:race-mode="raceMode"
             @change="onEngineChange"
           />
+          <span class="zoom-feedback-slot" aria-live="polite">
+            <transition name="zoom-feedback">
+              <span v-if="zoomNotice" class="zoom-feedback">
+                Font {{ Math.round(fontScale * 100) }}%
+              </span>
+            </transition>
+          </span>
           <div class="popup-actions">
             <button class="icon-btn" :class="{ active: pinned }" title="固定窗口" @click="togglePin">
               <Pin :size="13" :stroke-width="1.75" :fill="pinned ? 'currentColor' : 'none'" />
@@ -223,27 +230,59 @@ const {
   getLanguage: () => targetLang.value === 'English' ? 'en-US' : 'zh-CN'
 })
 
-const fontScale = ref(1.0)
-const ctrlHeld = ref(false)
+const FONT_SCALE_KEY = 'translate-app.popup-font-scale'
+const FONT_SCALE_MIN = 0.8
+const FONT_SCALE_MAX = 1.6
+const FONT_SCALE_STEP = 0.1
+
+function loadFontScale() {
+  const saved = Number.parseFloat(window.localStorage?.getItem(FONT_SCALE_KEY))
+  return Number.isFinite(saved)
+    ? Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, saved))
+    : 1
+}
+
+const fontScale = ref(loadFontScale())
+const popupFontStyle = computed(() => ({ '--popup-font-scale': fontScale.value }))
+const zoomNotice = ref(false)
+let zoomNoticeTimer = null
 
 function onKeyDown(e) {
-  if (e.key === 'Control') ctrlHeld.value = true
-  if (e.ctrlKey || e.metaKey) {
-    if (e.key === '=' || e.key === '+') adjustFont(0.05)
-    if (e.key === '-') adjustFont(-0.05)
+  if (e.altKey) {
+    if (e.key === '=' || e.key === '+') {
+      e.preventDefault()
+      adjustFont(FONT_SCALE_STEP)
+    }
+    if (e.key === '-') {
+      e.preventDefault()
+      adjustFont(-FONT_SCALE_STEP)
+    }
+    if (e.key === '0') {
+      e.preventDefault()
+      setFontScale(1)
+    }
   }
 }
-function onKeyUp(e) {
-  if (e.key === 'Control') ctrlHeld.value = false
-}
+
 function onWheel(e) {
-  if (!ctrlHeld.value && !e.ctrlKey && !e.metaKey) return
+  if (!e.altKey) return
   e.preventDefault()
   e.stopPropagation()
-  adjustFont(e.deltaY < 0 ? 0.05 : -0.05)
+  if (e.deltaY === 0) return
+  adjustFont(e.deltaY < 0 ? FONT_SCALE_STEP : -FONT_SCALE_STEP)
 }
+
 function adjustFont(delta) {
-  fontScale.value = Math.min(1.8, Math.max(0.6, fontScale.value + delta))
+  setFontScale(fontScale.value + delta)
+}
+
+function setFontScale(value) {
+  const next = Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, value))
+  fontScale.value = Math.round(next * 10) / 10
+  window.localStorage?.setItem(FONT_SCALE_KEY, String(fontScale.value))
+  zoomNotice.value = true
+  clearTimeout(zoomNoticeTimer)
+  zoomNoticeTimer = setTimeout(() => { zoomNotice.value = false }, 700)
 }
 
 // manual drag
@@ -388,7 +427,6 @@ onMounted(async () => {
   await loadEngines()
   document.addEventListener('wheel', onWheel, { passive: false, capture: true })
   document.addEventListener('keydown', onKeyDown)
-  document.addEventListener('keyup', onKeyUp)
   document.addEventListener('mousemove', onDragMove)
   document.addEventListener('mouseup', stopDrag)
   if (window.api?.triggerTranslate) {
@@ -401,10 +439,10 @@ onMounted(async () => {
 onUnmounted(() => {
   document.removeEventListener('wheel', onWheel, { capture: true })
   document.removeEventListener('keydown', onKeyDown)
-  document.removeEventListener('keyup', onKeyUp)
   document.removeEventListener('mousemove', onDragMove)
   document.removeEventListener('mouseup', stopDrag)
   clearTimeout(pinNoticeTimer)
+  clearTimeout(zoomNoticeTimer)
   offTrigger?.()
   raceOffProgress?.()
   raceOffDone?.()
@@ -452,11 +490,18 @@ onUnmounted(() => {
   display: flex; align-items: center; justify-content: space-between;
   width: 100%; gap: var(--space-2);
 }
-.popup-actions { display: flex; gap: 2px; }
+.popup-actions { display: flex; gap: 2px; flex-shrink: 0; }
 .popup-body {
+  --fs-xs: calc(12px * var(--popup-font-scale, 1));
+  --fs-sm: calc(14px * var(--popup-font-scale, 1));
+  --fs-base: calc(15px * var(--popup-font-scale, 1));
+  --fs-md: calc(17px * var(--popup-font-scale, 1));
+  --fs-lg: calc(19px * var(--popup-font-scale, 1));
+  --fs-xl: calc(22px * var(--popup-font-scale, 1));
   padding: var(--space-4);
   flex: 1;
   overflow-y: auto;
+  overflow-wrap: anywhere;
 }
 .box-label {
   display: inline-flex; align-items: center; gap: 4px;
@@ -552,6 +597,24 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
+.zoom-feedback-slot {
+  margin-left: auto;
+  width: 64px;
+  min-width: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.zoom-feedback {
+  color: var(--text-dim);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.2;
+  opacity: 0.72;
+  white-space: nowrap;
+}
+
 .error-bar {
   display: flex; align-items: center; gap: var(--space-2);
   padding: var(--space-3);
@@ -584,4 +647,6 @@ onUnmounted(() => {
 
 .pin-feedback-enter-active, .pin-feedback-leave-active { transition: opacity 0.15s, transform 0.15s; }
 .pin-feedback-enter-from, .pin-feedback-leave-to { opacity: 0; transform: translate(-50%, -4px); }
+.zoom-feedback-enter-active, .zoom-feedback-leave-active { transition: opacity 0.15s ease; }
+.zoom-feedback-enter-from, .zoom-feedback-leave-to { opacity: 0; }
 </style>

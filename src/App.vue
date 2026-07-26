@@ -5,23 +5,23 @@
   <div v-else class="app-shell">
     <aside class="sidebar">
       <div class="logo drag">
-        <span class="logo-text">设置</span>
+        <span class="logo-text">{{ t('settings') }}</span>
       </div>
       <nav class="nav no-drag">
         <router-link class="nav-item" to="/" exact-active-class="active">
-          历史
+          {{ t('history') }}
         </router-link>
         <router-link class="nav-item" to="/settings/general" active-class="active">
-          通用
+          {{ t('general') }}
         </router-link>
         <router-link class="nav-item" to="/settings/api" active-class="active">
-          翻译接口
+          {{ t('api') }}
         </router-link>
         <router-link class="nav-item" to="/settings/shortcut" active-class="active">
-          快捷键
+          {{ t('shortcuts') }}
         </router-link>
         <router-link class="nav-item" to="/settings/about" active-class="active">
-          关于
+          {{ t('about') }}
         </router-link>
       </nav>
       <div class="sidebar-footer no-drag">
@@ -30,7 +30,7 @@
             class="seg-btn"
             :class="{ active: mode === 'system' }"
             @click="setMode('system')"
-            title="跟随系统"
+            :title="t('systemTheme')"
           >
             <Monitor :size="13" :stroke-width="1.75" />
           </button>
@@ -38,7 +38,7 @@
             class="seg-btn"
             :class="{ active: mode === 'light' }"
             @click="setMode('light')"
-            title="浅色"
+            :title="t('lightTheme')"
           >
             <Sun :size="13" :stroke-width="1.75" />
           </button>
@@ -46,7 +46,7 @@
             class="seg-btn"
             :class="{ active: mode === 'dark' }"
             @click="setMode('dark')"
-            title="深色"
+            :title="t('darkTheme')"
           >
             <Moon :size="13" :stroke-width="1.75" />
           </button>
@@ -64,18 +64,24 @@
 <script setup>
 import { Sun, Moon, Monitor } from 'lucide-vue-next'
 import { useTheme } from './composables/useTheme'
+import { useLocale } from './composables/useLocale'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import CommandPalette from './components/CommandPalette.vue'
 
 const { mode, setMode } = useTheme()
+const { setLocale, t } = useLocale()
 const paletteOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 const isPopupRoute = computed(() => route.path.startsWith('/popup') && route.query.window === 'popup')
 let offNavigate = null
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const cfg = await window.api?.loadConfig?.()
+    if (cfg?.uiLanguage && cfg.uiLanguage !== 'system') setLocale(cfg.uiLanguage)
+  } catch (_) {}
   offNavigate = window.api?.onNavigate?.((path) => router.push(path))
 })
 

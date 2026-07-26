@@ -1,7 +1,7 @@
 <template>
   <div class="page">
-    <h2 class="page-title">关于</h2>
-    <p class="page-sub">版本与许可信息</p>
+    <h2 class="page-title">{{ isEnglish ? 'About' : '关于' }}</h2>
+    <p class="page-sub">{{ isEnglish ? 'Version and license information' : '版本与许可信息' }}</p>
 
     <div class="setting-section">
       <div class="setting-row" style="padding: var(--space-4); flex-direction: column; align-items: flex-start; gap: var(--space-1);">
@@ -14,5 +14,8 @@
 </template>
 
 <script setup>
+import { useLocale } from '../composables/useLocale'
+
+const { isEnglish } = useLocale()
 const platform = typeof window !== 'undefined' && window.api ? window.api.platform : navigator.platform
 </script>

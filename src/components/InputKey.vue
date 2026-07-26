@@ -11,7 +11,7 @@
       type="button"
       class="input-key-toggle icon-btn"
       @click="visible = !visible"
-      :title="visible ? '隐藏' : '显示'"
+      :title="visible ? (isEnglish ? 'Hide' : '隐藏') : (isEnglish ? 'Show' : '显示')"
     >
       <Eye v-if="visible" :size="14" :stroke-width="1.75" />
       <EyeOff v-else :size="14" :stroke-width="1.75" />
@@ -22,6 +22,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
+import { useLocale } from '../composables/useLocale'
 
 defineProps({
   modelValue: { type: String, default: '' },
@@ -30,6 +31,7 @@ defineProps({
 defineEmits(['update:modelValue'])
 
 const visible = ref(false)
+const { isEnglish } = useLocale()
 </script>
 
 <style scoped>
