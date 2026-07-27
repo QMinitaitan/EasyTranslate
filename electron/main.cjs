@@ -237,7 +237,6 @@ function startSocketServer() {
 
 const SHORTCUT_ACTIONS = {
   translate: onShortcut,
-  input: () => { if (mainWin) { mainWin.show(); mainWin.focus() } },
   show: () => {
     if (!mainWin) return
     if (mainWin.isVisible()) mainWin.hide()
@@ -249,7 +248,6 @@ function getShortcutMap(cfg) {
   const saved = cfg.shortcuts || {}
   return {
     translate: saved.translate ?? cfg.shortcut ?? 'Alt+Q',
-    input: saved.input ?? 'Alt+D',
     show: saved.show ?? 'Alt+E'
   }
 }

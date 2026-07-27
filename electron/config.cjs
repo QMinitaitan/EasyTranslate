@@ -33,7 +33,6 @@ const DEFAULTS = {
   shortcut: 'Alt+Q',
   shortcuts: {
     translate: 'Alt+Q',
-    input: 'Alt+D',
     show: 'Alt+E'
   }
 }

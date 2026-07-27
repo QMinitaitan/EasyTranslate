@@ -70,7 +70,7 @@ import { useLocale } from '../composables/useLocale'
 const { isEnglish } = useLocale()
 const text = computed(() => isEnglish.value ? {
   title: 'History',
-  subtitle: 'Recent selection and input translations',
+  subtitle: 'Recent translations',
   search: 'Search history…',
   clear: 'Clear',
   favorite: 'Favorite',
@@ -89,7 +89,7 @@ const text = computed(() => isEnglish.value ? {
   thisMonth: 'This Month'
 } : {
   title: '历史记录',
-  subtitle: '最近的划词与输入翻译历史',
+  subtitle: '最近的翻译记录',
   search: '搜索历史…',
   clear: '清空',
   favorite: '收藏',

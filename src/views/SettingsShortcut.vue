@@ -75,23 +75,19 @@ const text = computed(() => isEnglish.value ? {
 })
 const shortcutText = computed(() => isEnglish.value ? {
   translate: { name: 'Selection Translation', desc: 'Show the translation popup for selected text' },
-  input: { name: 'Input Translation', desc: 'Open the main window and focus the input field' },
   show: { name: 'Show/Hide Main Window', desc: 'Quickly show or hide EasyTranslate' }
 } : {
   translate: { name: '划词翻译', desc: '选中文本后弹悬浮窗显示译文' },
-  input: { name: '输入翻译', desc: '打开主窗口并聚焦输入框' },
   show: { name: '显示/隐藏主窗口', desc: '快速唤出或隐藏程序' }
 })
 
 const DEFAULT_MAP = {
   translate: ['Alt', 'Q'],
-  input: ['Alt', 'D'],
   show: ['Alt', 'E']
 }
 
 const shortcuts = reactive([
   { id: 'translate', name: '划词翻译', desc: '选中文本后弹悬浮窗显示译文', keys: [] },
-  { id: 'input', name: '输入翻译', desc: '打开主窗口并聚焦输入框', keys: [] },
   { id: 'show', name: '显示/隐藏主窗口', desc: '快速唤出或隐藏程序', keys: [] }
 ])
 

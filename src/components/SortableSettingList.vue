@@ -135,13 +135,20 @@ function resetOrder() {
 </script>
 
 <style scoped>
+.sortable-settings {
+  position: relative;
+}
+
 .sort-toolbar {
-  min-height: 30px;
-  margin: calc(-1 * var(--space-2)) 0 var(--space-2);
+  position: absolute;
+  right: 0;
+  top: -38px;
+  min-height: 26px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-2);
+  z-index: 1;
 }
 
 .sortable-item {
@@ -201,5 +208,13 @@ function resetOrder() {
 
 .is-sorting .sortable-item:hover {
   background: var(--bg-subtle);
+}
+
+@media (max-width: 760px) {
+  .sort-toolbar {
+    position: static;
+    min-height: 28px;
+    margin: calc(-1 * var(--space-2)) 0 var(--space-2);
+  }
 }
 </style>
