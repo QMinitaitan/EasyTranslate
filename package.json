@@ -1,13 +1,31 @@
 {
-  "name": "translate-app",
+  "name": "easytranslate",
   "version": "0.0.1",
-  "description": "Lightweight cross-platform translate tool, inspired by pot",
+  "private": true,
+  "description": "Lightweight cross-platform selection translation app",
+  "desktopName": "EasyTranslate",
+  "author": {
+    "name": "QMinitaitan",
+    "url": "https://github.com/QMinitaitan"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/QMinitaitan/EasyTranslate",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QMinitaitan/EasyTranslate.git"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
     "dev:web": "vite",
     "build": "vite build",
-    "test": "node --test \"tests/*.test.cjs\"",
+    "test": "node --test tests/*.test.cjs",
+    "check": "npm test && npm run build",
+    "dist:linux": "npm run build && electron-builder --linux deb --x64",
+    "dist:win": "npm run build && electron-builder --win nsis --x64",
     "preview": "vite preview",
     "trigger": "bash electron/trigger.sh"
   },
@@ -15,13 +33,12 @@
     "@vitejs/plugin-vue": "^5.0.5",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
-    "electron": "^31.0.0",
-    "vite": "^5.3.1",
-    "vue-router": "^4.4.0",
-    "wait-on": "^7.2.0"
-  },
-  "dependencies": {
+    "electron": "^43.2.0",
+    "electron-builder": "^26.15.3",
     "lucide-vue-next": "^1.0.0",
-    "vue": "^3.4.31"
+    "vite": "^5.3.1",
+    "vue": "^3.5.40",
+    "vue-router": "^4.6.4",
+    "wait-on": "^7.2.0"
   }
 }

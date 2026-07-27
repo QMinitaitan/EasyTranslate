@@ -102,7 +102,20 @@
             :title="themeTitle"
             @click="toggleLightDark"
           >
-            <SunMedium v-if="resolvedTheme === 'light'" :size="13" :stroke-width="1.5" />
+            <svg
+              v-if="resolvedTheme === 'light'"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 3.5V5M12 19v1.5M3.5 12H5M19 12h1.5" />
+            </svg>
             <Moon v-else :size="13" :stroke-width="1.5" />
           </button>
           <template v-if="raceMode && raceOk.length">
@@ -146,7 +159,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Pin, X, Copy, Check, AlertCircle, MousePointerClick, SunMedium, Moon, Settings, PenLine, Volume2, Square } from 'lucide-vue-next'
+import { Pin, X, Copy, Check, AlertCircle, MousePointerClick, Moon, Settings, PenLine, Volume2, Square } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { setBrand } from '../composables/useBrand'
 import { useTheme } from '../composables/useTheme'

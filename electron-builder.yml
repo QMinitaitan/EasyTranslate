@@ -1,0 +1,48 @@
+appId: com.easytranslate.app
+productName: EasyTranslate
+asar: true
+
+directories:
+  output: release
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - assets/icon-v3/**/*
+  - package.json
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: assets/icon-v3/easytranslate.ico
+  artifactName: EasyTranslate-Setup-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: EasyTranslate
+  uninstallDisplayName: EasyTranslate
+  deleteAppDataOnUninstall: false
+
+linux:
+  target:
+    - target: deb
+      arch:
+        - x64
+  icon: assets/icon-v3/easytranslate-mark-512.png
+  category: Utility
+  executableName: easytranslate
+  syncDesktopName: true
+  maintainer: QMinitaitan <QMinitaitan@users.noreply.github.com>
+  synopsis: Lightweight selection translation app
+  description: EasyTranslate provides global shortcuts, a resizable translation popup, multiple translation providers, translation history, and light/dark themes.
+  artifactName: EasyTranslate-${version}-${arch}.${ext}
+
+publish:
+  provider: github
+  owner: QMinitaitan
+  repo: EasyTranslate
