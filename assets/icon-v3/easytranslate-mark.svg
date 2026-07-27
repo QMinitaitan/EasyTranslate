@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">EasyTranslate</title>
+  <desc id="desc">Two opposing rounded arrows representing instant translation.</desc>
+  <g fill="#5B4CF0">
+    <rect x="64" y="128" width="288" height="72" rx="36"/>
+    <path d="M304 84a16 16 0 0 1 25.3-13l105.8 76a16 16 0 0 1 0 26L329.3 249A16 16 0 0 1 304 236Z"/>
+  </g>
+  <g fill="#24B8E8">
+    <rect x="160" y="312" width="288" height="72" rx="36"/>
+    <path d="M208 276a16 16 0 0 0-25.3-13L76.9 339a16 16 0 0 0 0 26l105.8 76A16 16 0 0 0 208 428Z"/>
+  </g>
+</svg>

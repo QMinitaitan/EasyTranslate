@@ -29,21 +29,7 @@
         <transition name="pin-feedback">
           <div v-if="pinNotice" class="pin-feedback" role="status">{{ pinNotice }}</div>
         </transition>
-        <template v-if="state === 'loading'">
-          <div class="box-label">原文</div>
-          <div class="src-text live">{{ src || '—' }}</div>
-          <div class="skel skel-line" style="width: 65%; margin-top: 16px"></div>
-          <div class="skel skel-line" style="width: 85%; margin-top: 6px"></div>
-          <div class="skel skel-line" style="width: 55%; margin-top: 6px"></div>
-        </template>
-        <template v-else-if="state === 'error'">
-          <div class="error-bar">
-            <AlertCircle :size="13" :stroke-width="1.75" />
-            <span>{{ errorMsg }}</span>
-            <button class="btn btn-sm btn-ghost" @click="retry">重试</button>
-          </div>
-        </template>
-        <template v-else-if="state === 'empty'">
+        <template v-if="state === 'empty'">
           <div class="empty-state">
             <MousePointerClick :size="20" :stroke-width="1.5" />
             <div>未选中文字</div>
@@ -65,36 +51,85 @@
               @blur="onSrcEdit"
             >{{ src }}</div>
           </div>
-          <div class="dst-box">
-            <div class="box-label">译文 · {{ raceMode ? engineDisplayName(raceActive.engine) : engineLabel }}</div>
-            <div class="dst-text">{{ raceMode ? raceActive.text : dst }}</div>
+          <div v-if="state === 'loading'" class="loading-lines" aria-label="翻译中">
+            <div class="skel skel-line" style="width: 65%"></div>
+            <div class="skel skel-line" style="width: 85%"></div>
+            <div class="skel skel-line" style="width: 55%"></div>
+          </div>
+          <div v-else-if="state === 'error'" class="error-bar">
+            <AlertCircle :size="13" :stroke-width="1.75" />
+            <span>{{ errorMsg }}</span>
+            <button class="btn btn-sm btn-ghost" @click="retry">重试</button>
+          </div>
+          <div
+            v-else
+            class="dst-box race-content"
+            :class="{ 'is-swapping': raceSwapping }"
+          >
+            <div class="box-label">
+              <span>译文 · {{ raceMode ? engineDisplayName(raceActive.engine) : engineLabel }}</span>
+              <PenLine :size="11" :stroke-width="1.5" class="edit-hint" />
+            </div>
+            <div
+              ref="dstEl"
+              :key="activeTranslationKey"
+              class="dst-text editable"
+              contenteditable="true"
+              role="textbox"
+              aria-label="编辑译文"
+              aria-multiline="true"
+              spellcheck="false"
+              @keydown.enter.exact.prevent="commitDstEdit"
+              @blur="onDstEdit"
+            >{{ activeTranslation }}</div>
+          </div>
+          <div v-if="state !== 'error' && raceMode && raceErrors.length" class="race-errors" aria-label="失败的翻译引擎">
+            <span v-for="result in raceErrors" :key="result.engine" class="race-error">
+              {{ engineDisplayName(result.engine) }} 失败
+            </span>
           </div>
         </template>
       </section>
 
       <footer class="popup-foot" @mousedown="startDrag">
         <div class="foot-main">
-          <span class="lang-indicator" @click="toggleDirection" title="点击切换翻译方向">
+          <button class="lang-indicator no-drag" type="button" @click="toggleDirection" title="点击切换翻译方向">
             <span class="lang-pair">{{ langLabel }}</span>
-          </span>
-          <button class="lang-btn" @click="cycleTheme()" title="切换主题">
-            <Sun v-if="themeMode === 'light'" :size="12" :stroke-width="1.75" />
-            <Moon v-else-if="themeMode === 'dark'" :size="12" :stroke-width="1.75" />
-            <Monitor v-else :size="12" :stroke-width="1.75" />
+          </button>
+          <button
+            class="icon-btn theme-btn no-drag"
+            type="button"
+            :title="themeTitle"
+            @click="toggleLightDark"
+          >
+            <Sun v-if="resolvedTheme === 'light'" :size="12" :stroke-width="1.75" />
+            <Moon v-else :size="12" :stroke-width="1.75" />
           </button>
           <template v-if="raceMode && raceOk.length">
-            <button class="race-cycle" @click="cycleRace" title="点击切换引擎">
+            <button
+              class="race-cycle"
+              :class="{ 'is-swapping': raceSwapping }"
+              @click="cycleRace"
+              title="点击切换引擎"
+            >
               <span class="race-medal">{{ ['🥇','🥈','🥉'][raceActiveIdx] || '#' }}</span>
-              <span class="race-engine-dot" :style="{ background: engineColor(raceActive.engine) }"></span>
-              {{ engineDisplayName(raceActive.engine) }} {{ raceActive.ms }}ms
+              <span class="race-engine">{{ engineDisplayName(raceActive.engine) }}</span>
+              <span class="race-latency">{{ raceActive.ms }}ms</span>
               <span class="race-count">{{ raceActiveIdx + 1 }}/{{ raceOk.length }}</span>
             </button>
           </template>
           <span v-else-if="latency" class="latency">· {{ latency }}ms</span>
         </div>
         <div class="foot-tools no-drag">
-          <button class="icon-btn" :class="{ copied: copied }" :disabled="!activeTranslation" title="复制译文" @click="copyDst">
-            <Copy :size="13" :stroke-width="1.75" />
+          <button
+            class="icon-btn"
+            :class="{ copied: copied }"
+            :disabled="!activeTranslation"
+            :title="copied ? '已复制' : '复制译文'"
+            @click="copyDst"
+          >
+            <Check v-if="copied" :size="13" :stroke-width="2" />
+            <Copy v-else :size="13" :stroke-width="1.75" />
           </button>
           <button class="icon-btn" :disabled="!activeTranslation" :title="speaking ? '停止朗读' : '朗读译文'" @click="toggleSpeech">
             <Square v-if="speaking" :size="12" :stroke-width="1.75" />
@@ -111,7 +146,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Pin, X, Copy, AlertCircle, MousePointerClick, Sun, Moon, Monitor, Settings, PenLine, Volume2, Square } from 'lucide-vue-next'
+import { Pin, X, Copy, Check, AlertCircle, MousePointerClick, Sun, Moon, Settings, PenLine, Volume2, Square } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { setBrand } from '../composables/useBrand'
 import { useTheme } from '../composables/useTheme'
@@ -119,8 +154,18 @@ import { useSpeech } from '../composables/useSpeech'
 import EngineSelect from '../components/EngineSelect.vue'
 
 const route = useRoute()
-const { mode: themeMode, cycle: cycleTheme } = useTheme()
+const {
+  mode: themeMode,
+  resolvedTheme,
+  toggleLightDark
+} = useTheme()
 const isWindow = computed(() => route.query.window === 'popup' || window.api?.isPopup?.())
+const themeTitle = computed(() => {
+  const next = resolvedTheme.value === 'dark' ? '浅色' : '深色'
+  return themeMode.value === 'system'
+    ? `跟随系统 · 点击切换为${next}`
+    : `点击切换为${next}`
+})
 
 // Provider metadata loaded once from backend — name, color, id for display
 const providerMeta = ref([])
@@ -158,12 +203,6 @@ async function loadEngines() {
   }
 }
 
-function engineColor(raw) {
-  const found = providerMeta.value.find(m => m.name === raw || m.id === raw)
-  if (found) return found.color
-  return engines.value.find(e => e.name === raw)?.color || 'var(--brand)'
-}
-
 function engineDisplayName(raw) {
   const found = providerMeta.value.find(m => m.name === raw || m.id === raw)
   return found ? found.name : raw
@@ -186,6 +225,7 @@ const manualDir = ref(false)
 const targetLang = computed(() => targetLangMap[targetIdx.value])
 const langLabel = computed(() => targetIdx.value === 0 ? '英 → 中' : '中 → 英')
 const srcEl = ref(null)
+const dstEl = ref(null)
 function onSrcEdit() {
   const el = srcEl.value
   if (!el) return
@@ -212,15 +252,49 @@ const raceResults = ref([])
 const raceActiveIdx = ref(0)
 const firstDone = ref(false)
 const raceOk = computed(() => raceResults.value.filter(r => !r.error))
+const raceErrors = computed(() => raceResults.value.filter(r => r.error))
 const raceActive = computed(() => raceOk.value[raceActiveIdx.value] || { text: '', engine: '', ms: 0 })
+const raceSwapping = ref(false)
+let raceSwapTimer = null
+const translationEdits = ref({})
 
 function cycleRace() {
-  if (raceOk.value.length) {
+  if (raceOk.value.length < 2 || raceSwapping.value) return
+  raceSwapping.value = true
+  clearTimeout(raceSwapTimer)
+  raceSwapTimer = setTimeout(() => {
     raceActiveIdx.value = (raceActiveIdx.value + 1) % raceOk.value.length
+    requestAnimationFrame(() => { raceSwapping.value = false })
+  }, 75)
+}
+
+const activeTranslationKey = computed(() =>
+  raceMode.value ? `race:${raceActive.value.engine || 'pending'}` : 'single'
+)
+const baseTranslation = computed(() =>
+  raceMode.value ? raceActive.value.text : dst.value
+)
+const activeTranslation = computed(() => {
+  const key = activeTranslationKey.value
+  return Object.prototype.hasOwnProperty.call(translationEdits.value, key)
+    ? translationEdits.value[key]
+    : baseTranslation.value
+})
+
+function onDstEdit() {
+  const el = dstEl.value
+  if (!el) return
+  const text = el.innerText?.trim() || ''
+  translationEdits.value = {
+    ...translationEdits.value,
+    [activeTranslationKey.value]: text
   }
 }
 
-const activeTranslation = computed(() => raceMode.value ? raceActive.value.text : dst.value)
+function commitDstEdit() {
+  onDstEdit()
+  dstEl.value?.blur()
+}
 const {
   speaking,
   stop: stopSpeech,
@@ -314,6 +388,7 @@ let raceOffDone = null
 let raceRequestSeq = 0
 let activeRaceRequestId = null
 let pinNoticeTimer = null
+let copiedTimer = null
 
 function onEngineChange(payload) {
   if (payload && payload.race) {
@@ -332,6 +407,8 @@ function onEngineChange(payload) {
 async function doTranslate(text) {
   stopSpeech()
   if (!text) { state.value = 'empty'; return }
+  clearTimeout(raceSwapTimer)
+  raceSwapping.value = false
   raceOffProgress?.()
   raceOffDone?.()
   raceOffProgress = null
@@ -339,6 +416,9 @@ async function doTranslate(text) {
   activeRaceRequestId = null
   src.value = text
   dst.value = ''
+  translationEdits.value = {}
+  errorMsg.value = ''
+  latency.value = 0
   raceResults.value = []
   raceActiveIdx.value = 0
   state.value = 'loading'
@@ -362,9 +442,10 @@ async function doTranslate(text) {
     })
     raceOffDone = window.api.onRaceDone((data) => {
       if (data.requestId !== activeRaceRequestId) return
-      if (data.error && !firstDone.value) {
+      raceResults.value = data.results || raceResults.value
+      if (!firstDone.value && (data.error || !data.best)) {
         state.value = 'error'
-        errorMsg.value = data.error
+        errorMsg.value = data.error || raceErrors.value[0]?.error || '所有翻译引擎均请求失败'
         return
       }
       if (!firstDone.value && data.best) {
@@ -373,7 +454,6 @@ async function doTranslate(text) {
         engineLabel.value = engineDisplayName(data.best.engine)
         state.value = 'idle'
       }
-      raceResults.value = data.results || []
       raceActiveIdx.value = 0
     })
     window.api.startRaceTranslate(text, targetLang.value, requestId)
@@ -420,7 +500,8 @@ async function copyDst() {
   try {
     await writeClipboard(text)
     copied.value = true
-    setTimeout(() => { copied.value = false }, 600)
+    clearTimeout(copiedTimer)
+    copiedTimer = setTimeout(() => { copied.value = false }, 1000)
   } catch (_) {}
 }
 onMounted(async () => {
@@ -443,6 +524,8 @@ onUnmounted(() => {
   document.removeEventListener('mouseup', stopDrag)
   clearTimeout(pinNoticeTimer)
   clearTimeout(zoomNoticeTimer)
+  clearTimeout(raceSwapTimer)
+  clearTimeout(copiedTimer)
   offTrigger?.()
   raceOffProgress?.()
   raceOffDone?.()
@@ -463,6 +546,7 @@ onUnmounted(() => {
   background: var(--bg-card);
 }
 .popup {
+  container-type: inline-size;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -510,7 +594,7 @@ onUnmounted(() => {
 .src-box { padding-bottom: var(--space-3); }
 .src-text { font-size: var(--fs-sm); color: var(--text-dim); font-weight: 500; }
 .src-text.live { color: var(--text); }
-.src-text.editable {
+.editable {
   border-radius: var(--radius-sm);
   outline: none;
   border: 1.5px solid transparent;
@@ -519,63 +603,146 @@ onUnmounted(() => {
   padding: 2px 4px;
   margin: -2px -4px;
 }
-.src-text.editable:focus {
+.editable:focus {
   border-color: color-mix(in srgb, var(--brand) 25%, transparent);
 }
 .edit-hint { opacity: 0.4; transition: opacity 0.15s; }
 .box-label:hover .edit-hint { opacity: 0.8; }
 .dst-box { padding-top: var(--space-3); }
 .dst-text { font-size: var(--fs-md); font-weight: 500; color: var(--text-strong); line-height: 1.55; white-space: pre-wrap; }
+.race-content {
+  opacity: 1;
+  transition: opacity 75ms ease;
+}
+.race-content.is-swapping {
+  opacity: 0;
+}
+.loading-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-5);
+}
+.race-errors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+.race-error {
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 7%, transparent);
+  font-size: var(--fs-xs);
+}
 
 .popup-foot {
   position: relative;
-  display: flex; align-items: center; gap: var(--space-2);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
   font-size: var(--fs-xs); color: var(--text-dim);
   border-top: 1px solid var(--border);
   background: var(--bg-subtle);
 }
-.foot-main { display: flex; align-items: center; gap: var(--space-2); flex: 1; min-width: 0; }
-.lang-btn {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 5px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-hover);
-  font-size: var(--fs-xs); font-family: inherit;
-  color: var(--text);
-  cursor: pointer;
-  transition: all var(--transition);
+.foot-main {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
 }
-.lang-btn:hover { border-color: var(--border-strong); background: var(--bg-active); }
-.lang-pair { font-weight: 500; color: var(--text); }
-.lang-indicator { cursor: pointer; padding: 2px 0; font-size: var(--fs-xs); }
-.lang-indicator:hover .lang-pair { color: var(--brand); }
-.foot-tools { display: flex; gap: 2px; }
-
-.race-medal { font-size: 11px; line-height: 1; }
-.race-engine-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.race-cycle {
-  display: inline-flex; align-items: center; gap: var(--space-1);
-  padding: 2px 6px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-hover);
-  font-size: var(--fs-xs); font-family: inherit;
-  color: var(--text);
+.theme-btn { flex-shrink: 0; }
+.lang-pair { font-weight: 500; color: var(--text-dim); }
+.lang-indicator {
   cursor: pointer;
-  transition: all var(--transition);
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+  transition: background var(--transition);
+}
+.lang-indicator:hover {
+  background: var(--bg-hover);
+}
+.lang-indicator:hover .lang-pair {
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+}
+.lang-indicator:focus-visible {
+  outline: 2px solid var(--border-strong);
+  outline-offset: 1px;
+}
+.foot-tools { display: flex; gap: 2px; flex-shrink: 0; }
+
+.race-medal { font-size: 11px; line-height: 1; flex-shrink: 0; }
+.race-cycle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: 100%;
+  max-width: 176px;
+  min-width: 0;
+  justify-self: start;
+  overflow: hidden;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: var(--fs-xs); font-family: inherit;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), opacity 75ms ease;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.race-cycle:hover { border-color: var(--border-strong); background: var(--bg-active); }
+.race-cycle.is-swapping {
+  opacity: 0;
+}
+.race-cycle:hover {
+  border-color: var(--border);
+  background: var(--bg-hover);
+  color: var(--text-dim);
+}
+.race-engine {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.race-latency {
+  flex-shrink: 0;
+}
 .race-count {
   font-size: 10px; color: var(--text-dim);
   margin-left: 2px;
+  flex-shrink: 0;
+}
+
+@container (max-width: 360px) {
+  .popup-foot {
+    gap: var(--space-1);
+    padding-inline: var(--space-3);
+  }
+  .foot-main {
+    gap: var(--space-1);
+  }
+  .race-count {
+    display: none;
+  }
 }
 
 .icon-btn.active { color: var(--brand); transform: rotate(-45deg); }
-.icon-btn.copied { color: var(--brand); transform: scale(1.2); transition: all 0.15s ease; }
+.icon-btn.copied { color: var(--text-dim); transform: none; transition: all 0.15s ease; }
 .icon-btn:not(.copied) { transition: all 0.3s ease; }
 .icon-btn:disabled { opacity: 0.35; cursor: default; }
 .icon-btn:disabled:hover { background: transparent; color: inherit; }
@@ -649,4 +816,11 @@ onUnmounted(() => {
 .pin-feedback-enter-from, .pin-feedback-leave-to { opacity: 0; transform: translate(-50%, -4px); }
 .zoom-feedback-enter-active, .zoom-feedback-leave-active { transition: opacity 0.15s ease; }
 .zoom-feedback-enter-from, .zoom-feedback-leave-to { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .race-content,
+  .race-cycle {
+    transition-duration: 0ms;
+  }
+}
 </style>

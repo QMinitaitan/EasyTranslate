@@ -5,6 +5,7 @@
   <div v-else class="app-shell">
     <aside class="sidebar">
       <div class="logo drag">
+        <img class="logo-mark" :src="appMarkUrl" alt="" />
         <span class="logo-text">{{ t('settings') }}</span>
       </div>
       <nav class="nav no-drag">
@@ -68,6 +69,7 @@ import { useLocale } from './composables/useLocale'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import CommandPalette from './components/CommandPalette.vue'
+import appMarkUrl from '../assets/icon-v3/easytranslate-mark.svg'
 
 const { mode, setMode } = useTheme()
 const { setLocale, t } = useLocale()
@@ -108,9 +110,16 @@ onUnmounted(() => offNavigate?.())
 }
 .logo {
   display: flex; align-items: center;
+  gap: 10px;
   padding: 32px var(--space-3) var(--space-5);
   font-weight: 600; font-size: var(--fs-md);
   color: var(--text-strong);
+}
+.logo-mark {
+  width: 30px;
+  height: 30px;
+  display: block;
+  flex: 0 0 auto;
 }
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav-section {

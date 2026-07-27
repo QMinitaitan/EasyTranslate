@@ -16,6 +16,14 @@ const {
 } = require('./popup-bounds.cjs')
 
 const isDev = !!process.env.VITE_DEV_SERVER_URL
+const appIconDir = path.join(__dirname, '../assets/icon-v3')
+const trayIconPath = path.join(appIconDir, 'easytranslate-mark-16.png')
+const windowIconPath = path.join(appIconDir, 'easytranslate-mark-256.png')
+
+app.setName('EasyTranslate')
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.easytranslate.app')
+}
 
 // Force X11 on Wayland so globalShortcut works
 if (process.env.XDG_SESSION_TYPE === 'wayland' || process.env.WAYLAND_DISPLAY) {
@@ -31,9 +39,9 @@ let tray = null
 const popupBoundsStore = createPopupBoundsStore({ loadConfig, saveConfig })
 
 function createTray() {
-  const iconPath = path.join(__dirname, '../assets/icon-16.png')
   try {
-    const img = nativeImage.createFromPath(iconPath)
+    const img = nativeImage.createFromPath(trayIconPath)
+    if (img.isEmpty()) throw new Error(`failed to load ${trayIconPath}`)
     tray = new Tray(img.resize({ width: 16, height: 16 }))
     const ctxMenu = Menu.buildFromTemplate([
       { label: '打开设置', click: () => { mainWin.show(); mainWin.focus() } },
@@ -58,8 +66,10 @@ function resetPopupBounds() {
 }
 
 function createMainWindow() {
+  const windowIcon = nativeImage.createFromPath(windowIconPath)
   mainWin = new BrowserWindow({
     width: 1100, height: 720, minWidth: 900, minHeight: 600,
+    icon: windowIcon.isEmpty() ? windowIconPath : windowIcon,
     autoHideMenuBar: true,
     titleBarStyle: 'default',
     backgroundColor: '#fafafa',
@@ -69,6 +79,9 @@ function createMainWindow() {
       contextIsolation: true, nodeIntegration: false
     }
   })
+  if (!windowIcon.isEmpty() && process.platform !== 'darwin') {
+    mainWin.setIcon(windowIcon)
+  }
   if (isDev) mainWin.loadURL(process.env.VITE_DEV_SERVER_URL)
   else mainWin.loadFile(path.join(__dirname, '../dist/index.html'))
   mainWin.once('ready-to-show', () => {
