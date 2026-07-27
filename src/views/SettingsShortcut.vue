@@ -3,48 +3,55 @@
     <h2 class="page-title">{{ text.title }}</h2>
     <p class="page-sub">{{ text.subtitle }}</p>
 
-    <div class="setting-section">
-      <div
-        v-for="s in shortcuts"
-        :key="s.id"
-        class="sc-row"
-        :class="{ recording: recording === s.id }"
-      >
-        <div class="sc-info">
-          <div class="sc-name">{{ shortcutText[s.id].name }}</div>
-          <div class="sc-desc">{{ shortcutText[s.id].desc }}</div>
+    <SortableSettingList
+      v-model="shortcutOrder"
+      class="setting-section"
+      :items="shortcuts"
+      @reorder="saveShortcutOrder"
+    >
+      <template #default="{ item: s }">
+        <div
+          class="sc-row"
+          :class="{ recording: recording === s.id }"
+        >
+          <div class="sc-info">
+            <div class="sc-name">{{ shortcutText[s.id].name }}</div>
+            <div class="sc-desc">{{ shortcutText[s.id].desc }}</div>
+          </div>
+          <div class="sc-binding">
+            <template v-if="recording === s.id">
+              <span class="rec-badge">
+                <span class="rec-dot"></span>
+                {{ text.pressShortcut }}
+                <span class="rec-sep">·</span>
+                <span class="rec-esc" @click="cancelRecord">ESC {{ text.cancel }}</span>
+              </span>
+            </template>
+            <template v-else>
+              <div class="keys">
+                <span v-for="(k, i) in s.keys" :key="i" class="key">{{ k }}</span>
+                <span v-if="!s.keys.length" class="empty-key">{{ text.notSet }}</span>
+              </div>
+              <button class="btn btn-sm" @click="startRecord(s.id)">{{ s.keys.length ? text.change : text.set }}</button>
+              <button v-if="s.keys.length" class="icon-btn" :title="text.clear" @click="clearShortcut(s)">
+                <X :size="13" :stroke-width="1.75" />
+              </button>
+            </template>
+          </div>
         </div>
-        <div class="sc-binding">
-          <template v-if="recording === s.id">
-            <span class="rec-badge">
-              <span class="rec-dot"></span>
-              {{ text.pressShortcut }}
-              <span class="rec-sep">·</span>
-              <span class="rec-esc" @click="cancelRecord">ESC {{ text.cancel }}</span>
-            </span>
-          </template>
-          <template v-else>
-            <div class="keys">
-              <span v-for="(k, i) in s.keys" :key="i" class="key">{{ k }}</span>
-              <span v-if="!s.keys.length" class="empty-key">{{ text.notSet }}</span>
-            </div>
-            <button class="btn btn-sm" @click="startRecord(s.id)">{{ s.keys.length ? text.change : text.set }}</button>
-            <button v-if="s.keys.length" class="icon-btn" :title="text.clear" @click="clearShortcut(s)">
-              <X :size="13" :stroke-width="1.75" />
-            </button>
-          </template>
-        </div>
-      </div>
-    </div>
+      </template>
+    </SortableSettingList>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { X } from 'lucide-vue-next'
+import SortableSettingList from '../components/SortableSettingList.vue'
 import { useLocale } from '../composables/useLocale'
 
 const recording = ref(null)
+const shortcutOrder = ref([])
 let recordingTarget = null
 const { isEnglish } = useLocale()
 const text = computed(() => isEnglish.value ? {
@@ -133,10 +140,14 @@ function keysToAccel(keys) { return keys.join('+') }
 
 async function loadShortcuts() {
   try {
-    const map = await window.api.loadShortcuts()
+    const [map, cfg] = await Promise.all([
+      window.api.loadShortcuts(),
+      window.api.loadConfig()
+    ])
     for (const s of shortcuts) {
       s.keys = map[s.id] ? map[s.id].split('+') : []
     }
+    shortcutOrder.value = cfg.settingsOrder?.shortcuts || []
   } catch (_) {
     for (const s of shortcuts) {
       s.keys = [...(DEFAULT_MAP[s.id] || [])]
@@ -150,6 +161,12 @@ async function saveShortcuts() {
     map[s.id] = keysToAccel(s.keys)
   }
   try { await window.api.saveShortcuts(map) } catch (_) {}
+}
+
+function saveShortcutOrder(order) {
+  window.api?.saveConfig?.({
+    settingsOrder: { shortcuts: order }
+  }).catch(() => {})
 }
 
 function clearShortcut(s) {
@@ -181,7 +198,6 @@ onUnmounted(() => {
   min-height: 44px;
   transition: background var(--transition);
 }
-.sc-row:first-of-type { border-top: 1px solid var(--border); }
 .sc-row.recording { background: var(--brand-soft); }
 .sc-name { font-size: var(--fs-base); font-weight: 500; color: var(--text-strong); }
 .sc-desc { font-size: var(--fs-xs); color: var(--text-dim); margin-top: 1px; }

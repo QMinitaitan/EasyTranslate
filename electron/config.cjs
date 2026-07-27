@@ -29,6 +29,7 @@ const DEFAULTS = {
   launchToTray: false,
   autoLaunch: false,
   raceMode: true,
+  settingsOrder: {},
   shortcut: 'Alt+Q',
   shortcuts: {
     translate: 'Alt+Q',

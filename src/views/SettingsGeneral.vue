@@ -3,107 +3,123 @@
     <h2 class="page-title">{{ text.title }}</h2>
     <p class="page-sub">{{ text.subtitle }}</p>
 
-    <div class="setting-section">
-      <div class="setting-row">
-        <div class="setting-row-info">
-          <div class="setting-row-text">
-            <div class="setting-row-title">{{ text.systemLanguage }}</div>
-            <div class="setting-row-desc">{{ text.systemLanguageDesc }}</div>
+    <SortableSettingList
+      v-model="settingsOrder"
+      class="setting-section"
+      :items="generalItems"
+      @reorder="saveSettingsOrder"
+    >
+      <template #default="{ item }">
+        <div v-if="item.id === 'systemLanguage'" class="setting-row">
+          <div class="setting-row-info">
+            <div class="setting-row-text">
+              <div class="setting-row-title">{{ text.systemLanguage }}</div>
+              <div class="setting-row-desc">{{ text.systemLanguageDesc }}</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <BaseSelect v-model="locale" :options="languageOptions" />
           </div>
         </div>
-        <div class="setting-row-control">
-          <BaseSelect v-model="locale" :options="languageOptions" />
-        </div>
-      </div>
 
-      <div class="setting-row">
-        <div class="setting-row-info">
-          <div class="setting-row-text">
-            <div class="setting-row-title">{{ text.closeWindow }}</div>
-            <div class="setting-row-desc">{{ text.closeWindowDesc }}</div>
+        <div v-else-if="item.id === 'closeAction'" class="setting-row">
+          <div class="setting-row-info">
+            <div class="setting-row-text">
+              <div class="setting-row-title">{{ text.closeWindow }}</div>
+              <div class="setting-row-desc">{{ text.closeWindowDesc }}</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <BaseSelect v-model="closeAction" :options="closeOptions" />
           </div>
         </div>
-        <div class="setting-row-control">
-          <BaseSelect v-model="closeAction" :options="closeOptions" />
-        </div>
-      </div>
 
-      <div class="setting-row">
-        <div class="setting-row-info">
-          <div class="setting-row-text">
-            <div class="setting-row-title">{{ text.autoLaunch }}</div>
-            <div class="setting-row-desc">{{ text.autoLaunchDesc }}</div>
-            <div v-if="autoLaunchError" class="setting-error">{{ autoLaunchError }}</div>
+        <div v-else-if="item.id === 'autoLaunch'" class="setting-row">
+          <div class="setting-row-info">
+            <div class="setting-row-text">
+              <div class="setting-row-title">{{ text.autoLaunch }}</div>
+              <div class="setting-row-desc">{{ text.autoLaunchDesc }}</div>
+              <div v-if="autoLaunchError" class="setting-error">{{ autoLaunchError }}</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <label class="switch" :class="{ disabled: autoLaunchBusy }">
+              <input
+                type="checkbox"
+                v-model="autoLaunch"
+                :disabled="autoLaunchBusy"
+                @change="changeAutoLaunch"
+              />
+              <span class="switch-track"></span>
+            </label>
           </div>
         </div>
-        <div class="setting-row-control">
-          <label class="switch" :class="{ disabled: autoLaunchBusy }">
-            <input
-              type="checkbox"
-              v-model="autoLaunch"
-              :disabled="autoLaunchBusy"
-              @change="changeAutoLaunch"
-            />
-            <span class="switch-track"></span>
-          </label>
-        </div>
-      </div>
 
-      <div class="setting-row">
-        <div class="setting-row-info">
-          <div class="setting-row-text">
-            <div class="setting-row-title">{{ text.launchToTray }}</div>
-            <div class="setting-row-desc">{{ text.launchToTrayDesc }}</div>
+        <div v-else-if="item.id === 'launchToTray'" class="setting-row">
+          <div class="setting-row-info">
+            <div class="setting-row-text">
+              <div class="setting-row-title">{{ text.launchToTray }}</div>
+              <div class="setting-row-desc">{{ text.launchToTrayDesc }}</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <label class="switch">
+              <input type="checkbox" v-model="launchToTray" />
+              <span class="switch-track"></span>
+            </label>
           </div>
         </div>
-        <div class="setting-row-control">
-          <label class="switch">
-            <input type="checkbox" v-model="launchToTray" />
-            <span class="switch-track"></span>
-          </label>
-        </div>
-      </div>
 
-      <div class="setting-row">
-        <div class="setting-row-info">
-          <div class="setting-row-text">
-            <div class="setting-row-title">{{ text.popupSize }}</div>
-            <div class="setting-row-desc">{{ text.popupSizeDesc }}</div>
-            <div v-if="popupResetDone" class="setting-success">{{ text.popupResetDone }}</div>
+        <div v-else-if="item.id === 'popupSize'" class="setting-row">
+          <div class="setting-row-info">
+            <div class="setting-row-text">
+              <div class="setting-row-title">{{ text.popupSize }}</div>
+              <div class="setting-row-desc">{{ text.popupSizeDesc }}</div>
+              <div v-if="popupResetDone" class="setting-success">{{ text.popupResetDone }}</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <button class="btn btn-sm" @click="resetPopupSize">{{ text.restoreDefault }}</button>
           </div>
         </div>
-        <div class="setting-row-control">
-          <button class="btn btn-sm" @click="resetPopupSize">{{ text.restoreDefault }}</button>
-        </div>
-      </div>
 
-      <div class="setting-row">
-        <div class="setting-row-info">
-          <div class="setting-row-text">
-            <div class="setting-row-title">{{ text.raceMode }}</div>
-            <div class="setting-row-desc">{{ text.raceModeDesc }}</div>
+        <div v-else class="setting-row">
+          <div class="setting-row-info">
+            <div class="setting-row-text">
+              <div class="setting-row-title">{{ text.raceMode }}</div>
+              <div class="setting-row-desc">{{ text.raceModeDesc }}</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <label class="switch">
+              <input type="checkbox" v-model="raceMode" />
+              <span class="switch-track"></span>
+            </label>
           </div>
         </div>
-        <div class="setting-row-control">
-          <label class="switch">
-            <input type="checkbox" v-model="raceMode" />
-            <span class="switch-track"></span>
-          </label>
-        </div>
-      </div>
-    </div>
+      </template>
+    </SortableSettingList>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import BaseSelect from '../components/BaseSelect.vue'
+import SortableSettingList from '../components/SortableSettingList.vue'
 import { useLocale } from '../composables/useLocale'
 
 const { locale, isEnglish, setLocale } = useLocale()
 const languageOptions = [
   { label: '中文', value: 'zh-CN' },
   { label: 'English', value: 'en' }
+]
+const generalItems = [
+  { id: 'systemLanguage', name: 'System Language' },
+  { id: 'closeAction', name: 'Close Action' },
+  { id: 'autoLaunch', name: 'Auto Launch' },
+  { id: 'launchToTray', name: 'Launch to Tray' },
+  { id: 'popupSize', name: 'Popup Size' },
+  { id: 'raceMode', name: 'Race Mode' }
 ]
 const text = computed(() => isEnglish.value ? {
   title: 'General',
@@ -156,6 +172,7 @@ const autoLaunch = ref(false)
 const autoLaunchBusy = ref(false)
 const autoLaunchError = ref('')
 const popupResetDone = ref(false)
+const settingsOrder = ref([])
 
 let hydrated = false
 let saveTimer = null
@@ -176,11 +193,18 @@ async function loadSettings() {
     launchToTray.value = !!cfg.launchToTray
     raceMode.value = cfg.raceMode !== false
     autoLaunch.value = !!systemAutoLaunch
+    settingsOrder.value = cfg.settingsOrder?.general || []
   } catch (error) {
     autoLaunchError.value = error?.message || text.value.readAutoLaunchError
   } finally {
     hydrated = true
   }
+}
+
+function saveSettingsOrder(order) {
+  window.api?.saveConfig?.({
+    settingsOrder: { general: order }
+  }).catch(() => {})
 }
 
 function scheduleSave() {

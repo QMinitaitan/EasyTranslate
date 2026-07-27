@@ -3,8 +3,13 @@
     <h2 class="page-title">{{ text.title }}</h2>
     <p class="page-sub">{{ text.subtitle }}</p>
 
-    <div class="setting-section">
-      <template v-for="p in providers" :key="p.id">
+    <SortableSettingList
+      v-model="providerOrder"
+      class="setting-section"
+      :items="providers"
+      @reorder="saveProviderOrder"
+    >
+      <template #default="{ item: p }">
         <div class="setting-row" :class="{ expanded: expanded === p.id }" @click="toggleExpand(p)">
           <div class="setting-row-info">
             <span class="prov-dot" :style="{ background: p.color }"></span>
@@ -77,7 +82,7 @@
           </div>
         </div>
       </template>
-    </div>
+    </SortableSettingList>
   </div>
 </template>
 
@@ -86,6 +91,7 @@ import { reactive, ref, onMounted, watch, computed } from 'vue'
 import { Plug, Check, XCircle, Loader2, AlertTriangle, ChevronRight } from 'lucide-vue-next'
 import InputKey from '../components/InputKey.vue'
 import BaseSelect from '../components/BaseSelect.vue'
+import SortableSettingList from '../components/SortableSettingList.vue'
 import { useLocale } from '../composables/useLocale'
 
 const regions = ['eastasia', 'southeastasia', 'eastus', 'westeurope']
@@ -157,6 +163,7 @@ function providerName(provider) {
 
 const expanded = ref(null)
 const providers = reactive([])
+const providerOrder = ref([])
 
 function toggleExpand(p) {
   expanded.value = expanded.value === p.id ? null : p.id
@@ -205,9 +212,11 @@ onMounted(async () => {
     ])
     const saved = cfg.providers || {}
     providers.push(...buildFromMeta(meta, saved))
+    providerOrder.value = cfg.settingsOrder?.providers || []
   } catch (_) {
     try {
       const cfg = await window.api.loadConfig()
+      providerOrder.value = cfg.settingsOrder?.providers || []
       const p = cfg.providers || {}
       for (const [id, s] of Object.entries(p)) {
         providers.push({
@@ -218,6 +227,12 @@ onMounted(async () => {
     } catch (__) { /* nothing */ }
   }
 })
+
+function saveProviderOrder(order) {
+  window.api?.saveConfig?.({
+    settingsOrder: { providers: order }
+  }).catch(() => {})
+}
 
 let saveTimer = null
 watch(providers, () => {

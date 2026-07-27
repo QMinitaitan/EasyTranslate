@@ -313,7 +313,10 @@ app.whenReady().then(() => {
         : current.providers,
       shortcuts: partial.shortcuts
         ? { ...current.shortcuts, ...partial.shortcuts }
-        : current.shortcuts
+        : current.shortcuts,
+      settingsOrder: partial.settingsOrder
+        ? { ...(current.settingsOrder || {}), ...partial.settingsOrder }
+        : current.settingsOrder
     }
     saveConfig(next)
     return next
