@@ -89,7 +89,7 @@ test('refocusing or pinning keeps a blurred popup visible', () => {
   assert.equal(pinned.hides(), 0)
 })
 
-test('pinning keeps the popup open without covering every application', () => {
+test('pinning keeps the popup open and above every ordinary application', () => {
   const harness = createHarness()
   assert.equal(
     typeof harness.controller.onPinChange,
@@ -98,7 +98,7 @@ test('pinning keeps the popup open without covering every application', () => {
   )
 
   harness.controller.onPinChange(true)
-  assert.equal(harness.staysOnTop(), false)
+  assert.equal(harness.staysOnTop(), true)
 
   harness.controller.onPinChange(false)
   assert.equal(harness.staysOnTop(), true)

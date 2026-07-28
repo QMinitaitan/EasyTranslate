@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Keep an unpinned Wayland translation popup visible while its native drag region is being dragged, make pinning keep it open without permanent system-wide topmost status, then replace the installed package and push the verified source changes.
+**Goal:** Keep an unpinned Wayland translation popup visible while its native drag region is being dragged, make pinning keep it open and always on top, then replace the installed package and push the verified source changes.
 
 **Architecture:** Move popup blur handling into a small timer-backed controller. A genuine blur hides after a short delay, while a window move or refocus cancels the pending hide, preventing Wayland's drag-start blur from racing the compositor's move event.
 
@@ -80,7 +80,7 @@ function createPopupAutoHideController({
 
 Replace immediate `blur → hide()` with controller calls, cancel the pending hide on `focus` and `move`, and dispose it when the popup closes.
 
-Pin changes must call `onPinChange(pinned)`: pinned windows remain open but use `setAlwaysOnTop(false)`; unpinned transient popups restore `setAlwaysOnTop(true)`.
+Pin changes must call `onPinChange(pinned)`: pinned windows remain open and use `setAlwaysOnTop(true)`; unpinned transient popups also remain temporarily topmost with `setAlwaysOnTop(true)`.
 
 - [ ] **Step 5: Run focused and full verification**
 

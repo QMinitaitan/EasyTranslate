@@ -433,8 +433,8 @@ app.whenReady().then(() => {
   ipcMain.on('popup:close', () => {
     if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
   })
-  // pinned = true: 保持打开但允许其他应用覆盖
-  // pinned = false: 临时置顶,失焦后自动隐藏
+  // pinned = true: 保持打开并始终置顶
+  // pinned = false: 保持临时置顶,失焦后自动隐藏
   ipcMain.on('popup:pin', (_e, on) => {
     popupPinned = !!on
     popupAutoHideController?.onPinChange(popupPinned)

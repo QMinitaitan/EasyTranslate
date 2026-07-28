@@ -35,7 +35,7 @@ function createPopupAutoHideController({
     onMove: clearPending,
     onPinChange(pinned) {
       clearPending()
-      setAlwaysOnTop(!pinned)
+      setAlwaysOnTop(true)
     },
     dispose: clearPending
   }
