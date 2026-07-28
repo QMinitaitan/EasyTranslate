@@ -9,13 +9,16 @@ const { load: loadConfig, save: saveConfig } = require('./config.cjs')
 const history = require('./history.cjs')
 const autoStart = require('./autostart.cjs')
 const { runTranslationRace } = require('./race.cjs')
+const { createPopupAutoHideController } = require('./popup-auto-hide.cjs')
 const {
   DEFAULT_POPUP_BOUNDS,
   MIN_POPUP_BOUNDS,
-  createPopupBoundsStore
+  createPopupBoundsStore,
+  supportsCursorPositioning
 } = require('./popup-bounds.cjs')
 
 const isDev = !!process.env.VITE_DEV_SERVER_URL
+const cursorPositioningSupported = supportsCursorPositioning(process.platform, process.env)
 const appIconDir = path.join(__dirname, '../assets/icon-v3')
 const trayIconPath = path.join(appIconDir, 'easytranslate-mark-16.png')
 const windowIconPath = path.join(appIconDir, 'easytranslate-mark-256.png')
@@ -24,10 +27,8 @@ app.setName('EasyTranslate')
 if (process.platform === 'win32') {
   app.setAppUserModelId('com.easytranslate.app')
 }
-
-// Force X11 on Wayland so globalShortcut works
-if (process.env.XDG_SESSION_TYPE === 'wayland' || process.env.WAYLAND_DISPLAY) {
-  app.commandLine.appendSwitch('ozone-platform', 'x11')
+if (!cursorPositioningSupported) {
+  app.commandLine.appendSwitch('enable-features', 'GlobalShortcutsPortal')
 }
 
 Menu.setApplicationMenu(null)
@@ -35,6 +36,7 @@ Menu.setApplicationMenu(null)
 let mainWin = null
 let popupWin = null
 let popupPinned = false
+let popupAutoHideController = null
 let tray = null
 const popupBoundsStore = createPopupBoundsStore({ loadConfig, saveConfig })
 
@@ -112,8 +114,8 @@ function ensurePopupWindow() {
   popupWin = new BrowserWindow({
     width: stored.width || DEFAULT_POPUP_BOUNDS.width,
     height: stored.height || DEFAULT_POPUP_BOUNDS.height,
-    x: stored.x,
-    y: stored.y,
+    x: cursorPositioningSupported ? stored.x : undefined,
+    y: cursorPositioningSupported ? stored.y : undefined,
     frame: false,
     transparent: false,
     alwaysOnTop: true,
@@ -136,13 +138,29 @@ function ensurePopupWindow() {
     popupWin.loadFile(path.join(__dirname, '../dist/index.html'), { hash: '/popup?window=popup' })
   }
 
-  popupWin.on('closed', () => { popupWin = null })
+  const win = popupWin
+  const autoHideController = createPopupAutoHideController({
+    isPinned: () => popupPinned,
+    hide: () => {
+      if (!win.isDestroyed()) win.hide()
+    },
+    setAlwaysOnTop: (value) => {
+      if (!win.isDestroyed()) win.setAlwaysOnTop(value)
+    }
+  })
+  popupAutoHideController = autoHideController
+
+  win.on('closed', () => {
+    autoHideController.dispose()
+    if (popupAutoHideController === autoHideController) {
+      popupAutoHideController = null
+    }
+    if (popupWin === win) popupWin = null
+  })
 
   // 失焦自动隐藏(未固定时)
-  popupWin.on('blur', () => {
-    if (popupPinned) return
-    if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
-  })
+  win.on('blur', () => autoHideController.onBlur())
+  win.on('focus', () => autoHideController.onFocus())
 
   // 拖拽/缩放后保存位置与大小
   const saveDebounced = (() => {
@@ -151,13 +169,22 @@ function ensurePopupWindow() {
       clearTimeout(t)
       t = setTimeout(() => {
         if (popupWin && !popupWin.isDestroyed()) {
-          popupBoundsStore.update(popupWin.getBounds())
+          const bounds = popupWin.getBounds()
+          popupBoundsStore.update(bounds, {
+            preservePosition: cursorPositioningSupported
+          })
         }
       }, 200)
     }
   })()
-  popupWin.on('move', saveDebounced)
-  popupWin.on('resize', saveDebounced)
+  win.on('move', () => {
+    autoHideController.onMove()
+    saveDebounced()
+  })
+  win.on('resize', () => {
+    autoHideController.onMove()
+    saveDebounced()
+  })
 
   return popupWin
 }
@@ -170,7 +197,10 @@ function showPopupNearCursor(text) {
     win.setSize(stored.width, stored.height)
   }
   // 首次创建或尺寸迁移后若无保存位置,放到鼠标附近
-  if (stored.x === undefined || stored.y === undefined) {
+  if (
+    cursorPositioningSupported &&
+    (stored.x === undefined || stored.y === undefined)
+  ) {
     const cursor = screen.getCursorScreenPoint()
     const display = screen.getDisplayNearestPoint(cursor)
     const b = win.getBounds()
@@ -403,26 +433,20 @@ app.whenReady().then(() => {
   ipcMain.on('popup:close', () => {
     if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
   })
-  // pinned = true 表示固定悬浮窗:失焦不消失,alwaysOnTop 仍保持
-  // pinned = false 表示自由模式:失焦自动消失
+  // pinned = true: 保持打开但允许其他应用覆盖
+  // pinned = false: 临时置顶,失焦后自动隐藏
   ipcMain.on('popup:pin', (_e, on) => {
     popupPinned = !!on
-    if (popupWin && !popupWin.isDestroyed()) {
-      popupWin.setAlwaysOnTop(true)
-    }
+    popupAutoHideController?.onPinChange(popupPinned)
   })
   ipcMain.on('popup:resize', (_e, { width, height }) => {
     if (popupWin && !popupWin.isDestroyed()) {
       const b = popupWin.getBounds()
       popupWin.setBounds({ x: b.x, y: b.y, width, height })
-      popupBoundsStore.update({ width, height })
-    }
-  })
-  // 主动让悬浮窗消失(自由模式触发,例如点击空白)
-  ipcMain.on('popup:move', (_e, { dx, dy }) => {
-    if (popupWin && !popupWin.isDestroyed()) {
-      const [x, y] = popupWin.getPosition()
-      popupWin.setPosition(x + dx, y + dy)
+      popupBoundsStore.update(
+        { width, height },
+        { preservePosition: cursorPositioningSupported }
+      )
     }
   })
   ipcMain.handle('shortcuts:load', () => getShortcutMap(loadConfig()))

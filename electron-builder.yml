@@ -36,6 +36,8 @@ linux:
   icon: assets/icon-v3/easytranslate-mark-512.png
   category: Utility
   executableName: easytranslate
+  executableArgs:
+    - --show
   syncDesktopName: true
   maintainer: QMinitaitan <QMinitaitan@users.noreply.github.com>
   synopsis: Lightweight selection translation app

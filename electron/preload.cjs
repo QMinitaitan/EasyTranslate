@@ -48,6 +48,5 @@ contextBridge.exposeInMainWorld('api', {
   },
   closePopup: () => ipcRenderer.send('popup:close'),
   pinPopup: (on) => ipcRenderer.send('popup:pin', on),
-  movePopup: (dx, dy) => ipcRenderer.send('popup:move', { dx, dy }),
   dismissPopup: () => ipcRenderer.send('popup:dismiss')
 })

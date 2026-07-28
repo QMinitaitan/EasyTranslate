@@ -1,6 +1,6 @@
 {
   "name": "easytranslate",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Lightweight cross-platform selection translation app",
   "desktopName": "EasyTranslate",

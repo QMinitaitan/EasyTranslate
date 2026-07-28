@@ -31,6 +31,13 @@ function normalizeBounds(bounds = {}) {
   }
 }
 
+function supportsCursorPositioning(platform = process.platform, env = process.env) {
+  return !(
+    platform === 'linux' &&
+    (env.XDG_SESSION_TYPE === 'wayland' || env.WAYLAND_DISPLAY)
+  )
+}
+
 function resolvePopupBounds(config = {}) {
   const saved = config[POPUP_BOUNDS_KEY]
   if (!saved) {
@@ -83,10 +90,17 @@ function createPopupBoundsStore({ loadConfig, saveConfig }) {
       return { ...resolved.bounds }
     },
 
-    update(partialBounds) {
+    update(partialBounds, { preservePosition = true } = {}) {
       const config = loadConfig()
       const current = config[POPUP_BOUNDS_KEY] || cloneDefaultBounds()
-      const bounds = normalizeBounds({ ...current, ...partialBounds })
+      const bounds = normalizeBounds(
+        preservePosition
+          ? { ...current, ...partialBounds }
+          : {
+              width: partialBounds.width,
+              height: partialBounds.height
+            }
+      )
       persist(config, bounds)
       return { ...bounds }
     },
@@ -108,6 +122,7 @@ module.exports = {
   MIN_POPUP_BOUNDS,
   LANDSCAPE_POPUP_BOUNDS,
   normalizeBounds,
+  supportsCursorPositioning,
   resolvePopupBounds,
   createPopupBoundsStore
 }

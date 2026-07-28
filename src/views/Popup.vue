@@ -1,9 +1,10 @@
 <template>
   <div class="popup-standalone" :class="{ 'is-window': isWindow }" ref="rootEl">
     <div class="popup pop-in" :style="popupFontStyle">
-      <header class="popup-head" @mousedown="startDrag">
+      <header class="popup-head drag">
         <div class="popup-head-controls">
           <EngineSelect
+            class="no-drag"
             :engines="engines"
             v-model="current"
             v-model:race-mode="raceMode"
@@ -16,7 +17,7 @@
               </span>
             </transition>
           </span>
-          <div class="popup-actions">
+          <div class="popup-actions no-drag">
             <button class="icon-btn" :class="{ active: pinned }" title="固定窗口" @click="togglePin">
               <Pin :size="13" :stroke-width="1.75" :fill="pinned ? 'currentColor' : 'none'" />
             </button>
@@ -91,7 +92,7 @@
         </template>
       </section>
 
-      <footer class="popup-foot" @mousedown="startDrag">
+      <footer class="popup-foot drag">
         <div class="foot-main">
           <button class="lang-indicator no-drag" type="button" @click="toggleDirection" title="点击切换翻译方向">
             <span class="lang-pair">{{ langLabel }}</span>
@@ -120,7 +121,7 @@
           </button>
           <template v-if="raceMode && raceOk.length">
             <button
-              class="race-cycle"
+              class="race-cycle no-drag"
               :class="{ 'is-swapping': raceSwapping }"
               @click="cycleRace"
               title="点击切换引擎"
@@ -372,29 +373,6 @@ function setFontScale(value) {
   zoomNoticeTimer = setTimeout(() => { zoomNotice.value = false }, 700)
 }
 
-// manual drag
-const dragging = ref(false)
-let dragBaseX = 0
-let dragBaseY = 0
-
-function startDrag(e) {
-  if (e.target.closest('.no-drag')) return
-  if (e.button !== 0) return
-  dragging.value = true
-  dragBaseX = e.screenX
-  dragBaseY = e.screenY
-}
-function onDragMove(e) {
-  if (!dragging.value) return
-  const dx = e.screenX - dragBaseX
-  const dy = e.screenY - dragBaseY
-  if (dx === 0 && dy === 0) return
-  window.api.movePopup(dx, dy)
-  dragBaseX = e.screenX
-  dragBaseY = e.screenY
-}
-function stopDrag() { dragging.value = false }
-
 let offTrigger = null
 let raceOffProgress = null
 let raceOffDone = null
@@ -521,8 +499,6 @@ onMounted(async () => {
   await loadEngines()
   document.addEventListener('wheel', onWheel, { passive: false, capture: true })
   document.addEventListener('keydown', onKeyDown)
-  document.addEventListener('mousemove', onDragMove)
-  document.addEventListener('mouseup', stopDrag)
   if (window.api?.triggerTranslate) {
     offTrigger = window.api.triggerTranslate(async (payload) => {
     await loadEngines()
@@ -533,8 +509,6 @@ onMounted(async () => {
 onUnmounted(() => {
   document.removeEventListener('wheel', onWheel, { capture: true })
   document.removeEventListener('keydown', onKeyDown)
-  document.removeEventListener('mousemove', onDragMove)
-  document.removeEventListener('mouseup', stopDrag)
   clearTimeout(pinNoticeTimer)
   clearTimeout(zoomNoticeTimer)
   clearTimeout(raceSwapTimer)

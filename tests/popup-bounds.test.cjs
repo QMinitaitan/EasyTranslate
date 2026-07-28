@@ -1,11 +1,12 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
+const popupBounds = require('../electron/popup-bounds.cjs')
 const {
   POPUP_BOUNDS_VERSION,
   DEFAULT_POPUP_BOUNDS,
   createPopupBoundsStore,
   resolvePopupBounds
-} = require('../electron/popup-bounds.cjs')
+} = popupBounds
 
 function createConfigStore(initial) {
   let config = structuredClone(initial)
@@ -86,4 +87,38 @@ test('reset restores the portrait default and clears a custom position', () => {
 
   assert.deepEqual(boundsStore.reset(), { ...DEFAULT_POPUP_BOUNDS })
   assert.deepEqual(storage.read().popupBounds, { ...DEFAULT_POPUP_BOUNDS })
+})
+
+test('Wayland leaves popup placement to the compositor', () => {
+  assert.equal(
+    popupBounds.supportsCursorPositioning?.('linux', {
+      XDG_SESSION_TYPE: 'wayland',
+      WAYLAND_DISPLAY: 'wayland-0'
+    }),
+    false
+  )
+  assert.equal(
+    popupBounds.supportsCursorPositioning?.('linux', {
+      XDG_SESSION_TYPE: 'x11'
+    }),
+    true
+  )
+})
+
+test('Wayland size updates discard unsupported global coordinates', () => {
+  const storage = createConfigStore({
+    popupBounds: { width: 420, height: 620, x: 120, y: 80 },
+    popupBoundsVersion: POPUP_BOUNDS_VERSION
+  })
+  const boundsStore = createPopupBoundsStore(storage)
+
+  boundsStore.update(
+    { width: 460, height: 680, x: 0, y: 0 },
+    { preservePosition: false }
+  )
+
+  assert.deepEqual(storage.read().popupBounds, {
+    width: 460,
+    height: 680
+  })
 })
