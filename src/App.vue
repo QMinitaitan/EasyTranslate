@@ -60,6 +60,10 @@
     </main>
     <CommandPalette v-model:open="paletteOpen" />
   </div>
+  <div v-if="configSaveError" class="config-save-error no-drag" role="alert">
+    <span>{{ configSaveError }}</span>
+    <button type="button" class="icon-btn" :aria-label="isEnglish ? 'Dismiss' : '关闭'" @click="configSaveError = ''">×</button>
+  </div>
 </template>
 
 <script setup>
@@ -72,25 +76,49 @@ import CommandPalette from './components/CommandPalette.vue'
 import appMarkUrl from '../assets/icon-v3/easytranslate-mark.svg'
 
 const { mode, setMode } = useTheme()
-const { setLocale, t } = useLocale()
+const { setLocale, t, isEnglish } = useLocale()
+const configSaveError = ref('')
 const paletteOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 const isPopupRoute = computed(() => route.path.startsWith('/popup') && route.query.window === 'popup')
 let offNavigate = null
+let offConfigUpdate = null
+let offConfigSaveError = null
+
+async function refreshLocale() {
+  const cfg = await window.api?.loadConfig?.()
+  if (cfg?.uiLanguage && cfg.uiLanguage !== 'system') setLocale(cfg.uiLanguage)
+}
 
 onMounted(async () => {
-  try {
-    const cfg = await window.api?.loadConfig?.()
-    if (cfg?.uiLanguage && cfg.uiLanguage !== 'system') setLocale(cfg.uiLanguage)
-  } catch (_) {}
   offNavigate = window.api?.onNavigate?.((path) => router.push(path))
+  offConfigUpdate = window.api?.onConfigUpdate?.(() => { refreshLocale().catch(() => {}) })
+  offConfigSaveError = window.api?.onConfigSaveError?.((message) => { configSaveError.value = message })
+  await refreshLocale().catch(() => {})
 })
 
-onUnmounted(() => offNavigate?.())
+onUnmounted(() => { offNavigate?.(); offConfigUpdate?.(); offConfigSaveError?.() })
 </script>
 
 <style scoped>
+.config-save-error {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  right: 12px;
+  max-width: min(480px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  color: var(--danger);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  font-size: var(--fs-sm);
+}
 .app-shell {
   display: grid;
   grid-template-columns: 200px 1fr;

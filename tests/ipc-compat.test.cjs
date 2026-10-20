@@ -40,6 +40,12 @@ test('compiled preload translates old positional calls and typed requests throug
   ])
 })
 
+test('save failures expose the actionable message without Electron IPC implementation details', async () => {
+  const { api, ipc } = loadPreload()
+  ipc.invoke = async () => { throw new Error("Error invoking remote method 'config:save': Error: 配置保存失败，请重试") }
+  await assert.rejects(api.saveConfig({ raceMode: false }), error => error.message === '配置保存失败，请重试')
+})
+
 test('compiled preload exposes actual engine capability and probe operations with draft configuration', async () => {
   const { api, requests } = loadPreload()
   await api.providerCapabilities({ openai: { enabled: true, apiKey: 'synthetic-key' } })

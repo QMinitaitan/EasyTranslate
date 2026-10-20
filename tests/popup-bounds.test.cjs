@@ -122,3 +122,15 @@ test('Wayland size updates discard unsupported global coordinates', () => {
     height: 680
   })
 })
+
+test('popup geometry save failures can be observed without claiming a persisted reset', async () => {
+  const failures = []
+  const boundsStore = createPopupBoundsStore({
+    loadConfig: () => ({ popupBounds: { width: 460, height: 680 }, popupBoundsVersion: POPUP_BOUNDS_VERSION }),
+    saveConfig: async () => { throw new Error('disk unavailable') },
+    onSaveError: error => failures.push(error.message)
+  })
+  boundsStore.reset()
+  await assert.rejects(boundsStore.flush(), /disk unavailable/)
+  assert.deepEqual(failures, ['disk unavailable'])
+})
