@@ -9,11 +9,12 @@ EasyTranslate 是一个跨平台划词翻译桌面应用：Electron 主进程 + 
 ## 命令
 
 ```bash
-npm run dev          # concurrently 启动 Vite (:5173) 与 Electron 窗口
+npm run dev          # 编译 Electron TypeScript，再启动 Vite (:5173)、类型编译监听与 Electron
 npm run dev:web      # 仅浏览器预览 UI（无 Electron）
-npm run build        # Vite 生产构建 → dist/
+npm run build        # Electron TypeScript → dist-electron/，Vite → dist/
+npm run typecheck    # 检查 TypeScript IPC/preload 与渲染入口
 npm test             # node --test tests/*.test.cjs
-npm run check        # npm test && npm run build
+npm run check        # 类型检查、回归测试与生产构建
 npm run dist:linux   # vite build + electron-builder 打包 .deb
 npm run dist:win     # vite build + electron-builder 打包 Windows NSIS
 npm run trigger      # bash electron/trigger.sh，通过本地 socket 触发现用应用划词翻译
@@ -51,7 +52,7 @@ npm test
   - `popupWin`：无边框悬浮窗（frameless、`alwaysOnTop`、`skipTaskbar`），经 `?window=popup` 哈希标记独立渲染。首次在光标附近定位，之后记忆位置与尺寸。
   - 所有翻译逻辑与全局快捷键、系统托盘、socket 服务器（Linux 用 `~/.translate-app.sock` 的 `trigger` 命令）都在这层。
 - **`src/`（Vue 3 + Vue Router，哈希路由）**：路由 `/` 主窗口、`/popup` 悬浮窗、`/settings/*` 设置页。`src/views/Popup.vue` 是最复杂的视图。
-- **IPC 桥**：`electron/preload.cjs` 用 `contextBridge` 暴露 `window.api`（同步 channel 用 `invoke`，事件流如 `translate:race:progress` 用 `on` + 返回退订函数）。
+- **IPC 桥**：`electron/preload.cts` 编译为 `dist-electron/preload.cjs`，由窗口直接加载，用 `contextBridge` 暴露 `window.api`。共享约定在 `electron/shared/ipc-contract.cts`；既有位置参数调用与对象请求兼容。迁移与 sandbox 限制见 `docs/TYPESCRIPT.md`。
 
 ### 翻译子系统（核心设计）
 

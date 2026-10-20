@@ -3,15 +3,17 @@ const assert = require('node:assert/strict')
 const Module = require('node:module')
 const path = require('node:path')
 
-test('Wayland sessions keep Electron on its native display platform', () => {
+function launchSwitches(platform, sessionType, waylandDisplay) {
   const originalLoad = Module._load
+  const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')
   const originalSessionType = process.env.XDG_SESSION_TYPE
   const originalWaylandDisplay = process.env.WAYLAND_DISPLAY
   const switches = []
   const pending = new Promise(() => {})
 
-  process.env.XDG_SESSION_TYPE = 'wayland'
-  process.env.WAYLAND_DISPLAY = 'wayland-0'
+  Object.defineProperty(process, 'platform', { value: platform })
+  process.env.XDG_SESSION_TYPE = sessionType
+  process.env.WAYLAND_DISPLAY = waylandDisplay
   Module._load = function (request, parent, isMain) {
     if (request !== 'electron') return originalLoad.call(this, request, parent, isMain)
     return {
@@ -45,12 +47,18 @@ test('Wayland sessions keep Electron on its native display platform', () => {
     require(mainPath)
   } finally {
     Module._load = originalLoad
+    Object.defineProperty(process, 'platform', originalPlatform)
     if (originalSessionType === undefined) delete process.env.XDG_SESSION_TYPE
     else process.env.XDG_SESSION_TYPE = originalSessionType
     if (originalWaylandDisplay === undefined) delete process.env.WAYLAND_DISPLAY
     else process.env.WAYLAND_DISPLAY = originalWaylandDisplay
   }
 
+  return switches
+}
+
+test('Linux Wayland sessions keep Electron on the native display platform on every test host', () => {
+  const switches = launchSwitches('linux', 'wayland', 'wayland-0')
   assert.equal(
     switches.some(([name]) => name === 'ozone-platform'),
     false
@@ -63,4 +71,14 @@ test('Wayland sessions keep Electron on its native display platform', () => {
     ),
     true
   )
+})
+
+test('Linux X11 and Windows do not enable a Wayland shortcut portal', () => {
+  for (const [platform, sessionType, display] of [
+    ['linux', 'x11', ''],
+    ['win32', 'wayland', 'wayland-0']
+  ]) {
+    const switches = launchSwitches(platform, sessionType, display)
+    assert.equal(switches.some(([name]) => name === 'enable-features'), false)
+  }
 })

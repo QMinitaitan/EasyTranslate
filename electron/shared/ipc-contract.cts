@@ -1,0 +1,191 @@
+/** Shared wire data. Legacy positional preload calls remain supported during migration. */
+export interface TranslationRequest {
+  text: string
+  target?: string
+  providerId?: string | null
+}
+
+export interface RaceRequest extends TranslationRequest {
+  requestId?: string
+}
+
+export interface TranslationResult {
+  text?: string | null
+  engine?: string
+  ms?: number
+  error?: string | null
+  historyId?: number
+}
+
+export interface RaceResult extends TranslationResult {
+  requestId?: string
+}
+
+export interface RaceDone {
+  requestId?: string
+  results?: RaceResult[]
+  best?: RaceResult | null
+  error?: string
+}
+
+export interface TranslationTrigger {
+  text: string
+  ts: number
+}
+
+export interface ProviderConfig {
+  enabled: boolean
+  apiKey: string
+  endpoint?: string
+  model?: string
+  prompt?: string
+  region?: string
+  secret?: string
+}
+
+export interface ProviderMetadata {
+  id: string
+  name: string
+  color: string
+  adapter: string
+  enabled: boolean
+  desc?: string
+  models?: string[]
+  [key: string]: unknown
+}
+
+export interface PopupBounds {
+  width: number
+  height: number
+  x?: number
+  y?: number
+}
+
+export interface Shortcuts { translate: string; show: string }
+
+export interface AppConfig {
+  providers: Record<string, ProviderConfig>
+  target: string
+  uiLanguage: string
+  closeAction: string
+  launchToTray: boolean
+  autoLaunch: boolean
+  raceMode: boolean
+  shortcuts: Shortcuts
+  shortcut?: string
+  popupBounds?: PopupBounds
+  popupBoundsVersion?: number
+  settingsOrder?: Record<string, unknown>
+}
+
+export type ConfigUpdate = Partial<Omit<AppConfig, 'providers' | 'shortcuts'>> & {
+  providers?: Record<string, Partial<ProviderConfig>>
+  shortcuts?: Partial<Shortcuts>
+}
+
+export interface HistoryEntry {
+  id: number
+  src: string
+  dst: string
+  engine: string
+  color: string
+  lang: string
+  ts: number
+  favorite: boolean
+}
+
+export interface FavoriteRequest {
+  historyId?: number
+  src: string
+  dst: string
+  providerId: string
+  target: string
+}
+
+export interface InvokeChannels {
+  'translate:do': { args: [TranslationRequest]; result: TranslationResult }
+  'config:load': { args: []; result: AppConfig }
+  'config:save': { args: [ConfigUpdate]; result: AppConfig }
+  'providers:list': { args: []; result: ProviderMetadata[] }
+  'autostart:get': { args: []; result: boolean }
+  'autostart:set': { args: [boolean]; result: boolean }
+  'popup:bounds:reset': { args: []; result: PopupBounds }
+  'clipboard:write': { args: [string]; result: boolean }
+  'shortcuts:load': { args: []; result: Shortcuts }
+  'shortcuts:save': { args: [Partial<Shortcuts>]; result: void }
+  'history:load': { args: []; result: HistoryEntry[] }
+  'history:favorite': { args: [FavoriteRequest]; result: HistoryEntry | null }
+  'history:favorite:set': { args: [number, boolean]; result: HistoryEntry | null }
+  'history:delete': { args: [number]; result: HistoryEntry[] }
+  'history:clear': { args: []; result: HistoryEntry[] }
+}
+
+export interface SendChannels {
+  'translate:race:start': [RaceRequest]
+  'settings:open': []
+  'main:open': []
+  'popup:close': []
+  'popup:pin': [boolean]
+  'popup:dismiss': []
+}
+
+export interface EventChannels {
+  'translate:trigger': TranslationTrigger
+  'translate:race:progress': RaceResult
+  'translate:race:done': RaceDone
+  'history:updated': void
+  'main:navigate': string
+}
+
+export type Unsubscribe = () => void
+
+export interface EasyTranslateApi {
+  platform: NodeJS.Platform
+  isPopup(): boolean
+  triggerTranslate(cb: (payload: TranslationTrigger) => void): Unsubscribe
+  translate(request: TranslationRequest): Promise<TranslationResult>
+  translate(text: string, target?: string, providerId?: string | null): Promise<TranslationResult>
+  startRaceTranslate(request: RaceRequest): void
+  startRaceTranslate(text: string, target?: string, requestId?: string): void
+  onRaceProgress(cb: (result: RaceResult) => void): Unsubscribe
+  onRaceDone(cb: (data: RaceDone) => void): Unsubscribe
+  loadConfig(): Promise<AppConfig>
+  listProviders(): Promise<ProviderMetadata[]>
+  saveConfig(cfg: ConfigUpdate): Promise<AppConfig>
+  getAutoLaunch(): Promise<boolean>
+  setAutoLaunch(enabled: boolean): Promise<boolean>
+  resetPopupBounds(): Promise<PopupBounds>
+  copyText(text: string): Promise<boolean>
+  loadShortcuts(): Promise<Shortcuts>
+  saveShortcuts(shortcuts: Partial<Shortcuts>): Promise<void>
+  loadHistory(): Promise<HistoryEntry[]>
+  saveFavorite(payload: FavoriteRequest): Promise<HistoryEntry | null>
+  setFavorite(id: number, favorite: boolean): Promise<HistoryEntry | null>
+  deleteHistory(id: number): Promise<HistoryEntry[]>
+  clearHistory(): Promise<HistoryEntry[]>
+  onHistoryUpdate(cb: () => void): Unsubscribe
+  openSettings(): void
+  openMain(): void
+  onNavigate(cb: (path: string) => void): Unsubscribe
+  closePopup(): void
+  pinPopup(on: boolean): void
+  dismissPopup(): void
+}
+
+/** IPC input is untrusted even when a typed renderer sends it. */
+export function parseTranslationRequest(input: unknown): TranslationRequest | null {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null
+  const value = input as Record<string, unknown>
+  if (typeof value.text !== 'string') return null
+  if (value.target !== undefined && typeof value.target !== 'string') return null
+  if (value.providerId !== undefined && value.providerId !== null && typeof value.providerId !== 'string') return null
+  return { text: value.text, target: value.target as string | undefined, providerId: value.providerId as string | null | undefined }
+}
+
+export function parseRaceRequest(input: unknown): RaceRequest | null {
+  const request = parseTranslationRequest(input)
+  if (!request) return null
+  const requestId = (input as Record<string, unknown>).requestId
+  if (requestId !== undefined && typeof requestId !== 'string') return null
+  return { ...request, requestId }
+}
