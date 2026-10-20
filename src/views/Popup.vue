@@ -187,9 +187,10 @@ const engines = ref([])
 
 async function loadEngines() {
   try {
-    const [cfg, meta] = await Promise.all([
+    const [cfg, meta, capabilities] = await Promise.all([
       window.api.loadConfig(),
-      window.api.listProviders()
+      window.api.listProviders(),
+      window.api.providerCapabilities()
     ])
     providerMeta.value = meta
     raceMode.value = cfg.raceMode !== false
@@ -197,7 +198,7 @@ async function loadEngines() {
     const list = []
     for (const m of meta) {
       const p = providers[m.id]
-      if (p && p.enabled) {
+      if (p && capabilities.find(capability => capability.id === m.id)?.available) {
         list.push({ name: m.name, color: m.color, id: m.id })
       }
     }
@@ -212,8 +213,7 @@ async function loadEngines() {
       engineLabel.value = e.name
     }
   } catch (_) {
-    engines.value = [{ name: 'DeepSeek', color: '#4d6bfe', id: 'deepseek' }]
-    providerMeta.value = [{ id: 'deepseek', name: 'DeepSeek', color: '#4d6bfe' }]
+    engines.value = [{ name: '无法读取可用引擎', color: 'var(--brand)', id: '__none__' }]
   }
 }
 

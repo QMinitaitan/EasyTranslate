@@ -81,3 +81,16 @@ test('main rejects malformed race requests without escaping the IPC handler', as
     assert.deepEqual(responses, [{ channel: 'translate:race:done', payload: { requestId: 'race-a', error: '无效的翻译请求' } }])
   })
 })
+
+test('engine IPC validates untyped drafts and reports unsupported probes without transport', async () => {
+  await withMain(async ({ handles }) => {
+    const capabilities = handles.get('providers:capabilities')
+    const probe = handles.get('providers:probe')
+    assert.throws(() => capabilities({}, { openai: { enabled: 'yes' } }), /无效的引擎配置/)
+    assert.throws(() => probe({}, { providerId: 42 }), /无效的引擎探测请求/)
+    const result = await probe({}, { providerId: 'youdao', config: { enabled: true, apiKey: 'synthetic-key' } })
+    assert.equal(result.ok, false)
+    assert.equal(result.status, 'unsupported')
+    assert.doesNotMatch(JSON.stringify(result), /synthetic-key/)
+  })
+})

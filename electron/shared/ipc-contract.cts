@@ -140,6 +140,8 @@ export interface InvokeChannels {
   'config:load': { args: []; result: AppConfig }
   'config:save': { args: [ConfigUpdate]; result: AppConfig }
   'providers:list': { args: []; result: ProviderMetadata[] }
+  'providers:capabilities': { args: [Record<string, Partial<ProviderConfig>>?]; result: ProviderCapability[] }
+  'providers:probe': { args: [ProviderProbeRequest]; result: ProviderProbeResult }
   'autostart:get': { args: []; result: boolean }
   'autostart:set': { args: [boolean]; result: boolean }
   'popup:bounds:reset': { args: []; result: PopupBounds }
@@ -184,6 +186,8 @@ export interface EasyTranslateApi {
   onRaceDone(cb: (data: RaceDone) => void): Unsubscribe
   loadConfig(): Promise<AppConfig>
   listProviders(): Promise<ProviderMetadata[]>
+  providerCapabilities(config?: Record<string, Partial<ProviderConfig>>): Promise<ProviderCapability[]>
+  testProvider(providerId: string, config?: Partial<ProviderConfig>): Promise<ProviderProbeResult>
   saveConfig(cfg: ConfigUpdate): Promise<AppConfig>
   getAutoLaunch(): Promise<boolean>
   setAutoLaunch(enabled: boolean): Promise<boolean>
@@ -221,4 +225,40 @@ export function parseRaceRequest(input: unknown): RaceRequest | null {
   const requestId = (input as Record<string, unknown>).requestId
   if (requestId !== undefined && typeof requestId !== 'string') return null
   return { ...request, requestId }
+}
+
+export function parseProviderConfig(input: unknown): Partial<ProviderConfig> | null {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null
+  const value = input as Record<string, unknown>
+  const parsed: Partial<ProviderConfig> = {}
+  if (value.enabled !== undefined) {
+    if (typeof value.enabled !== 'boolean') return null
+    parsed.enabled = value.enabled
+  }
+  for (const key of ['apiKey', 'endpoint', 'model', 'prompt', 'region', 'secret'] as const) {
+    if (value[key] === undefined) continue
+    if (typeof value[key] !== 'string') return null
+    parsed[key] = value[key]
+  }
+  return parsed
+}
+
+export function parseProviderConfigs(input: unknown): Record<string, Partial<ProviderConfig>> | null {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null
+  const parsed: Record<string, Partial<ProviderConfig>> = Object.create(null)
+  for (const [id, value] of Object.entries(input)) {
+    const config = parseProviderConfig(value)
+    if (!config) return null
+    parsed[id] = config
+  }
+  return parsed
+}
+
+export function parseProviderProbe(input: unknown): ProviderProbeRequest | null {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null
+  const value = input as Record<string, unknown>
+  if (typeof value.providerId !== 'string' || !value.providerId) return null
+  if (value.config === undefined) return { providerId: value.providerId }
+  const config = parseProviderConfig(value.config)
+  return config ? { providerId: value.providerId, config } : null
 }

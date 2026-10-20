@@ -3,14 +3,14 @@ const path = require('path')
 const fs = require('fs')
 const net = require('net')
 const { getSelection } = require('./selection.cjs')
-const { translateWith } = require('./translate.cjs')
+const { translateWith, inspectProvider, getProviderCapabilities, probeProvider } = require('./translate.cjs')
 const { getProvider, getAll: getAllProviders } = require('./providers.cjs')
 const { load: loadConfig, save: saveConfig } = require('./config.cjs')
 const history = require('./history.cjs')
 const autoStart = require('./autostart.cjs')
 const { runTranslationRace } = require('./race.cjs')
 const { createPopupAutoHideController } = require('./popup-auto-hide.cjs')
-const { parseTranslationRequest, parseRaceRequest } = require('../dist-electron/shared/ipc-contract.cjs')
+const { parseTranslationRequest, parseRaceRequest, parseProviderConfigs, parseProviderProbe } = require('../dist-electron/shared/ipc-contract.cjs')
 const {
   DEFAULT_POPUP_BOUNDS,
   MIN_POPUP_BOUNDS,
@@ -360,11 +360,12 @@ app.whenReady().then(() => {
     if (providerId) {
       p = providers[providerId]
       id = providerId
-      if (!p || !p.enabled || !p.apiKey) {
-        return { error: `所选引擎未配置或未启用` }
+      const capability = inspectProvider(id, p || {})
+      if (!capability.available) {
+        return { error: capability.reason }
       }
     } else {
-      const entry = Object.entries(providers).find(([, v]) => v && v.enabled && v.apiKey)
+      const entry = Object.entries(providers).find(([id, config]) => config && inspectProvider(id, config).available)
       if (!entry) return { error: '未配置启用的翻译接口,请到设置中填写 API Key' }
       ;[id, p] = entry
     }
@@ -393,7 +394,7 @@ app.whenReady().then(() => {
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')
-    const enabled = Object.entries(providers).filter(([, v]) => v && v.enabled && v.apiKey)
+    const enabled = Object.entries(providers).filter(([id, config]) => config && inspectProvider(id, config).available)
     if (!enabled.length) {
       event.sender.send('translate:race:done', {
         requestId,
@@ -419,6 +420,16 @@ app.whenReady().then(() => {
     }
   })
   ipcMain.handle('providers:list', () => getAllProviders())
+  ipcMain.handle('providers:capabilities', (_event, input) => {
+    const providers = input === undefined ? loadConfig().providers : parseProviderConfigs(input)
+    if (!providers) throw new Error('无效的引擎配置')
+    return getProviderCapabilities(providers)
+  })
+  ipcMain.handle('providers:probe', (_event, input) => {
+    const request = parseProviderProbe(input)
+    if (!request) throw new Error('无效的引擎探测请求')
+    return probeProvider(request.providerId, request.config || loadConfig().providers[request.providerId] || {})
+  })
   ipcMain.on('settings:open', () => {
     if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
     if (mainWin && !mainWin.isDestroyed()) {
