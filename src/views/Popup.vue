@@ -267,7 +267,7 @@ const engineLabel = ref('')
 const raceResults = ref([])
 const raceActiveIdx = ref(0)
 const firstDone = ref(false)
-const raceOk = computed(() => raceResults.value.filter(r => !r.error))
+const raceOk = computed(() => raceResults.value.filter(r => !r.error && r.text?.trim()))
 const raceErrors = computed(() => raceResults.value.filter(r => r.error))
 const raceActive = computed(() => raceOk.value[raceActiveIdx.value] || { text: '', engine: '', ms: 0 })
 const raceSwapping = ref(false)
@@ -436,8 +436,10 @@ async function doTranslate(text) {
     activeRaceRequestId = requestId
     raceOffProgress = window.api.onRaceProgress((result) => {
       if (sequence !== translationSequence || result.requestId !== activeRaceRequestId) return
-      raceResults.value.push(result)
-      if (!result.error && !firstDone.value) {
+      const existing = raceResults.value.findIndex(item => item.engine === result.engine)
+      if (existing < 0) raceResults.value.push(result)
+      else raceResults.value[existing] = result
+      if (!result.error && result.text?.trim() && !firstDone.value) {
         firstDone.value = true
         dst.value = result.text
         latency.value = result.ms
@@ -447,7 +449,13 @@ async function doTranslate(text) {
     })
     raceOffDone = window.api.onRaceDone((data) => {
       if (sequence !== translationSequence || data.requestId !== activeRaceRequestId) return
+      raceOffProgress?.()
+      raceOffDone?.()
+      raceOffProgress = null
+      raceOffDone = null
+      const selectedEngine = raceActive.value.engine
       raceResults.value = data.results || raceResults.value
+      saveWarning.value = raceResults.value.find(result => result.historyError)?.historyError || ''
       if (!firstDone.value && (data.error || !data.best)) {
         state.value = 'error'
         errorMsg.value = data.error || raceErrors.value[0]?.error || '所有翻译引擎均请求失败'
@@ -459,7 +467,8 @@ async function doTranslate(text) {
         engineLabel.value = engineDisplayName(data.best.engine)
         state.value = 'idle'
       }
-      raceActiveIdx.value = 0
+      const selectedIndex = raceOk.value.findIndex(result => result.engine === selectedEngine)
+      raceActiveIdx.value = selectedIndex >= 0 ? selectedIndex : 0
     })
     window.api.startRaceTranslate(text, targetLang.value, requestId)
     return

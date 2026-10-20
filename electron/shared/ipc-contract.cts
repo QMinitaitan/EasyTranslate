@@ -28,6 +28,7 @@ export interface RaceResult extends TranslationResult {
 
 export interface RaceDone {
   requestId?: string
+  sessionId?: string
   results?: RaceResult[]
   best?: RaceResult | null
   error?: string
