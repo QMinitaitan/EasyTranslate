@@ -1,0 +1,437 @@
+{
+  "folder": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\runs-typed-smoke",
+  "startup": [
+    {
+      "run": "cold-1",
+      "appReadyMs": 458,
+      "mainReadyMs": 891
+    }
+  ],
+  "first": [
+    {
+      "trial": "cold-1-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 988,
+      "helperMs": 834,
+      "showMs": 1084,
+      "popupDocumentMs": 1198,
+      "backendResultMs": 1267,
+      "domResultMs": 1268,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 96,
+      "afterCaptureToDomMs": 280
+    }
+  ],
+  "warm": [
+    {
+      "trial": "cold-1-invoke-2",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 831,
+      "helperMs": 689,
+      "showMs": 856,
+      "popupDocumentMs": null,
+      "backendResultMs": 912,
+      "domResultMs": 913,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 25,
+      "afterCaptureToDomMs": 82
+    }
+  ],
+  "empty": [
+    {
+      "trial": "cold-1-invoke-3",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 1848,
+      "helperMs": 803,
+      "showMs": 1861,
+      "popupDocumentMs": null,
+      "backendResultMs": null,
+      "domResultMs": null,
+      "successful": false,
+      "selectionSource": "empty",
+      "reason": "copy-timeout",
+      "captureToShowMs": 13,
+      "afterCaptureToDomMs": null
+    }
+  ],
+  "idle": [],
+  "restoration": [
+    {
+      "trial": "cold-1-invoke-1",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-2",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-3",
+      "text": true,
+      "html": true,
+      "rtf": true
+    }
+  ],
+  "history": [
+    {
+      "count": 2,
+      "t": 1792502401143,
+      "allSynthetic": true,
+      "event": "history"
+    }
+  ],
+  "resource": [
+    {
+      "run": "cold-1",
+      "peakPrivateMiB": 358.65234375,
+      "peakWorkingSetMiB": 607.78515625,
+      "maxProcesses": 8,
+      "helperPidsSampled": 3,
+      "helpers": 3,
+      "samplingMs": {
+        "n": 95,
+        "min": 28,
+        "p50": 52,
+        "p95": 70,
+        "max": 78
+      },
+      "windowsCreated": 2,
+      "liveWindowsMax": 2
+    }
+  ],
+  "firstSuccessful": [
+    {
+      "trial": "cold-1-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 988,
+      "helperMs": 834,
+      "showMs": 1084,
+      "popupDocumentMs": 1198,
+      "backendResultMs": 1267,
+      "domResultMs": 1268,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 96,
+      "afterCaptureToDomMs": 280
+    }
+  ],
+  "warmSuccessful": [
+    {
+      "trial": "cold-1-invoke-2",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 831,
+      "helperMs": 689,
+      "showMs": 856,
+      "popupDocumentMs": null,
+      "backendResultMs": 912,
+      "domResultMs": 913,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 25,
+      "afterCaptureToDomMs": 82
+    }
+  ],
+  "summary": {
+    "startup": {
+      "appReadyMs": {
+        "n": 1,
+        "min": 458,
+        "p50": 458,
+        "p95": 458,
+        "max": 458
+      },
+      "mainReadyMs": {
+        "n": 1,
+        "min": 891,
+        "p50": 891,
+        "p95": 891,
+        "max": 891
+      }
+    },
+    "first": {
+      "selectionMs": {
+        "n": 1,
+        "min": 988,
+        "p50": 988,
+        "p95": 988,
+        "max": 988
+      },
+      "helperMs": {
+        "n": 1,
+        "min": 834,
+        "p50": 834,
+        "p95": 834,
+        "max": 834
+      },
+      "showMs": {
+        "n": 1,
+        "min": 1084,
+        "p50": 1084,
+        "p95": 1084,
+        "max": 1084
+      },
+      "popupDocumentMs": {
+        "n": 1,
+        "min": 1198,
+        "p50": 1198,
+        "p95": 1198,
+        "max": 1198
+      },
+      "backendResultMs": {
+        "n": 1,
+        "min": 1267,
+        "p50": 1267,
+        "p95": 1267,
+        "max": 1267
+      },
+      "domResultMs": {
+        "n": 1,
+        "min": 1268,
+        "p50": 1268,
+        "p95": 1268,
+        "max": 1268
+      },
+      "captureToShowMs": {
+        "n": 1,
+        "min": 96,
+        "p50": 96,
+        "p95": 96,
+        "max": 96
+      },
+      "afterCaptureToDomMs": {
+        "n": 1,
+        "min": 280,
+        "p50": 280,
+        "p95": 280,
+        "max": 280
+      },
+      "successful": 1
+    },
+    "warm": {
+      "selectionMs": {
+        "n": 1,
+        "min": 831,
+        "p50": 831,
+        "p95": 831,
+        "max": 831
+      },
+      "helperMs": {
+        "n": 1,
+        "min": 689,
+        "p50": 689,
+        "p95": 689,
+        "max": 689
+      },
+      "showMs": {
+        "n": 1,
+        "min": 856,
+        "p50": 856,
+        "p95": 856,
+        "max": 856
+      },
+      "popupDocumentMs": {
+        "n": 0
+      },
+      "backendResultMs": {
+        "n": 1,
+        "min": 912,
+        "p50": 912,
+        "p95": 912,
+        "max": 912
+      },
+      "domResultMs": {
+        "n": 1,
+        "min": 913,
+        "p50": 913,
+        "p95": 913,
+        "max": 913
+      },
+      "captureToShowMs": {
+        "n": 1,
+        "min": 25,
+        "p50": 25,
+        "p95": 25,
+        "max": 25
+      },
+      "afterCaptureToDomMs": {
+        "n": 1,
+        "min": 82,
+        "p50": 82,
+        "p95": 82,
+        "max": 82
+      },
+      "successful": 1
+    },
+    "firstSuccessful": {
+      "selectionMs": {
+        "n": 1,
+        "min": 988,
+        "p50": 988,
+        "p95": 988,
+        "max": 988
+      },
+      "helperMs": {
+        "n": 1,
+        "min": 834,
+        "p50": 834,
+        "p95": 834,
+        "max": 834
+      },
+      "showMs": {
+        "n": 1,
+        "min": 1084,
+        "p50": 1084,
+        "p95": 1084,
+        "max": 1084
+      },
+      "popupDocumentMs": {
+        "n": 1,
+        "min": 1198,
+        "p50": 1198,
+        "p95": 1198,
+        "max": 1198
+      },
+      "backendResultMs": {
+        "n": 1,
+        "min": 1267,
+        "p50": 1267,
+        "p95": 1267,
+        "max": 1267
+      },
+      "domResultMs": {
+        "n": 1,
+        "min": 1268,
+        "p50": 1268,
+        "p95": 1268,
+        "max": 1268
+      },
+      "captureToShowMs": {
+        "n": 1,
+        "min": 96,
+        "p50": 96,
+        "p95": 96,
+        "max": 96
+      },
+      "afterCaptureToDomMs": {
+        "n": 1,
+        "min": 280,
+        "p50": 280,
+        "p95": 280,
+        "max": 280
+      },
+      "successful": 1
+    },
+    "warmSuccessful": {
+      "selectionMs": {
+        "n": 1,
+        "min": 831,
+        "p50": 831,
+        "p95": 831,
+        "max": 831
+      },
+      "helperMs": {
+        "n": 1,
+        "min": 689,
+        "p50": 689,
+        "p95": 689,
+        "max": 689
+      },
+      "showMs": {
+        "n": 1,
+        "min": 856,
+        "p50": 856,
+        "p95": 856,
+        "max": 856
+      },
+      "popupDocumentMs": {
+        "n": 0
+      },
+      "backendResultMs": {
+        "n": 1,
+        "min": 912,
+        "p50": 912,
+        "p95": 912,
+        "max": 912
+      },
+      "domResultMs": {
+        "n": 1,
+        "min": 913,
+        "p50": 913,
+        "p95": 913,
+        "max": 913
+      },
+      "captureToShowMs": {
+        "n": 1,
+        "min": 25,
+        "p50": 25,
+        "p95": 25,
+        "max": 25
+      },
+      "afterCaptureToDomMs": {
+        "n": 1,
+        "min": 82,
+        "p50": 82,
+        "p95": 82,
+        "max": 82
+      },
+      "successful": 1
+    },
+    "empty": {
+      "selectionMs": {
+        "n": 1,
+        "min": 1848,
+        "p50": 1848,
+        "p95": 1848,
+        "max": 1848
+      },
+      "helperMs": {
+        "n": 1,
+        "min": 803,
+        "p50": 803,
+        "p95": 803,
+        "max": 803
+      },
+      "showMs": {
+        "n": 1,
+        "min": 1861,
+        "p50": 1861,
+        "p95": 1861,
+        "max": 1861
+      },
+      "popupDocumentMs": {
+        "n": 0
+      },
+      "backendResultMs": {
+        "n": 0
+      },
+      "domResultMs": {
+        "n": 0
+      },
+      "captureToShowMs": {
+        "n": 1,
+        "min": 13,
+        "p50": 13,
+        "p95": 13,
+        "max": 13
+      },
+      "afterCaptureToDomMs": {
+        "n": 0
+      },
+      "successful": 0
+    }
+  }
+}

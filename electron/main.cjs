@@ -10,6 +10,7 @@ const history = require('./history.cjs')
 const autoStart = require('./autostart.cjs')
 const { runTranslationRace } = require('./race.cjs')
 const { createPopupAutoHideController } = require('./popup-auto-hide.cjs')
+const { parseTranslationRequest, parseRaceRequest } = require('../dist-electron/shared/ipc-contract.cjs')
 const {
   DEFAULT_POPUP_BOUNDS,
   MIN_POPUP_BOUNDS,
@@ -77,7 +78,7 @@ function createMainWindow() {
     backgroundColor: '#fafafa',
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.cjs'),
+      preload: path.join(__dirname, '../dist-electron/preload.cjs'),
       contextIsolation: true, nodeIntegration: false
     }
   })
@@ -126,7 +127,7 @@ function ensurePopupWindow() {
     show: false,
     backgroundColor: '#fafafa',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.cjs'),
+      preload: path.join(__dirname, '../dist-electron/preload.cjs'),
       contextIsolation: true, nodeIntegration: false
     }
   })
@@ -349,7 +350,10 @@ app.whenReady().then(() => {
     saveConfig(next)
     return next
   })
-  ipcMain.handle('translate:do', async (_evt, { text, target, providerId }) => {
+  ipcMain.handle('translate:do', async (_evt, payload) => {
+    const request = parseTranslationRequest(payload)
+    if (!request) return { error: '无效的翻译请求' }
+    const { text, target, providerId } = request
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     let id, p
@@ -374,7 +378,18 @@ app.whenReady().then(() => {
       return { error: e.message || String(e) }
     }
   })
-  ipcMain.on('translate:race:start', async (event, { text, target, requestId }) => {
+  ipcMain.on('translate:race:start', async (event, payload) => {
+    const request = parseRaceRequest(payload)
+    if (!request) {
+      if (!event.sender.isDestroyed()) {
+        event.sender.send('translate:race:done', {
+          requestId: typeof payload?.requestId === 'string' ? payload.requestId : undefined,
+          error: '无效的翻译请求'
+        })
+      }
+      return
+    }
+    const { text, target, requestId } = request
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')

@@ -71,8 +71,9 @@ npm run dev
 
 ```bash
 npm test          # 运行 Node.js 测试
-npm run build     # 构建前端
-npm run check     # 测试并构建
+npm run build     # 编译 Electron TypeScript 并构建前端
+npm run typecheck # 检查已迁移的 TypeScript 边界
+npm run check     # 类型检查、测试并构建
 npm run dist:win  # 生成 Windows x64 NSIS 安装包
 npm run dist:linux # 生成 Linux x64 deb 安装包
 ```
