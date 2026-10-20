@@ -402,6 +402,7 @@ function onEngineChange(payload) {
 }
 
 async function doTranslate(text) {
+  ++triggerSequence
   const sequence = ++translationSequence
   stopSpeech()
   clearTimeout(raceSwapTimer)

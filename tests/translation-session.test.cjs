@@ -1,6 +1,9 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const { createTranslationSessions } = require('../dist-electron/translation-session.cjs')
+const { createProviderService } = require('../dist-electron/provider-service.cjs')
+const { EventEmitter } = require('node:events')
+const { PassThrough } = require('node:stream')
 
 function deferred() {
   let resolve, reject
@@ -175,4 +178,40 @@ test('empty intent and disposal release current work and subscriptions without p
   assert.equal(notifications, before)
   assert.equal(sessions.current(), null)
   assert.deepEqual(saved, [])
+})
+
+test('session replacement reaches the actual adapter transport cancellation boundary', async () => {
+  const requests = []
+  const saved = []
+  const providerService = createProviderService({
+    request: (_url, _options, callback) => {
+      const transport = new EventEmitter()
+      const record = { destroyed: false, body: '', transport }
+      requests.push(record)
+      transport.write = body => { record.body += body }
+      transport.destroy = () => { record.destroyed = true }
+      transport.end = () => {
+        const source = JSON.parse(record.body).messages[1].content
+        if (source === 'A') return
+        queueMicrotask(() => {
+          const response = new PassThrough()
+          response.statusCode = 200
+          callback(response)
+          response.end(JSON.stringify({ choices: [{ message: { content: 'B via adapter' } }] }))
+        })
+      }
+      return transport
+    }
+  })
+  const sessions = createTranslationSessions({
+    execute: (selected, input) => providerService.translate(selected.provider, selected.id, input),
+    saveHistory: entry => { saved.push(entry.text); return { id: 801 } }
+  })
+  const a = sessions.start(request('A'))
+  const b = sessions.start(request('B'))
+  assert.equal((await a.done).status, 'superseded')
+  assert.equal((await b.done).result.text, 'B via adapter')
+  assert.equal(requests[0].destroyed, true)
+  assert.deepEqual(saved, ['B'])
+  sessions.dispose()
 })
