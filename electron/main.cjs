@@ -9,6 +9,7 @@ const { load: loadConfig, save: saveConfig } = require('./config.cjs')
 const history = require('./history.cjs')
 const autoStart = require('./autostart.cjs')
 const { runTranslationRace } = require('./race.cjs')
+const { createTranslationSessions } = require('../dist-electron/translation-session.cjs')
 const { createPopupAutoHideController } = require('./popup-auto-hide.cjs')
 const { parseTranslationRequest, parseRaceRequest, parseProviderConfigs, parseProviderProbe } = require('../dist-electron/shared/ipc-contract.cjs')
 const {
@@ -235,6 +236,7 @@ let selectionCaptureBusy = false
 async function onShortcut() {
   if (selectionCaptureBusy) return
   selectionCaptureBusy = true
+  translationSessions.cancel()
   try {
     const { text, source, reason } = await getSelection()
     const detail = reason ? `${source}/${reason}` : source
@@ -318,6 +320,12 @@ function addToHistory(src, dst, providerId, targetLang, extra = {}) {
   return item
 }
 
+const translationSessions = createTranslationSessions({
+  execute: ({ id, provider }, input) => translateWith(provider, id, input),
+  saveHistory: ({ text, target, engine, result, isCurrent }) =>
+    isCurrent() ? addToHistory(text, result.text, engine.id, target) : null
+})
+
 app.whenReady().then(() => {
   createMainWindow()
   createTray()
@@ -325,6 +333,7 @@ app.whenReady().then(() => {
   const _cfg = loadConfig()
   registerShortcuts(getShortcutMap(_cfg))
   app.on('will-quit', () => {
+    translationSessions.dispose()
     try {
       server?.close()
       if (process.platform !== 'win32') fs.unlinkSync(SOCK_PATH)
@@ -353,32 +362,26 @@ app.whenReady().then(() => {
   ipcMain.handle('translate:do', async (_evt, payload) => {
     const request = parseTranslationRequest(payload)
     if (!request) return { error: '无效的翻译请求' }
-    const { text, target, providerId } = request
+    const { text, target, providerId, requestId } = request
     const cfg = loadConfig()
     const providers = cfg.providers || {}
-    let id, p
-    if (providerId) {
-      p = providers[providerId]
-      id = providerId
-      const capability = inspectProvider(id, p || {})
-      if (!capability.available) {
-        return { error: capability.reason }
-      }
-    } else {
-      const entry = Object.entries(providers).find(([id, config]) => config && inspectProvider(id, config).available)
-      if (!entry) return { error: '未配置启用的翻译接口,请到设置中填写 API Key' }
-      ;[id, p] = entry
-    }
+    const selected = providerId
+      ? [providerId, providers[providerId]]
+      : Object.entries(providers).find(([id, config]) => config && inspectProvider(id, config).available)
+    // An explicit unavailable engine still enters the session so it supersedes old work;
+    // the shared execution capability returns its precise reason before any network call.
+    const engine = selected?.[1]
+      ? { id: selected[0], provider: selected[1] }
+      : undefined
     const targetLang = target || (cfg.target || '中文(简体)')
-    try {
-      const t0 = Date.now()
-      const r = await translateWith(p, id, { text, target: targetLang })
-      const historyItem = r.text ? addToHistory(text, r.text, id, targetLang) : null
-      return { text: r.text, ms: Date.now() - t0, engine: id, historyId: historyItem?.id }
-    } catch (e) {
-      return { error: e.message || String(e) }
+    const session = translationSessions.start({ text, target: targetLang, engine, requestId })
+    const completed = await session.done
+    return {
+      ...completed.result, sessionId: session.sessionId, requestId,
+      ...(completed.status === 'superseded' ? { stale: true } : {})
     }
   })
+  ipcMain.on('translate:cancel', () => translationSessions.cancel())
   ipcMain.on('translate:race:start', async (event, payload) => {
     const request = parseRaceRequest(payload)
     if (!request) {
@@ -391,6 +394,8 @@ app.whenReady().then(() => {
       return
     }
     const { text, target, requestId } = request
+    // The legacy race remains until #4, but it already supersedes pending singles.
+    translationSessions.cancel()
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')

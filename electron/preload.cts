@@ -22,6 +22,7 @@ const api: EasyTranslateApi = {
   triggerTranslate: (cb) => on('translate:trigger', cb),
   translate: (input: string | TranslationRequest, target?: string, providerId?: string | null) =>
     invoke('translate:do', typeof input === 'string' ? { text: input, target, providerId } : input),
+  cancelTranslation: () => send('translate:cancel'),
   startRaceTranslate: (input: string | RaceRequest, target?: string, requestId?: string) =>
     send('translate:race:start', typeof input === 'string' ? { text: input, target, requestId } : input),
   onRaceProgress: (cb) => on('translate:race:progress', cb),
