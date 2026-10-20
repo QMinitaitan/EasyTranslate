@@ -10,14 +10,9 @@ const history = require('./history.cjs')
 const autoStart = require('./autostart.cjs')
 const { runTranslationRace } = require('./race.cjs')
 const { createTranslationSessions } = require('../dist-electron/translation-session.cjs')
-const { createPopupAutoHideController } = require('./popup-auto-hide.cjs')
+const { createDesktopRuntime } = require('../dist-electron/desktop-runtime.cjs')
 const { parseTranslationRequest, parseRaceRequest, parseProviderConfigs, parseProviderProbe } = require('../dist-electron/shared/ipc-contract.cjs')
-const {
-  DEFAULT_POPUP_BOUNDS,
-  MIN_POPUP_BOUNDS,
-  createPopupBoundsStore,
-  supportsCursorPositioning
-} = require('./popup-bounds.cjs')
+const { supportsCursorPositioning } = require('./popup-bounds.cjs')
 
 const isDev = !!process.env.VITE_DEV_SERVER_URL
 const cursorPositioningSupported = supportsCursorPositioning(process.platform, process.env)
@@ -36,11 +31,16 @@ if (!cursorPositioningSupported) {
 Menu.setApplicationMenu(null)
 
 let mainWin = null
-let popupWin = null
-let popupPinned = false
-let popupAutoHideController = null
 let tray = null
-const popupBoundsStore = createPopupBoundsStore({ loadConfig, saveConfig, onSaveError: reportConfigSaveError })
+const desktop = createDesktopRuntime({
+  createWindow: options => new BrowserWindow(options),
+  frontend: {
+    htmlPath: path.join(__dirname, '../dist/index.html'),
+    preloadPath: path.join(__dirname, '../dist-electron/preload.cjs'),
+    devServerUrl: process.env.VITE_DEV_SERVER_URL
+  },
+  screen, loadConfig, saveConfig, onSaveError: reportConfigSaveError
+})
 
 function createTray() {
   try {
@@ -61,15 +61,6 @@ function createTray() {
   }
 }
 
-async function resetPopupBounds() {
-  const bounds = popupBoundsStore.reset()
-  if (popupWin && !popupWin.isDestroyed()) {
-    popupWin.setSize(bounds.width, bounds.height)
-  }
-  await popupBoundsStore.flush()
-  return bounds
-}
-
 function createMainWindow() {
   const windowIcon = nativeImage.createFromPath(windowIconPath)
   mainWin = new BrowserWindow({
@@ -87,6 +78,7 @@ function createMainWindow() {
   if (!windowIcon.isEmpty() && process.platform !== 'darwin') {
     mainWin.setIcon(windowIcon)
   }
+  mainWin.webContents.once('did-finish-load', () => desktop.schedulePrewarm())
   if (isDev) mainWin.loadURL(process.env.VITE_DEV_SERVER_URL)
   else mainWin.loadFile(path.join(__dirname, '../dist/index.html'))
   mainWin.once('ready-to-show', () => {
@@ -110,129 +102,6 @@ function createMainWindow() {
   })
 }
 
-function ensurePopupWindow() {
-  if (popupWin && !popupWin.isDestroyed()) return popupWin
-
-  const stored = popupBoundsStore.get()
-  popupWin = new BrowserWindow({
-    width: stored.width || DEFAULT_POPUP_BOUNDS.width,
-    height: stored.height || DEFAULT_POPUP_BOUNDS.height,
-    x: cursorPositioningSupported ? stored.x : undefined,
-    y: cursorPositioningSupported ? stored.y : undefined,
-    frame: false,
-    transparent: false,
-    alwaysOnTop: true,
-    skipTaskbar: true,
-    resizable: true,
-    minWidth: MIN_POPUP_BOUNDS.width,
-    minHeight: MIN_POPUP_BOUNDS.height,
-    show: false,
-    backgroundColor: '#fafafa',
-    webPreferences: {
-      preload: path.join(__dirname, '../dist-electron/preload.cjs'),
-      contextIsolation: true, nodeIntegration: false
-    }
-  })
-
-  // 通过 ?window=popup 标记 standalone 模式
-  if (isDev) {
-    popupWin.loadURL(process.env.VITE_DEV_SERVER_URL + '/#/popup?window=popup')
-  } else {
-    popupWin.loadFile(path.join(__dirname, '../dist/index.html'), { hash: '/popup?window=popup' })
-  }
-
-  const win = popupWin
-  const autoHideController = createPopupAutoHideController({
-    isPinned: () => popupPinned,
-    hide: () => {
-      if (!win.isDestroyed()) win.hide()
-    },
-    setAlwaysOnTop: (value) => {
-      if (!win.isDestroyed()) win.setAlwaysOnTop(value)
-    }
-  })
-  popupAutoHideController = autoHideController
-
-  win.on('closed', () => {
-    autoHideController.dispose()
-    if (popupAutoHideController === autoHideController) {
-      popupAutoHideController = null
-    }
-    if (popupWin === win) popupWin = null
-  })
-
-  // 失焦自动隐藏(未固定时)
-  win.on('blur', () => autoHideController.onBlur())
-  win.on('focus', () => autoHideController.onFocus())
-
-  // 拖拽/缩放后保存位置与大小
-  const saveDebounced = (() => {
-    let t = null
-    return () => {
-      clearTimeout(t)
-      t = setTimeout(() => {
-        if (popupWin && !popupWin.isDestroyed()) {
-          const bounds = popupWin.getBounds()
-          popupBoundsStore.update(bounds, {
-            preservePosition: cursorPositioningSupported
-          })
-        }
-      }, 200)
-    }
-  })()
-  win.on('move', () => {
-    autoHideController.onMove()
-    saveDebounced()
-  })
-  win.on('resize', () => {
-    autoHideController.onMove()
-    saveDebounced()
-  })
-
-  return popupWin
-}
-
-function showPopupNearCursor(text) {
-  const win = ensurePopupWindow()
-  const stored = popupBoundsStore.get()
-  const current = win.getBounds()
-  if (current.width !== stored.width || current.height !== stored.height) {
-    win.setSize(stored.width, stored.height)
-  }
-  // 首次创建或尺寸迁移后若无保存位置,放到鼠标附近
-  if (
-    cursorPositioningSupported &&
-    (stored.x === undefined || stored.y === undefined)
-  ) {
-    const cursor = screen.getCursorScreenPoint()
-    const display = screen.getDisplayNearestPoint(cursor)
-    const b = win.getBounds()
-    let x = cursor.x + 12
-    let y = cursor.y + 12
-    if (x + b.width > display.bounds.x + display.bounds.width) {
-      x = Math.max(display.bounds.x, cursor.x - b.width - 12)
-    }
-    if (y + b.height > display.bounds.y + display.bounds.height) {
-      y = Math.max(display.bounds.y, cursor.y - b.height - 12)
-    }
-    win.setBounds({ x, y, width: b.width, height: b.height })
-  }
-  win.show()
-  win.focus()
-
-  // 等渲染进程就绪再发
-  const send = () => {
-    if (popupWin && !popupWin.isDestroyed()) {
-      popupWin.webContents.send('translate:trigger', { text, ts: Date.now() })
-    }
-  }
-  if (popupWin.webContents.isLoading()) {
-    popupWin.webContents.once('did-finish-load', send)
-  } else {
-    send()
-  }
-}
-
 let selectionCaptureBusy = false
 async function onShortcut() {
   if (selectionCaptureBusy) return
@@ -242,7 +111,7 @@ async function onShortcut() {
     const { text, source, reason } = await getSelection()
     const detail = reason ? `${source}/${reason}` : source
     console.log(`[translate] selection capture: ${detail}, ${text.length} chars`)
-    showPopupNearCursor(text || '')
+    desktop.showTranslation(text || '')
   } finally {
     selectionCaptureBusy = false
   }
@@ -362,11 +231,8 @@ app.whenReady().then(() => {
     event.preventDefault()
     if (flushInProgress) return
     flushInProgress = true
-    // A final geometry snapshot includes changes still in the window's debounce timer.
-    if (popupWin && !popupWin.isDestroyed()) {
-      popupBoundsStore.update(popupWin.getBounds(), { preservePosition: cursorPositioningSupported })
-    }
-    flushConfig().finally(() => {
+    // Flush the window-owned debounce before draining durable configuration writes.
+    void desktop.flush().catch(() => {}).then(() => flushConfig()).catch(reportConfigSaveError).finally(() => {
       configFlushed = true
       app.isQuiting = true
       app.quit()
@@ -375,6 +241,7 @@ app.whenReady().then(() => {
   app.on('will-quit', () => {
     unsubscribeConfig()
     translationSessions.dispose()
+    desktop.dispose()
     try {
       server?.close()
       if (process.platform !== 'win32') fs.unlinkSync(SOCK_PATH)
@@ -464,7 +331,7 @@ app.whenReady().then(() => {
     return probeProvider(request.providerId, request.config || loadConfig().providers[request.providerId] || {})
   })
   ipcMain.on('settings:open', () => {
-    if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
+    desktop.hide()
     if (mainWin && !mainWin.isDestroyed()) {
       mainWin.show()
       mainWin.focus()
@@ -488,31 +355,21 @@ app.whenReady().then(() => {
     await saveSettings({ autoLaunch: actual })
     return actual
   })
-  ipcMain.on('popup:close', () => {
-    if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
+  ipcMain.handle('popup:ready', (event) => {
+    const state = desktop.markReady(event.sender)
+    if (!state) throw new Error('Only the current popup can declare application readiness')
+    return state
   })
-  // pinned = true: 保持打开并始终置顶
-  // pinned = false: 保持临时置顶,失焦后自动隐藏
-  ipcMain.on('popup:pin', (_e, on) => {
-    popupPinned = !!on
-    popupAutoHideController?.onPinChange(popupPinned)
-  })
-  ipcMain.on('popup:resize', (_e, { width, height }) => {
-    if (popupWin && !popupWin.isDestroyed()) {
-      const b = popupWin.getBounds()
-      popupWin.setBounds({ x: b.x, y: b.y, width, height })
-      popupBoundsStore.update(
-        { width, height },
-        { preservePosition: cursorPositioningSupported }
-      )
-    }
-  })
+  ipcMain.on('popup:unready', event => desktop.markNotReady(event.sender))
+  ipcMain.on('popup:close', () => desktop.hide())
+  ipcMain.on('popup:pin', (_event, pinned) => desktop.setPinned(pinned))
+  ipcMain.on('popup:resize', (_event, bounds) => desktop.resize(bounds?.width, bounds?.height))
   ipcMain.handle('shortcuts:load', () => getShortcutMap(loadConfig()))
   ipcMain.handle('shortcuts:save', async (_evt, shortcuts) => {
     const cfg = await saveSettings({ shortcuts })
     registerShortcuts(cfg.shortcuts)
   })
-  ipcMain.handle('popup:bounds:reset', () => resetPopupBounds())
+  ipcMain.handle('popup:bounds:reset', () => desktop.resetBounds())
   ipcMain.handle('history:load', () => history.load())
   ipcMain.handle('history:favorite', (_evt, payload) => {
     let item = payload.historyId
@@ -538,10 +395,7 @@ app.whenReady().then(() => {
   })
   ipcMain.handle('history:delete', (_evt, id) => history.remove(id))
   ipcMain.handle('history:clear', () => history.clearAll())
-  ipcMain.on('popup:dismiss', () => {
-    if (popupPinned) return
-    if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
-  })
+  ipcMain.on('popup:dismiss', () => desktop.dismiss())
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow()

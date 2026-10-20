@@ -384,6 +384,7 @@ let translationSequence = 0
 let triggerSequence = 0
 let pinNoticeTimer = null
 let copiedTimer = null
+let popupMounted = false
 
 function onEngineChange(payload) {
   if (payload && payload.race) {
@@ -519,7 +520,9 @@ async function copyDst() {
   } catch (_) {}
 }
 onMounted(async () => {
+  popupMounted = true
   await loadEngines()
+  if (!popupMounted) return
   document.addEventListener('wheel', onWheel, { passive: false, capture: true })
   document.addEventListener('keydown', onKeyDown)
   if (window.api?.triggerTranslate) {
@@ -532,8 +535,14 @@ onMounted(async () => {
       doTranslate(payload.text)
     })
   }
+  if (isWindow.value && window.api?.popupReady) {
+    const ready = await window.api.popupReady()
+    if (popupMounted) pinned.value = ready.pinned
+  }
 })
 onUnmounted(() => {
+  popupMounted = false
+  if (isWindow.value) window.api?.popupNotReady?.()
   ++translationSequence
   ++triggerSequence
   window.api.cancelTranslation?.()

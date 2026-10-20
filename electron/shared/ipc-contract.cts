@@ -150,6 +150,7 @@ export interface InvokeChannels {
   'autostart:get': { args: []; result: boolean }
   'autostart:set': { args: [boolean]; result: boolean }
   'popup:bounds:reset': { args: []; result: PopupBounds }
+  'popup:ready': { args: []; result: { pinned: boolean } }
   'clipboard:write': { args: [string]; result: boolean }
   'shortcuts:load': { args: []; result: Shortcuts }
   'shortcuts:save': { args: [Partial<Shortcuts>]; result: void }
@@ -168,6 +169,7 @@ export interface SendChannels {
   'popup:close': []
   'popup:pin': [boolean]
   'popup:dismiss': []
+  'popup:unready': []
 }
 
 export interface EventChannels {
@@ -203,6 +205,8 @@ export interface EasyTranslateApi {
   getAutoLaunch(): Promise<boolean>
   setAutoLaunch(enabled: boolean): Promise<boolean>
   resetPopupBounds(): Promise<PopupBounds>
+  popupReady(): Promise<{ pinned: boolean }>
+  popupNotReady(): void
   copyText(text: string): Promise<boolean>
   loadShortcuts(): Promise<Shortcuts>
   saveShortcuts(shortcuts: Partial<Shortcuts>): Promise<void>
