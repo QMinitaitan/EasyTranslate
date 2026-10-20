@@ -130,3 +130,32 @@ test('an unrelated malformed legacy preference cannot discard valid provider cre
   assert.equal(reopened.providers.deepseek.apiKey, 'synthetic-preserved')
   assert.deepEqual(reopened.settingsOrder.providers, ['deepseek'])
 })
+
+test('exit flushing also waits for saves queued while an earlier write is completing', async () => {
+  let releaseFirst, releaseSecond, firstStarted, secondStarted
+  const firstGate = new Promise(resolve => { releaseFirst = resolve })
+  const secondGate = new Promise(resolve => { releaseSecond = resolve })
+  const firstWriting = new Promise(resolve => { firstStarted = resolve })
+  const secondWriting = new Promise(resolve => { secondStarted = resolve })
+  const storage = {
+    read: () => null,
+    async write(value) {
+      if (JSON.parse(value).uiLanguage === 'en') { secondStarted(); await secondGate }
+      else { firstStarted(); await firstGate }
+    }
+  }
+  const store = createConfigStore({ storage })
+  const first = store.save({ target: 'English' })
+  await firstWriting
+  let flushed = false
+  const flush = store.flush().then(() => { flushed = true })
+  const second = store.save({ uiLanguage: 'en' })
+  releaseFirst()
+  await secondWriting
+  await new Promise(resolve => setImmediate(resolve))
+  const premature = flushed
+  releaseSecond()
+  await Promise.all([first, second, flush])
+  assert.equal(premature, false)
+  assert.equal(store.load().uiLanguage, 'en')
+})

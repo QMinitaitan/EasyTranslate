@@ -169,7 +169,13 @@ export function createConfigStore({ filePath = CONFIG_PATH, storage = fileStorag
     pending = result.catch(() => {})
     return result
   }
-  const flush = async () => { await pending }
+  async function flush(): Promise<void> {
+    let observed: Promise<unknown>
+    do {
+      observed = pending
+      await observed
+    } while (observed !== pending)
+  }
   function subscribe(listener: (config: AppConfig) => void): () => void {
     subscribers.add(listener)
     return () => { subscribers.delete(listener) }
