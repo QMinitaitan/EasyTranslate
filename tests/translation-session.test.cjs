@@ -334,3 +334,20 @@ test('single-to-race, race-to-single and race-to-race replacement share cancella
     sessions.dispose()
   }
 })
+
+test('a replacement accepted by one subscriber prevents old progress reaching later subscribers', async () => {
+  let replacement
+  const observed = []
+  const sessions = createTranslationSessions({
+    execute: async (_selected, input) => ({ text: input.text }),
+    saveHistory: () => ({ id: 1301 })
+  })
+  sessions.subscribe(snapshot => {
+    if (snapshot.status === 'success' && snapshot.text === 'A') replacement = sessions.start(request('B'))
+  })
+  sessions.subscribe((_snapshot, result) => { if (result) observed.push(result.text) })
+  await sessions.start(request('A')).done
+  await replacement.done
+  assert.deepEqual(observed, ['B'])
+  sessions.dispose()
+})

@@ -53,7 +53,10 @@ export function createTranslationSessions({ execute, saveHistory, now = Date.now
   const copy = (snapshot: SessionSnapshot): SessionSnapshot => ({ ...snapshot, result: snapshot.result ? { ...snapshot.result } : undefined, results: snapshot.results.map(result => ({ ...result })) })
   const notify = (session: ActiveSession, progress?: SessionResult) => {
     if (active !== session || disposed) return
-    for (const listener of listeners) listener(copy(session.snapshot), progress ? { ...progress } : undefined)
+    for (const listener of listeners) {
+      if (active !== session || disposed) break
+      listener(copy(session.snapshot), progress ? { ...progress } : undefined)
+    }
   }
   const finish = (session: ActiveSession) => {
     if (session.settled) return
