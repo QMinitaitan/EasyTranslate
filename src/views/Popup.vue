@@ -89,6 +89,7 @@
               {{ engineDisplayName(result.engine) }} 失败
             </span>
           </div>
+          <p v-if="saveWarning" class="save-warning" role="status">{{ saveWarning }}</p>
         </template>
       </section>
 
@@ -260,6 +261,7 @@ const state = ref('idle')
 const src = ref('')
 const dst = ref('')
 const errorMsg = ref('')
+const saveWarning = ref('')
 const latency = ref(0)
 const engineLabel = ref('')
 const raceResults = ref([])
@@ -378,6 +380,8 @@ let raceOffProgress = null
 let raceOffDone = null
 let raceRequestSeq = 0
 let activeRaceRequestId = null
+let translationSequence = 0
+let triggerSequence = 0
 let pinNoticeTimer = null
 let copiedTimer = null
 
@@ -385,6 +389,7 @@ function onEngineChange(payload) {
   if (payload && payload.race) {
     raceMode.value = true
     window.api.saveConfig?.({ raceMode: true })
+    if (src.value) doTranslate(src.value)
     return
   }
   if (payload && payload.color) {
@@ -392,12 +397,13 @@ function onEngineChange(payload) {
     engineLabel.value = payload.name
     raceMode.value = false
     window.api.saveConfig?.({ raceMode: false })
+    if (src.value) doTranslate(src.value)
   }
 }
 
 async function doTranslate(text) {
+  const sequence = ++translationSequence
   stopSpeech()
-  if (!text) { state.value = 'empty'; return }
   clearTimeout(raceSwapTimer)
   raceSwapping.value = false
   raceOffProgress?.()
@@ -409,19 +415,26 @@ async function doTranslate(text) {
   dst.value = ''
   translationEdits.value = {}
   errorMsg.value = ''
+  saveWarning.value = ''
   latency.value = 0
   raceResults.value = []
   raceActiveIdx.value = 0
+  if (!text) {
+    window.api.cancelTranslation?.()
+    state.value = 'empty'
+    return
+  }
   state.value = 'loading'
   if (!manualDir.value) targetIdx.value = hasCJK(text) ? 1 : 0
   if (raceMode.value) {
+    window.api.cancelTranslation?.()
     raceResults.value = []
     raceActiveIdx.value = 0
     firstDone.value = false
     const requestId = `${Date.now()}-${++raceRequestSeq}`
     activeRaceRequestId = requestId
     raceOffProgress = window.api.onRaceProgress((result) => {
-      if (result.requestId !== activeRaceRequestId) return
+      if (sequence !== translationSequence || result.requestId !== activeRaceRequestId) return
       raceResults.value.push(result)
       if (!result.error && !firstDone.value) {
         firstDone.value = true
@@ -432,7 +445,7 @@ async function doTranslate(text) {
       }
     })
     raceOffDone = window.api.onRaceDone((data) => {
-      if (data.requestId !== activeRaceRequestId) return
+      if (sequence !== translationSequence || data.requestId !== activeRaceRequestId) return
       raceResults.value = data.results || raceResults.value
       if (!firstDone.value && (data.error || !data.best)) {
         state.value = 'error'
@@ -450,12 +463,21 @@ async function doTranslate(text) {
     window.api.startRaceTranslate(text, targetLang.value, requestId)
     return
   } else {
-    const r = await window.api.translate(text, targetLang.value, currentEngineId.value)
-    if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
-    dst.value = r.text
-    latency.value = r.ms
-    engineLabel.value = engineDisplayName(r.engine) || engineLabel.value
-    state.value = 'idle'
+    const requestId = `single-${Date.now()}-${sequence}`
+    try {
+      const r = await window.api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId })
+      if (sequence !== translationSequence || r.stale || (r.requestId && r.requestId !== requestId)) return
+      if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
+      dst.value = r.text
+      latency.value = r.ms
+      engineLabel.value = engineDisplayName(r.engine) || engineLabel.value
+      saveWarning.value = r.historyError || ''
+      state.value = 'idle'
+    } catch (error) {
+      if (sequence !== translationSequence) return
+      state.value = 'error'
+      errorMsg.value = error?.message || '翻译失败'
+    }
   }
 }
 
@@ -501,12 +523,19 @@ onMounted(async () => {
   document.addEventListener('keydown', onKeyDown)
   if (window.api?.triggerTranslate) {
     offTrigger = window.api.triggerTranslate(async (payload) => {
-    await loadEngines()
-    doTranslate(payload.text)
-  })
+      const trigger = ++triggerSequence
+      ++translationSequence
+      window.api.cancelTranslation?.()
+      await loadEngines()
+      if (trigger !== triggerSequence) return
+      doTranslate(payload.text)
+    })
   }
 })
 onUnmounted(() => {
+  ++translationSequence
+  ++triggerSequence
+  window.api.cancelTranslation?.()
   document.removeEventListener('wheel', onWheel, { capture: true })
   document.removeEventListener('keydown', onKeyDown)
   clearTimeout(pinNoticeTimer)
@@ -574,6 +603,7 @@ onUnmounted(() => {
   overflow-y: auto;
   overflow-wrap: anywhere;
 }
+.save-warning { color: var(--danger); font-size: var(--fs-xs); }
 .box-label {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: var(--fs-xs); color: var(--text-dim); margin-bottom: var(--space-1);

@@ -3,6 +3,7 @@ export interface TranslationRequest {
   text: string
   target?: string
   providerId?: string | null
+  requestId?: string
 }
 
 export interface RaceRequest extends TranslationRequest {
@@ -15,6 +16,10 @@ export interface TranslationResult {
   ms?: number
   error?: string | null
   historyId?: number
+  historyError?: string
+  sessionId?: string
+  requestId?: string
+  stale?: boolean
 }
 
 export interface RaceResult extends TranslationResult {
@@ -121,6 +126,7 @@ export interface InvokeChannels {
 }
 
 export interface SendChannels {
+  'translate:cancel': []
   'translate:race:start': [RaceRequest]
   'settings:open': []
   'main:open': []
@@ -145,6 +151,7 @@ export interface EasyTranslateApi {
   triggerTranslate(cb: (payload: TranslationTrigger) => void): Unsubscribe
   translate(request: TranslationRequest): Promise<TranslationResult>
   translate(text: string, target?: string, providerId?: string | null): Promise<TranslationResult>
+  cancelTranslation(): void
   startRaceTranslate(request: RaceRequest): void
   startRaceTranslate(text: string, target?: string, requestId?: string): void
   onRaceProgress(cb: (result: RaceResult) => void): Unsubscribe
@@ -179,7 +186,8 @@ export function parseTranslationRequest(input: unknown): TranslationRequest | nu
   if (typeof value.text !== 'string') return null
   if (value.target !== undefined && typeof value.target !== 'string') return null
   if (value.providerId !== undefined && value.providerId !== null && typeof value.providerId !== 'string') return null
-  return { text: value.text, target: value.target as string | undefined, providerId: value.providerId as string | null | undefined }
+  if (value.requestId !== undefined && typeof value.requestId !== 'string') return null
+  return { text: value.text, target: value.target as string | undefined, providerId: value.providerId as string | null | undefined, requestId: value.requestId as string | undefined }
 }
 
 export function parseRaceRequest(input: unknown): RaceRequest | null {
