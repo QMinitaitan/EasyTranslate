@@ -2,6 +2,7 @@
   <div class="page">
     <h2 class="page-title">{{ text.title }}</h2>
     <p class="page-sub">{{ text.subtitle }}</p>
+    <p v-if="saveError" class="setting-error" role="alert">{{ saveError }}</p>
 
     <SortableSettingList
       v-model="settingsOrder"
@@ -103,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
 import BaseSelect from '../components/BaseSelect.vue'
 import SortableSettingList from '../components/SortableSettingList.vue'
 import { useLocale } from '../composables/useLocale'
@@ -173,6 +174,10 @@ const autoLaunchBusy = ref(false)
 const autoLaunchError = ref('')
 const popupResetDone = ref(false)
 const settingsOrder = ref([])
+const saveError = ref('')
+let saving = false
+let saveGeneration = 0
+let offConfigUpdate = null
 
 let hydrated = false
 let saveTimer = null
@@ -183,6 +188,7 @@ async function loadSettings() {
     hydrated = true
     return
   }
+  hydrated = false
   try {
     const [cfg, systemAutoLaunch] = await Promise.all([
       window.api.loadConfig(),
@@ -197,27 +203,41 @@ async function loadSettings() {
   } catch (error) {
     autoLaunchError.value = error?.message || text.value.readAutoLaunchError
   } finally {
+    await nextTick()
     hydrated = true
   }
 }
 
+async function persist(partial) {
+  if (!window.api?.saveConfig) return
+  const generation = ++saveGeneration
+  saving = true
+  try {
+    await window.api.saveConfig(partial)
+    if (generation === saveGeneration) saveError.value = ''
+  } catch (error) {
+    if (generation === saveGeneration) saveError.value = error?.message || (isEnglish.value ? 'Unable to save settings' : '配置保存失败')
+  } finally {
+    if (generation === saveGeneration) saving = false
+  }
+}
+
 function saveSettingsOrder(order) {
-  window.api?.saveConfig?.({
-    settingsOrder: { general: order }
-  }).catch(() => {})
+  persist({ settingsOrder: { general: order } })
+}
+
+function savePreferences() {
+  saveTimer = null
+  return persist({
+    uiLanguage: locale.value, closeAction: closeAction.value,
+    launchToTray: launchToTray.value, raceMode: raceMode.value
+  })
 }
 
 function scheduleSave() {
   if (!hydrated || !window.api?.saveConfig) return
   clearTimeout(saveTimer)
-  saveTimer = setTimeout(() => {
-    window.api.saveConfig({
-      uiLanguage: locale.value,
-      closeAction: closeAction.value,
-      launchToTray: launchToTray.value,
-      raceMode: raceMode.value
-    }).catch(() => {})
-  }, 120)
+  saveTimer = setTimeout(savePreferences, 120)
 }
 
 watch(locale, () => {
@@ -234,7 +254,8 @@ async function changeAutoLaunch() {
   try {
     autoLaunch.value = !!(await window.api.setAutoLaunch(requested))
   } catch (error) {
-    autoLaunch.value = !requested
+    // The system change may have succeeded even when its JSON preference failed to save.
+    autoLaunch.value = await window.api.getAutoLaunch().catch(() => !requested)
     autoLaunchError.value = error?.message || text.value.autoLaunchError
   } finally {
     autoLaunchBusy.value = false
@@ -243,16 +264,28 @@ async function changeAutoLaunch() {
 
 async function resetPopupSize() {
   if (!window.api?.resetPopupBounds) return
-  await window.api.resetPopupBounds()
-  popupResetDone.value = true
-  clearTimeout(resetTimer)
-  resetTimer = setTimeout(() => { popupResetDone.value = false }, 1800)
+  popupResetDone.value = false
+  try {
+    await window.api.resetPopupBounds()
+    saveError.value = ''
+    popupResetDone.value = true
+    clearTimeout(resetTimer)
+    resetTimer = setTimeout(() => { popupResetDone.value = false }, 1800)
+  } catch (error) {
+    saveError.value = error?.message || (isEnglish.value ? 'Unable to save window size' : '窗口设置保存失败')
+  }
 }
 
-onMounted(loadSettings)
+onMounted(() => {
+  offConfigUpdate = window.api?.onConfigUpdate?.(() => {
+    if (!saveTimer && !saving) loadSettings()
+  })
+  loadSettings()
+})
 onUnmounted(() => {
-  clearTimeout(saveTimer)
+  if (saveTimer) { clearTimeout(saveTimer); savePreferences() }
   clearTimeout(resetTimer)
+  offConfigUpdate?.()
 })
 </script>
 
