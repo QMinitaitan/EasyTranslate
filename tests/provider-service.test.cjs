@@ -31,6 +31,7 @@ function transportFixture(reply) {
 test('capabilities reject placeholders and require explicit compatible configuration for Bing and Google', () => {
   const service = createProviderService()
   assert.equal(service.inspect('youdao', configured).status, 'unsupported')
+  assert.match(service.inspect('youdao', configured).protocol, /未实现/)
   assert.equal(service.inspect('bing', configured).status, 'missing-configuration')
   assert.equal(service.inspect('google', { ...configured, endpoint: 'https://compatible.example', model: 'test-model' }).available, true)
   assert.match(service.inspect('google', configured).protocol, /OpenAI-compatible/)

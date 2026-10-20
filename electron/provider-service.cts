@@ -15,11 +15,11 @@ export function createProviderService({ request = https.request, timeoutMs = 200
     const meta = getProvider(id)
     const compatibleAlias = id === 'bing' || id === 'google'
     const supported = !!meta && ['openai-compat', 'deepl'].includes(meta.adapter)
-    const protocol = compatibleAlias ? 'OpenAI-compatible（非官方翻译 API）' : meta?.adapter === 'deepl' ? 'DeepL API' : 'OpenAI-compatible'
+    const protocol = !supported ? '官方协议（未实现）' : compatibleAlias ? 'OpenAI-compatible（非官方翻译 API）' : meta?.adapter === 'deepl' ? 'DeepL API' : 'OpenAI-compatible'
     const missing = !config.apiKey?.trim() ? 'API Key' : compatibleAlias && !config.endpoint?.trim() ? 'OpenAI-compatible Endpoint' : compatibleAlias && !config.model?.trim() ? '兼容模型' : ''
     let configured = supported && !missing
     let reason = !supported ? '该引擎的官方适配器尚未实现' : missing ? `缺少 ${missing}` : ''
-    if (configured && config.endpoint) {
+    if (configured && config.endpoint?.trim()) {
       try {
         const url = new URL(config.endpoint)
         if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) throw new Error()

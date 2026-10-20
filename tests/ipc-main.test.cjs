@@ -99,3 +99,16 @@ test('settings IPC saves partial provider updates durably and notifies existing 
     await assert.rejects(save({}, { shortcuts: { translate: 1 } }), /无效的配置更新/)
   })
 })
+
+test('engine IPC validates untyped drafts and reports unsupported probes without transport', async () => {
+  await withMain(async ({ handles }) => {
+    const capabilities = handles.get('providers:capabilities')
+    const probe = handles.get('providers:probe')
+    assert.throws(() => capabilities({}, { openai: { enabled: 'yes' } }), /无效的引擎配置/)
+    assert.throws(() => probe({}, { providerId: 42 }), /无效的引擎探测请求/)
+    const result = await probe({}, { providerId: 'youdao', config: { enabled: true, apiKey: 'synthetic-key' } })
+    assert.equal(result.ok, false)
+    assert.equal(result.status, 'unsupported')
+    assert.doesNotMatch(JSON.stringify(result), /synthetic-key/)
+  })
+})

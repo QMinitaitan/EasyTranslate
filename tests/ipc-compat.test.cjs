@@ -46,6 +46,16 @@ test('save failures expose the actionable message without Electron IPC implement
   await assert.rejects(api.saveConfig({ raceMode: false }), error => error.message === '配置保存失败，请重试')
 })
 
+test('compiled preload exposes actual engine capability and probe operations with draft configuration', async () => {
+  const { api, requests } = loadPreload()
+  await api.providerCapabilities({ openai: { enabled: true, apiKey: 'synthetic-key' } })
+  await api.testProvider('openai', { enabled: true, apiKey: 'synthetic-key' })
+  assert.deepEqual(JSON.parse(JSON.stringify(requests)), [
+    { channel: 'providers:capabilities', payload: { openai: { enabled: true, apiKey: 'synthetic-key' } } },
+    { channel: 'providers:probe', payload: { providerId: 'openai', config: { enabled: true, apiKey: 'synthetic-key' } } }
+  ])
+})
+
 test('compiled preload preserves race identity and subscriptions can be released', () => {
   const { api, ipc, requests } = loadPreload()
   const observed = []
