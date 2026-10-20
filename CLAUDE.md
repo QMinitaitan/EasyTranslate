@@ -79,3 +79,20 @@ npm test
 - 设计与实施计划以日期命名存于 `docs/superpowers/`：`specs/`（如 `2026-07-28-popup-pinned-topmost-design.md`）与 `plans/`。改动相关功能前先读对应文档。
 - 主分支 `main` 是发布线，Git 标签 `v0.0.x` 对应 GitHub Release。
 - 若需在浏览器调试 UI 而无 Electron API，用 `npm run dev:web`，但 `window.api` 相关的功能不可用。
+
+## Agent skills
+
+### Issue tracker
+
+需要读取、发布或更新规格和任务时，使用本仓库的 GitHub Issues。
+操作前读取 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+需要分类或更新任务状态标签时，读取 `docs/agents/triage-labels.md`，
+使用其中定义的五个默认标签。
+
+### Domain docs
+
+本仓库采用 single-context 布局。
+探索领域概念或架构决策前，读取 `docs/agents/domain.md`。
