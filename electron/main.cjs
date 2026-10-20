@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const net = require('net')
 const { getSelection } = require('./selection.cjs')
-const { translateWith } = require('./translate.cjs')
+const { translateWith, inspectProvider, getProviderCapabilities, probeProvider } = require('./translate.cjs')
 const { getProvider, getAll: getAllProviders } = require('./providers.cjs')
 const { load: loadConfig, save: saveConfig } = require('./config.cjs')
 const history = require('./history.cjs')
@@ -11,7 +11,7 @@ const autoStart = require('./autostart.cjs')
 const { runTranslationRace } = require('./race.cjs')
 const { createTranslationSessions } = require('../dist-electron/translation-session.cjs')
 const { createPopupAutoHideController } = require('./popup-auto-hide.cjs')
-const { parseTranslationRequest, parseRaceRequest } = require('../dist-electron/shared/ipc-contract.cjs')
+const { parseTranslationRequest, parseRaceRequest, parseProviderConfigs, parseProviderProbe } = require('../dist-electron/shared/ipc-contract.cjs')
 const {
   DEFAULT_POPUP_BOUNDS,
   MIN_POPUP_BOUNDS,
@@ -367,8 +367,10 @@ app.whenReady().then(() => {
     const providers = cfg.providers || {}
     const selected = providerId
       ? [providerId, providers[providerId]]
-      : Object.entries(providers).find(([, value]) => value?.enabled && value.apiKey)
-    const engine = selected?.[1]?.enabled && selected[1].apiKey
+      : Object.entries(providers).find(([id, config]) => config && inspectProvider(id, config).available)
+    // An explicit unavailable engine still enters the session so it supersedes old work;
+    // the shared execution capability returns its precise reason before any network call.
+    const engine = selected?.[1]
       ? { id: selected[0], provider: selected[1] }
       : undefined
     const targetLang = target || (cfg.target || '中文(简体)')
@@ -397,7 +399,7 @@ app.whenReady().then(() => {
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')
-    const enabled = Object.entries(providers).filter(([, v]) => v && v.enabled && v.apiKey)
+    const enabled = Object.entries(providers).filter(([id, config]) => config && inspectProvider(id, config).available)
     if (!enabled.length) {
       event.sender.send('translate:race:done', {
         requestId,
@@ -423,6 +425,16 @@ app.whenReady().then(() => {
     }
   })
   ipcMain.handle('providers:list', () => getAllProviders())
+  ipcMain.handle('providers:capabilities', (_event, input) => {
+    const providers = input === undefined ? loadConfig().providers : parseProviderConfigs(input)
+    if (!providers) throw new Error('无效的引擎配置')
+    return getProviderCapabilities(providers)
+  })
+  ipcMain.handle('providers:probe', (_event, input) => {
+    const request = parseProviderProbe(input)
+    if (!request) throw new Error('无效的引擎探测请求')
+    return probeProvider(request.providerId, request.config || loadConfig().providers[request.providerId] || {})
+  })
   ipcMain.on('settings:open', () => {
     if (popupWin && !popupWin.isDestroyed()) popupWin.hide()
     if (mainWin && !mainWin.isDestroyed()) {
