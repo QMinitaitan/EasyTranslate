@@ -51,7 +51,40 @@ export interface ProviderMetadata {
   enabled: boolean
   desc?: string
   models?: string[]
+  apiKey?: string
+  secret?: string
+  endpoint?: string
+  model?: string
+  prompt?: string
+  region?: string
+  hasEndpoint?: boolean
+  hasModel?: boolean
+  hasPrompt?: boolean
+  hasRegion?: boolean
+  hasSecret?: boolean
+  builtin?: boolean
   [key: string]: unknown
+}
+
+export type ProviderStatus = 'ready' | 'unsupported' | 'missing-configuration' | 'disabled'
+export interface ProviderCapability {
+  id: string
+  supported: boolean
+  configured: boolean
+  enabled: boolean
+  available: boolean
+  status: ProviderStatus
+  reason: string
+  protocol: string
+}
+
+export interface ProviderProbeRequest { providerId: string; config?: Partial<ProviderConfig> }
+export interface ProviderProbeResult {
+  ok: boolean
+  status: 'success' | ProviderStatus | 'http-error' | 'network-error' | 'invalid-response' | 'empty-result' | 'timeout' | 'cancelled'
+  ms: number
+  error?: string
+  capability: ProviderCapability
 }
 
 export interface PopupBounds {
