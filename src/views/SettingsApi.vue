@@ -2,6 +2,7 @@
   <div class="page">
     <h2 class="page-title">{{ text.title }}</h2>
     <p class="page-sub">{{ text.subtitle }}</p>
+    <p v-if="saveError" class="provider-error" role="alert">{{ saveError }}</p>
 
     <SortableSettingList
       v-model="providerOrder"
@@ -17,6 +18,7 @@
               <div class="setting-row-title">
                 {{ providerName(p) }}
                 <span v-if="p.builtin" class="tag">{{ text.recommended }}</span>
+                <span v-if="p.capability?.status === 'unsupported'" class="tag">{{ isEnglish ? 'Not supported' : '尚未支持' }}</span>
                 <span class="status-indicator" :class="p.status" :title="statusTitle(p)"></span>
               </div>
               <div class="setting-row-desc">{{ providerDescription(p) }}</div>
@@ -36,9 +38,8 @@
         </div>
 
         <div v-if="expanded === p.id" class="setting-expand">
-          <div v-if="p.id === 'google' && p.enabled" class="tip-card warning">
-            <AlertTriangle :size="13" :stroke-width="1.75" style="margin-right: 6px;" />
-            {{ text.googleWarning }}
+          <div v-if="p.capability" class="tip-card warning" role="status">
+            {{ p.capability.protocol }} · {{ capabilityReason(p.capability) }}
           </div>
 
           <div class="field">
@@ -58,7 +59,7 @@
 
           <div v-if="p.hasModel" class="field">
             <label>{{ text.model }}</label>
-            <BaseSelect v-model="p.model" :options="p.models || []" />
+            <input class="input" v-model="p.model" :placeholder="(p.models || []).join(', ')" />
           </div>
 
           <div v-if="p.hasEndpoint" class="field">
@@ -80,6 +81,7 @@
               {{ testLabel(p) }}
             </button>
           </div>
+          <p v-if="p.testMessage" class="provider-result" :class="{ 'provider-error': p.status === 'fail' }" role="status">{{ p.testMessage }}</p>
         </div>
       </template>
     </SortableSettingList>
@@ -87,8 +89,8 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, watch, computed } from 'vue'
-import { Plug, Check, XCircle, Loader2, AlertTriangle, ChevronRight } from 'lucide-vue-next'
+import { reactive, ref, onMounted, onUnmounted, watch, computed } from 'vue'
+import { Plug, Check, XCircle, Loader2, ChevronRight } from 'lucide-vue-next'
 import InputKey from '../components/InputKey.vue'
 import BaseSelect from '../components/BaseSelect.vue'
 import SortableSettingList from '../components/SortableSettingList.vue'
@@ -136,14 +138,14 @@ const text = computed(() => isEnglish.value ? {
 
 const providerDescriptionsEn = {
   deepseek: 'High-quality, low-cost translation with a China-based language model',
-  bing: 'Stable access in mainland China with a generous free tier',
+  bing: 'Custom OpenAI-compatible endpoint only; official Bing translation protocol is not implemented',
   openai: 'High-quality translation with GPT models',
-  youdao: 'Fast responses in mainland China with JWK encryption',
-  tencent: 'Tencent Cloud nodes; requires SecretId and SecretKey',
+  youdao: 'Official adapter is not implemented; existing configuration is retained',
+  tencent: 'Official adapter is not implemented; SecretId/SecretKey configuration is retained',
   deepl: 'Excellent for European languages; overseas connectivity required',
-  caiyun: 'Fluent Chinese–Japanese translation optimized for native Chinese',
-  baidu: 'Uses appid and secret key with a generous free tier',
-  google: 'Official API with broad language coverage; may be inaccessible in mainland China'
+  caiyun: 'Official adapter is not implemented; existing configuration is retained',
+  baidu: 'Official adapter is not implemented; appid/secret configuration is retained',
+  google: 'Custom OpenAI-compatible endpoint only; official Google translation protocol is not implemented'
 }
 const providerNamesEn = {
   bing: 'Bing Translator',
@@ -164,6 +166,12 @@ function providerName(provider) {
 const expanded = ref(null)
 const providers = reactive([])
 const providerOrder = ref([])
+const saveError = ref('')
+let hydrated = false
+let disposed = false
+let draftVersion = 0
+let capabilityVersion = 0
+let offConfig = null
 
 function toggleExpand(p) {
   expanded.value = expanded.value === p.id ? null : p.id
@@ -179,7 +187,10 @@ function buildFromMeta(meta, saved) {
       desc: m.desc,
       builtin: m.builtin || false,
       status: 'unknown',
-      testState: 'idle'
+      testState: 'idle',
+      testMessage: '',
+      capability: null,
+      testVersion: 0
     }
     item.enabled = 'enabled' in s ? s.enabled : m.enabled
     item.apiKey = s.apiKey || m.apiKey || ''
@@ -199,7 +210,7 @@ function buildFromMeta(meta, saved) {
     }
     item.hasPrompt = m.hasPrompt
     if (m.hasPrompt) item.prompt = 'prompt' in s ? s.prompt : m.prompt
-    item.keyHint = m.id === 'bing' ? 'Ocp-Apim-Subscription-Key' : m.id === 'youdao' ? 'appKey' : m.id === 'tencent' ? 'SecretId' : m.id === 'deepl' ? 'auth-key' : m.id === 'caiyun' ? 'token' : m.id === 'baidu' ? 'appid' : m.id === 'google' ? 'API key' : 'sk-...'
+    item.keyHint = m.id === 'youdao' ? 'appKey' : m.id === 'tencent' ? 'SecretId' : m.id === 'deepl' ? 'auth-key' : m.id === 'caiyun' ? 'token' : m.id === 'baidu' ? 'appid' : 'sk-...'
     return item
   })
 }
@@ -213,45 +224,73 @@ onMounted(async () => {
     const saved = cfg.providers || {}
     providers.push(...buildFromMeta(meta, saved))
     providerOrder.value = cfg.settingsOrder?.providers || []
-  } catch (_) {
-    try {
-      const cfg = await window.api.loadConfig()
-      providerOrder.value = cfg.settingsOrder?.providers || []
-      const p = cfg.providers || {}
-      for (const [id, s] of Object.entries(p)) {
-        providers.push({
-          id, name: id, color: 'var(--brand)', desc: '', enabled: s.enabled, apiKey: s.apiKey || '',
-          status: 'unknown', testState: 'idle'
-        })
-      }
-    } catch (__) { /* nothing */ }
+    await refreshCapabilities()
+    if (!disposed) offConfig = window.api.onConfigUpdate?.(() => refreshCapabilities())
+  } catch (error) {
+    saveError.value = isEnglish.value ? 'Unable to load provider settings' : '无法读取引擎设置'
+  } finally {
+    hydrated = true
   }
 })
 
 function saveProviderOrder(order) {
   window.api?.saveConfig?.({
     settingsOrder: { providers: order }
-  }).catch(() => {})
+  }).catch(() => { saveError.value = isEnglish.value ? 'Unable to save provider order' : '引擎排序保存失败' })
 }
 
 let saveTimer = null
-watch(providers, () => {
+watch(() => JSON.stringify(providerDraft()), () => {
+  if (!hydrated || disposed) return
+  draftVersion += 1
+  for (const provider of providers) {
+    provider.testVersion += 1
+    provider.testState = 'idle'
+    provider.status = 'unknown'
+    provider.testMessage = ''
+  }
   clearTimeout(saveTimer)
-  saveTimer = setTimeout(persist, 800)
-}, { deep: true })
+  saveTimer = setTimeout(() => { saveTimer = null; void persist() }, 800)
+  void refreshCapabilities()
+})
 
-function persist() {
+function providerDraft() {
   const cfg = {}
   for (const p of providers) {
     const item = { enabled: p.enabled, apiKey: p.apiKey }
-    item.endpoint = p.endpoint
+    if (p.hasEndpoint) item.endpoint = p.endpoint || ''
     if (p.hasRegion) item.region = p.region
     if (p.hasModel) item.model = p.model
     if (p.hasPrompt) item.prompt = p.prompt
     if (p.hasSecret) item.secret = p.secret
     cfg[p.id] = item
   }
-  window.api.saveConfig({ providers: cfg })
+  return cfg
+}
+
+async function refreshCapabilities() {
+  const version = ++capabilityVersion
+  try {
+    const capabilities = await window.api.providerCapabilities(providerDraft())
+    if (disposed || version !== capabilityVersion) return
+    for (const provider of providers) provider.capability = capabilities.find(item => item.id === provider.id)
+  } catch (_) {
+    if (disposed || version !== capabilityVersion) return
+    for (const provider of providers) provider.capability = null
+    saveError.value = isEnglish.value ? 'Unable to read provider capabilities' : '无法读取引擎能力'
+  }
+}
+
+async function persist() {
+  const version = draftVersion
+  try {
+    await window.api.saveConfig({ providers: providerDraft() })
+    if (version === draftVersion) saveError.value = ''
+    return true
+  } catch (_) {
+    saveError.value = isEnglish.value ? 'Provider settings could not be saved; the application still uses the last saved settings.' : '引擎设置保存失败；应用仍使用上次已保存的配置。'
+    return false
+  }
 }
 
 let _cachedMeta = null
@@ -259,7 +298,12 @@ async function resetDefaults() {
   if (!_cachedMeta) _cachedMeta = await window.api.listProviders()
   providers.length = 0
   providers.push(...buildFromMeta(_cachedMeta, {}))
-  persist()
+  await persist()
+}
+
+function capabilityReason(capability) {
+  if (!isEnglish.value) return capability.reason
+  return { ready: 'Configuration is available', disabled: 'Provider is disabled', unsupported: 'Official adapter is not implemented', 'missing-configuration': 'Configuration is incomplete or the endpoint is invalid' }[capability.status]
 }
 
 function statusTitle(p) {
@@ -277,14 +321,32 @@ function testLabel(p) {
     fail: text.value.retry
   }[p.testState]
 }
-function testProvider(p) {
+async function testProvider(p) {
+  const version = ++p.testVersion
   p.testState = 'testing'
-  setTimeout(() => {
-    const ok = Math.random() > 0.4
-    p.testState = ok ? 'success' : 'fail'
-    p.status = ok ? 'success' : 'fail'
-  }, 1100)
+  p.testMessage = ''
+  try {
+    const result = await window.api.testProvider(p.id, providerDraft()[p.id])
+    if (disposed || version !== p.testVersion) return
+    p.capability = result.capability
+    p.testState = result.ok ? 'success' : 'fail'
+    p.status = result.ok ? 'success' : 'fail'
+    p.testMessage = result.ok ? (isEnglish.value ? `This probe succeeded (${result.ms} ms)` : `本次实际探测成功 (${result.ms} ms)`) : result.error
+  } catch (_) {
+    if (disposed || version !== p.testVersion) return
+    p.testState = 'fail'
+    p.status = 'fail'
+    p.testMessage = isEnglish.value ? 'Unable to run the engine probe' : '无法执行引擎探测'
+  }
 }
+
+onUnmounted(() => {
+  disposed = true
+  offConfig?.()
+  capabilityVersion += 1
+  for (const provider of providers) provider.testVersion += 1
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; void persist() }
+})
 </script>
 
 <style scoped>
@@ -301,4 +363,6 @@ function testProvider(p) {
   font-size: var(--fs-xs);
   padding: var(--space-2) var(--space-3);
 }
+.provider-error { color: var(--danger); }
+.provider-result { font-size: var(--fs-xs); margin-top: var(--space-2); }
 </style>
