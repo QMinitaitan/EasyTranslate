@@ -215,3 +215,34 @@ test('session replacement reaches the actual adapter transport cancellation boun
   assert.deepEqual(saved, ['B'])
   sessions.dispose()
 })
+
+test('a race presents its first success before slow engines or history finish and retains later results for comparison', async () => {
+  const fast = deferred()
+  const slow = deferred()
+  const persistence = deferred()
+  const saved = []
+  const progress = []
+  const sessions = createTranslationSessions({
+    execute: selected => selected.id === 'fast' ? fast.promise : slow.promise,
+    saveHistory: entry => { saved.push(entry.engine.id); return persistence.promise }
+  })
+  sessions.subscribe((_snapshot, result) => { if (result) progress.push(result) })
+  const race = sessions.start({ text: 'source', target: 'English', mode: 'race', engines: [
+    { ...engine, id: 'slow' }, { ...engine, id: 'fast' }
+  ], requestId: 'race-first' })
+  fast.resolve({ text: 'first visible translation' })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(sessions.current().result.text, 'first visible translation')
+  assert.deepEqual(progress.map(result => result.engine), ['fast'])
+  assert.deepEqual(saved, ['fast'])
+  slow.resolve({ text: 'later comparison' })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.deepEqual(new Set(sessions.current().results.map(result => result.text)), new Set(['first visible translation', 'later comparison']))
+  assert.deepEqual(progress.map(result => result.requestId), ['race-first', 'race-first'])
+  assert.ok(progress.every(result => result.sessionId === race.sessionId))
+  persistence.resolve({ id: 901 })
+  const completed = await race.done
+  assert.equal(completed.status, 'success')
+  assert.equal(completed.results.filter(result => result.historyId === 901).length, 1)
+  sessions.dispose()
+})
