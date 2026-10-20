@@ -71,18 +71,27 @@ function resolvePopupBounds(config = {}) {
   }
 }
 
-function createPopupBoundsStore({ loadConfig, saveConfig }) {
+function createPopupBoundsStore({ loadConfig, saveConfig, onSaveError = () => {} }) {
   if (typeof loadConfig !== 'function' || typeof saveConfig !== 'function') {
     throw new TypeError('loadConfig and saveConfig are required')
   }
 
-  function persist(config, bounds) {
-    config[POPUP_BOUNDS_KEY] = { ...bounds }
-    config[POPUP_BOUNDS_VERSION_KEY] = POPUP_BOUNDS_VERSION
-    saveConfig(config)
+  let pendingSave = Promise.resolve()
+  function persist(_config, bounds) {
+    try {
+      pendingSave = Promise.resolve(saveConfig({
+        [POPUP_BOUNDS_KEY]: { ...bounds },
+        [POPUP_BOUNDS_VERSION_KEY]: POPUP_BOUNDS_VERSION
+      }))
+    } catch (error) {
+      pendingSave = Promise.reject(error)
+    }
+    // Background move/resize has no invoke caller, so report failure and retain it for flush().
+    pendingSave.catch(error => { try { onSaveError(error) } catch {} })
   }
 
   return {
+    flush() { return pendingSave },
     get() {
       const config = loadConfig()
       const resolved = resolvePopupBounds(config)

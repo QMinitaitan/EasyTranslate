@@ -2,6 +2,7 @@
   <div class="page">
     <h2 class="page-title">{{ text.title }}</h2>
     <p class="page-sub">{{ text.subtitle }}</p>
+    <p v-if="saveError" class="shortcut-save-error" role="alert">{{ saveError }}</p>
 
     <SortableSettingList
       v-model="shortcutOrder"
@@ -52,6 +53,10 @@ import { useLocale } from '../composables/useLocale'
 
 const recording = ref(null)
 const shortcutOrder = ref([])
+const saveError = ref('')
+let offConfigUpdate = null
+let saving = false
+let disposed = false
 let recordingTarget = null
 const { isEnglish } = useLocale()
 const text = computed(() => isEnglish.value ? {
@@ -140,6 +145,7 @@ async function loadShortcuts() {
       window.api.loadShortcuts(),
       window.api.loadConfig()
     ])
+    if (disposed) return
     for (const s of shortcuts) {
       s.keys = map[s.id] ? map[s.id].split('+') : []
     }
@@ -152,17 +158,20 @@ async function loadShortcuts() {
 }
 
 async function saveShortcuts() {
+  autoSaveTimer = null
+  saving = true
   const map = {}
   for (const s of shortcuts) {
     map[s.id] = keysToAccel(s.keys)
   }
-  try { await window.api.saveShortcuts(map) } catch (_) {}
+  try { await window.api.saveShortcuts(map); saveError.value = '' }
+  catch (error) { saveError.value = error?.message || (isEnglish.value ? 'Unable to save shortcuts' : '快捷键保存失败') }
+  finally { saving = false }
 }
 
-function saveShortcutOrder(order) {
-  window.api?.saveConfig?.({
-    settingsOrder: { shortcuts: order }
-  }).catch(() => {})
+async function saveShortcutOrder(order) {
+  try { await window.api?.saveConfig?.({ settingsOrder: { shortcuts: order } }); saveError.value = '' }
+  catch (error) { saveError.value = error?.message || (isEnglish.value ? 'Unable to save settings' : '配置保存失败') }
 }
 
 function clearShortcut(s) {
@@ -177,15 +186,22 @@ function autoSave() {
 let autoSaveTimer = null
 
 onMounted(() => {
+  offConfigUpdate = window.api?.onConfigUpdate?.(() => {
+    if (!autoSaveTimer && !saving && recording.value === null) loadShortcuts()
+  })
   loadShortcuts()
   window.addEventListener('keydown', onKeydown, true)
 })
 onUnmounted(() => {
+  disposed = true
+  if (autoSaveTimer) { clearTimeout(autoSaveTimer); saveShortcuts() }
+  offConfigUpdate?.()
   window.removeEventListener('keydown', onKeydown, true)
 })
 </script>
 
 <style scoped>
+.shortcut-save-error { color: var(--danger); font-size: var(--fs-sm); }
 .sc-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-3) var(--space-4);

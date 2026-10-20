@@ -134,6 +134,8 @@ export interface EventChannels {
   'translate:race:progress': RaceResult
   'translate:race:done': RaceDone
   'history:updated': void
+  'config:updated': void
+  'config:save:error': string
   'main:navigate': string
 }
 
@@ -152,6 +154,8 @@ export interface EasyTranslateApi {
   loadConfig(): Promise<AppConfig>
   listProviders(): Promise<ProviderMetadata[]>
   saveConfig(cfg: ConfigUpdate): Promise<AppConfig>
+  onConfigUpdate(cb: () => void): Unsubscribe
+  onConfigSaveError(cb: (message: string) => void): Unsubscribe
   getAutoLaunch(): Promise<boolean>
   setAutoLaunch(enabled: boolean): Promise<boolean>
   resetPopupBounds(): Promise<PopupBounds>

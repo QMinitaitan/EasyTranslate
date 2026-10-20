@@ -15,16 +15,20 @@ async function withMain(run) {
   const handles = new Map()
   const events = new Map()
   const windows = []
+  const notifications = []
   let ready
   class Window extends EventEmitter {
     constructor(options) {
       super()
       this.options = options
       this.webContents = new EventEmitter()
+      this.webContents.send = (channel, payload) => notifications.push({ channel, payload })
       windows.push(this)
     }
     loadFile() {}
     setIcon() {}
+    isDestroyed() { return false }
+    static getAllWindows() { return windows }
   }
   const electron = {
     app: {
@@ -49,11 +53,12 @@ async function withMain(run) {
   delete require.cache[mainPath]
   // Config/history capture the isolated home on require, never the developer's credentials.
   delete require.cache[require.resolve('../electron/config.cjs')]
+  delete require.cache[require.resolve('../dist-electron/config-store.cjs')]
   delete require.cache[require.resolve('../electron/history.cjs')]
   try {
     require(mainPath)
-    ready()
-    return await run({ handles, events, windows })
+    await ready()
+    return await run({ handles, events, windows, notifications })
   } finally {
     Module._load = originalLoad
     Object.defineProperty(process, 'platform', originalPlatform)
@@ -79,5 +84,18 @@ test('main rejects malformed race requests without escaping the IPC handler', as
     const sender = { send: (channel, payload) => responses.push({ channel, payload }), isDestroyed: () => false }
     await events.get('translate:race:start')({ sender }, { text: 42, requestId: 'race-a' })
     assert.deepEqual(responses, [{ channel: 'translate:race:done', payload: { requestId: 'race-a', error: '无效的翻译请求' } }])
+  })
+})
+
+test('settings IPC saves partial provider updates durably and notifies existing windows', async () => {
+  await withMain(async ({ handles, notifications }) => {
+    const save = handles.get('config:save')
+    await save({}, { providers: { deepseek: { enabled: true, apiKey: 'synthetic-key' } } })
+    await save({}, { providers: { deepseek: { model: 'model-d' } } })
+    const loaded = await handles.get('config:load')({})
+    assert.equal(loaded.providers.deepseek.apiKey, 'synthetic-key')
+    assert.equal(loaded.providers.deepseek.model, 'model-d')
+    assert.equal(notifications.filter(item => item.channel === 'config:updated').length, 2)
+    await assert.rejects(save({}, { shortcuts: { translate: 1 } }), /无效的配置更新/)
   })
 })

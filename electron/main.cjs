@@ -5,7 +5,7 @@ const net = require('net')
 const { getSelection } = require('./selection.cjs')
 const { translateWith } = require('./translate.cjs')
 const { getProvider, getAll: getAllProviders } = require('./providers.cjs')
-const { load: loadConfig, save: saveConfig } = require('./config.cjs')
+const { load: loadConfig, save: saveConfig, flush: flushConfig, subscribe: subscribeConfig } = require('./config.cjs')
 const history = require('./history.cjs')
 const autoStart = require('./autostart.cjs')
 const { runTranslationRace } = require('./race.cjs')
@@ -39,7 +39,7 @@ let popupWin = null
 let popupPinned = false
 let popupAutoHideController = null
 let tray = null
-const popupBoundsStore = createPopupBoundsStore({ loadConfig, saveConfig })
+const popupBoundsStore = createPopupBoundsStore({ loadConfig, saveConfig, onSaveError: reportConfigSaveError })
 
 function createTray() {
   try {
@@ -60,11 +60,12 @@ function createTray() {
   }
 }
 
-function resetPopupBounds() {
+async function resetPopupBounds() {
   const bounds = popupBoundsStore.reset()
   if (popupWin && !popupWin.isDestroyed()) {
     popupWin.setSize(bounds.width, bounds.height)
   }
+  await popupBoundsStore.flush()
   return bounds
 }
 
@@ -305,6 +306,23 @@ function broadcastHistoryUpdate() {
   }
 }
 
+function broadcastConfig(channel, payload) {
+  for (const win of BrowserWindow.getAllWindows()) {
+    try {
+      if (!win.isDestroyed() && !win.webContents.isDestroyed?.()) win.webContents.send(channel, payload)
+    } catch { /* A closing/crashed renderer cannot prevent other windows receiving the update. */ }
+  }
+}
+
+function reportConfigSaveError(error) {
+  broadcastConfig('config:save:error', error?.message || '配置保存失败，请重试')
+}
+
+async function saveSettings(partial) {
+  try { return await saveConfig(partial) }
+  catch (error) { reportConfigSaveError(error); throw error }
+}
+
 function addToHistory(src, dst, providerId, targetLang, extra = {}) {
   const p = getProvider(providerId)
   const item = history.add({
@@ -319,12 +337,35 @@ function addToHistory(src, dst, providerId, targetLang, extra = {}) {
 }
 
 app.whenReady().then(() => {
+  // Initialize once before any translation trigger; subsequent reads use the durable cache.
+  loadConfig()
   createMainWindow()
   createTray()
   const server = process.platform === 'win32' ? null : startSocketServer()
   const _cfg = loadConfig()
   registerShortcuts(getShortcutMap(_cfg))
+  const unsubscribeConfig = subscribeConfig(() => {
+    broadcastConfig('config:updated')
+  })
+  let configFlushed = false
+  let flushInProgress = false
+  app.on('before-quit', (event) => {
+    if (configFlushed) return
+    event.preventDefault()
+    if (flushInProgress) return
+    flushInProgress = true
+    // A final geometry snapshot includes changes still in the window's debounce timer.
+    if (popupWin && !popupWin.isDestroyed()) {
+      popupBoundsStore.update(popupWin.getBounds(), { preservePosition: cursorPositioningSupported })
+    }
+    flushConfig().finally(() => {
+      configFlushed = true
+      app.isQuiting = true
+      app.quit()
+    })
+  })
   app.on('will-quit', () => {
+    unsubscribeConfig()
     try {
       server?.close()
       if (process.platform !== 'win32') fs.unlinkSync(SOCK_PATH)
@@ -332,22 +373,9 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('config:load', () => loadConfig())
-  ipcMain.handle('config:save', (_evt, partial) => {
-    const current = loadConfig()
-    const next = {
-      ...current,
-      ...partial,
-      providers: partial.providers
-        ? { ...current.providers, ...partial.providers }
-        : current.providers,
-      shortcuts: partial.shortcuts
-        ? { ...current.shortcuts, ...partial.shortcuts }
-        : current.shortcuts,
-      settingsOrder: partial.settingsOrder
-        ? { ...(current.settingsOrder || {}), ...partial.settingsOrder }
-        : current.settingsOrder
-    }
-    saveConfig(next)
+  ipcMain.handle('config:save', async (_evt, partial) => {
+    const next = await saveSettings(partial)
+    if (partial.shortcuts || partial.shortcut !== undefined) registerShortcuts(getShortcutMap(next))
     return next
   })
   ipcMain.handle('translate:do', async (_evt, payload) => {
@@ -438,11 +466,10 @@ app.whenReady().then(() => {
     return true
   })
   ipcMain.handle('autostart:get', () => autoStart.isEnabled(app))
-  ipcMain.handle('autostart:set', (_evt, enabled) => {
+  ipcMain.handle('autostart:set', async (_evt, enabled) => {
+    if (typeof enabled !== 'boolean') throw new Error('无效的开机启动设置')
     const actual = autoStart.setEnabled(app, enabled)
-    const cfg = loadConfig()
-    cfg.autoLaunch = actual
-    saveConfig(cfg)
+    await saveSettings({ autoLaunch: actual })
     return actual
   })
   ipcMain.on('popup:close', () => {
@@ -465,10 +492,8 @@ app.whenReady().then(() => {
     }
   })
   ipcMain.handle('shortcuts:load', () => getShortcutMap(loadConfig()))
-  ipcMain.handle('shortcuts:save', (_evt, shortcuts) => {
-    const cfg = loadConfig()
-    cfg.shortcuts = getShortcutMap({ shortcuts })
-    saveConfig(cfg)
+  ipcMain.handle('shortcuts:save', async (_evt, shortcuts) => {
+    const cfg = await saveSettings({ shortcuts })
     registerShortcuts(cfg.shortcuts)
   })
   ipcMain.handle('popup:bounds:reset', () => resetPopupBounds())

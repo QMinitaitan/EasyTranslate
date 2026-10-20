@@ -1,0 +1,15 @@
+# Configuration persistence
+
+`electron/config-store.cts` owns defaults, legacy normalization, partial updates, cached reads, atomic asynchronous persistence and committed-change subscriptions. The CJS entry is a temporary migration entry for callers not yet moved in #10.
+
+The main process initializes the store once before windows/translation triggers. Later translation reads use cloned cached settings and do not synchronously reread the JSON file. External edits are read after restart. Existing JSON keys, valid provider credentials, unknown future settings, legacy `shortcut`, per-provider defaults, settings ordering and window fields are retained. Invalid individual legacy preferences fall back without discarding unrelated credentials. Invalid JSON or an unreadable existing file uses defaults for running the app but blocks overwrite with an explicit error.
+
+`save(partial)` validates untyped input, omits undefined optional object fields, and serializes writes. Each update merges against the last successful write, including provider fields, shortcuts and order groups. A temporary sibling file is written asynchronously and renamed over the target; failures clean up the temporary file. This provides replacement atomicity, not a claim of power-loss-proof storage.
+
+The read cache and subscribers advance only after the write succeeds. A pending or failed update does not become the effective saved configuration. Failure rejects with an actionable message without paths, raw file contents or credentials. Later queued saves can still proceed from the last successful state. `flush()` waits for queued work at normal application exit.
+
+IPC settings saves await persistence before reporting success. Committed changes notify existing windows through `config:updated`; notification payloads do not broadcast provider keys. Background window geometry failures and failed saves notify `config:save:error`. Windows release subscriptions when they exit. General and shortcut settings show save failures, flush pending debounced edits when leaving the page, and avoid treating initial hydration as an edit. Window reset reports success only after its save completes.
+
+Tests use temporary files and a controlled storage dependency through the public store interface. They cover old data/credentials, partial and overlapping saves, delayed persistence, failed writes and retry, cache isolation, invalid IPC data, optional fields, malformed unrelated legacy preferences and unreadable originals. Main IPC regression verifies persisted settings and cross-window notification; the bounds seam verifies observable asynchronous save failure.
+
+An isolated Windows Electron UI smoke additionally clicked the real General race setting, verified the next preload/config read and actual temporary JSON, then forced the rename target to be a directory. The page displayed a save error and retained the previously saved config. Evidence is retained outside the repository under the coordinator's `config-ui-smoke` directory. This smoke used a hidden window and no foreground/clipboard, paid provider request or autostart change; full packaged/native acceptance remains #11.

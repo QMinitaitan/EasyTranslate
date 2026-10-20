@@ -3,7 +3,11 @@ import type { EasyTranslateApi, EventChannels, InvokeChannels, RaceRequest, Send
 
 // Type-only shared imports disappear: Electron sandbox preloads cannot require local modules.
 function invoke<C extends keyof InvokeChannels>(channel: C, ...args: InvokeChannels[C]['args']): Promise<InvokeChannels[C]['result']> {
-  return ipcRenderer.invoke(channel, ...args)
+  return ipcRenderer.invoke(channel, ...args).catch((error: unknown) => {
+    const message = typeof (error as { message?: unknown })?.message === 'string'
+      ? (error as { message: string }).message : '操作失败，请重试'
+    throw new Error(message.replace(/^Error invoking remote method '[^']+': (?:Error: )?/, ''))
+  })
 }
 
 function send<C extends keyof SendChannels>(channel: C, ...args: SendChannels[C]): void {
@@ -29,6 +33,8 @@ const api: EasyTranslateApi = {
   loadConfig: () => invoke('config:load'),
   listProviders: () => invoke('providers:list'),
   saveConfig: (cfg) => invoke('config:save', cfg),
+  onConfigUpdate: (cb) => on('config:updated', cb),
+  onConfigSaveError: (cb) => on('config:save:error', cb),
   getAutoLaunch: () => invoke('autostart:get'),
   setAutoLaunch: (enabled) => invoke('autostart:set', enabled),
   resetPopupBounds: () => invoke('popup:bounds:reset'),
