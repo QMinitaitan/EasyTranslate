@@ -13,9 +13,9 @@ if (!process.versions.electron) {
     stdio: ['ignore', fs.openSync(path.join(output, 'stdout.txt'), 'w'), fs.openSync(path.join(output, 'stderr.txt'), 'w')]
   })
   child.on('error', error => { console.error(error.message); process.exitCode = 1 })
-  child.on('exit', code => {
-    console.log(`Provider UI smoke exited ${code}; evidence: ${output}`)
-    process.exitCode = code || 0
+  child.on('exit', (code, signal) => {
+    console.log(`Provider UI smoke exited ${code}${signal ? ` (${signal})` : ''}; evidence: ${output}`)
+    process.exitCode = code === 0 ? 0 : 1
   })
 } else {
   const { app, BrowserWindow } = require('electron')
