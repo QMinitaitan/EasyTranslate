@@ -106,6 +106,7 @@ let selectionCaptureBusy = false
 async function onShortcut() {
   if (selectionCaptureBusy) return
   selectionCaptureBusy = true
+  desktop.beginSelectionCapture()
   translationSessions.cancel()
   try {
     const { text, source, reason } = await getSelection()

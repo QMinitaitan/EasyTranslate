@@ -1,4 +1,4 @@
-import type { BrowserWindow, BrowserWindowConstructorOptions, Rectangle, Screen, WebContents } from 'electron'
+import type { BrowserWindow, BrowserWindowConstructorOptions, Rectangle, Screen, WebContents, WebContentsDidStartNavigationEventParams } from 'electron'
 import type { AppConfig, ConfigUpdate, TranslationTrigger } from './shared/ipc-contract.cjs'
 import { createPopupBoundsStore, DEFAULT_POPUP_BOUNDS, MIN_POPUP_BOUNDS, supportsCursorPositioning } from '../electron/popup-bounds.cjs'
 import { createPopupAutoHideController, type PopupAutoHideController } from '../electron/popup-auto-hide.cjs'
@@ -94,17 +94,22 @@ export function createDesktopRuntime({ createWindow, frontend, screen, loadConfi
     const record: Popup = { window: win, ready: false, cleanup: [], autoHide, geometryTimer: null, geometry: null, ignoreBounds: null }
     popup = record
     const loading = () => { record.ready = false }
+    const navigating = ({ isMainFrame, isSameDocument }: WebContentsDidStartNavigationEventParams) => {
+      // Spinner activity also accompanies same-document history changes, including
+      // native hide/show transitions. The initialized Vue application still exists.
+      if (isMainFrame && !isSameDocument) record.ready = false
+    }
     const closed = () => {
       saveGeometry(record)
       record.autoHide.dispose()
       for (const cleanup of record.cleanup) cleanup()
       if (popup === record) { popup = null; pending = null }
     }
-    win.webContents.on('did-start-loading', loading)
+    win.webContents.on('did-start-navigation', navigating)
     win.webContents.on('render-process-gone', loading)
     win.on('closed', closed)
     record.cleanup.push(
-      () => win.webContents.removeListener('did-start-loading', loading),
+      () => win.webContents.removeListener('did-start-navigation', navigating),
       () => win.webContents.removeListener('render-process-gone', loading),
       () => win.removeListener('closed', closed)
     )
@@ -141,6 +146,11 @@ export function createDesktopRuntime({ createWindow, frontend, screen, loadConfi
       prewarm = schedule(() => { prewarm = null; if (!disposed) ensureWindow() }, 0)
     },
     prewarm() { if (!disposed) ensureWindow() },
+    beginSelectionCapture() {
+      // A prior queued trigger is already superseded. If Vue becomes ready while
+      // the next native capture is running, it must not activate the popup.
+      pending = null
+    },
     showTranslation(text: string) {
       if (disposed) return
       ensureWindow()

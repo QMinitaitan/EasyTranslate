@@ -110,6 +110,45 @@ test('the reused popup preserves pin/topmost, genuine blur, drag protection and 
   assert.equal(f.pending(), 0)
 })
 
+test('a newer foreground capture supersedes queued work before readiness can focus the popup', () => {
+  const f = fixture()
+  f.desktop.prewarm()
+  const win = f.windows[0]
+  f.desktop.showTranslation('old queued capture')
+  f.desktop.beginSelectionCapture()
+  f.desktop.markReady(win.webContents)
+  assert.equal(win.visible, false)
+  assert.equal(win.focuses, 0)
+  assert.deepEqual(win.messages, [])
+  f.desktop.showTranslation('new completed capture')
+  assert.deepEqual(win.messages.map(message => message.payload.text), ['new completed capture'])
+  f.desktop.dispose()
+})
+
+test('same-document spinner activity while hiding preserves readiness; only a new main document invalidates it', () => {
+  const f = fixture()
+  f.desktop.prewarm()
+  const win = f.windows[0]
+  f.desktop.markReady(win.webContents)
+  f.desktop.showTranslation('first')
+  win.emit('blur')
+  f.advance(300)
+  // Native Electron emits this pair for same-document navigation while hiding.
+  win.webContents.emit('did-start-loading')
+  win.webContents.emit('did-start-navigation', { isMainFrame: true, isSameDocument: true })
+  f.desktop.showTranslation('after hide')
+  assert.equal(win.visible, true)
+  assert.deepEqual(win.messages.map(message => message.payload.text), ['first', 'after hide'])
+  win.webContents.emit('did-start-navigation', { isMainFrame: false, isSameDocument: false })
+  f.desktop.showTranslation('after subframe')
+  win.webContents.emit('did-start-navigation', { isMainFrame: true, isSameDocument: false })
+  f.desktop.showTranslation('after reload')
+  assert.deepEqual(win.messages.map(message => message.payload.text), ['first', 'after hide', 'after subframe'])
+  f.desktop.markReady(win.webContents)
+  assert.deepEqual(win.messages.map(message => message.payload.text), ['first', 'after hide', 'after subframe', 'after reload'])
+  f.desktop.dispose()
+})
+
 test('renderer restart and window replacement require a new ready signal and release owned timers/listeners', () => {
   const f = fixture()
   f.desktop.prewarm()
@@ -131,7 +170,7 @@ test('renderer restart and window replacement require a new ready signal and rel
   assert.equal(first.listenerCount('move'), 0)
   assert.equal(first.listenerCount('resize'), 0)
   assert.equal(first.listenerCount('blur'), 0)
-  assert.equal(first.webContents.listenerCount('did-start-loading'), 0)
+  assert.equal(first.webContents.listenerCount('did-start-navigation'), 0)
   f.desktop.showTranslation('replacement')
   const next = f.windows[1]
   assert.equal(f.desktop.markReady(first.webContents), null)
