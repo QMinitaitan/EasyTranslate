@@ -9,9 +9,10 @@
         <input class="search-input" :placeholder="text.search" v-model="keyword" />
       </div>
       <BaseSelect v-model="engineFilter" :options="engineOptions" />
-      <button class="btn btn-sm btn-ghost" @click="clearAll"><Trash2 :size="13" :stroke-width="1.75" />{{ text.clear }}</button>
+      <button class="btn btn-sm btn-ghost" :disabled="saving" @click="clearAll"><Trash2 :size="13" :stroke-width="1.75" />{{ text.clear }}</button>
     </div>
 
+    <p v-if="historyError" class="history-error" role="alert">{{ historyError }}</p>
     <div class="history">
       <template v-for="g in grouped" :key="g.date">
         <div class="date-header">{{ g.label }}</div>
@@ -27,12 +28,13 @@
                   class="icon-btn"
                   :class="{ favorite: h.favorite }"
                   :title="h.favorite ? text.unfavorite : text.favorite"
+                  :disabled="saving"
                   @click="toggleFavorite(h)"
                 >
                   <Star :size="13" :stroke-width="1.75" :fill="h.favorite ? 'currentColor' : 'none'" />
                 </button>
                 <button class="icon-btn" :title="text.copy" @click="copyDst(h)"><Copy :size="13" :stroke-width="1.75" /></button>
-                <button class="icon-btn" :title="text.delete" @click="removeItem(h)"><Trash2 :size="13" :stroke-width="1.75" /></button>
+                <button class="icon-btn" :title="text.delete" :disabled="saving" @click="removeItem(h)"><Trash2 :size="13" :stroke-width="1.75" /></button>
               </span>
             </div>
             <div class="h-src">{{ h.src }}</div>
@@ -40,7 +42,7 @@
           </div>
         </div>
       </template>
-      <div v-if="!grouped.length" class="empty">
+      <div v-if="!grouped.length && !historyError" class="empty">
         <div class="empty-ico"><Inbox :size="42" :stroke-width="1.5" /></div>
         <div class="empty-title">{{ text.empty }}</div>
         <div class="empty-sub">{{ text.emptyDesc }}</div>
@@ -124,7 +126,10 @@ const keyword = ref('')
 const engineFilter = ref('')
 const list = ref([])
 const showConfirm = ref(false)
+const saving = ref(false)
+const historyError = ref('')
 let unsubHistory = null
+let loadSequence = 0
 
 function langLabel(lang) {
   if (lang === '中文(简体)') return isEnglish.value ? 'EN → ZH' : '英 → 中'
@@ -188,18 +193,11 @@ function copyDst(h) {
 }
 
 async function toggleFavorite(h) {
-  try {
-    const updated = await window.api.setFavorite(h.id, !h.favorite)
-    if (updated) h.favorite = updated.favorite
-  } catch (_) {}
+  await mutate(() => window.api.setFavorite(h.id, !h.favorite))
 }
 
 async function removeItem(h) {
-  try {
-    await window.api.deleteHistory(h.id)
-    const idx = list.value.findIndex(i => i.id === h.id)
-    if (idx !== -1) list.value.splice(idx, 1)
-  } catch (_) {}
+  await mutate(() => window.api.deleteHistory(h.id))
 }
 
 function clearAll() {
@@ -209,29 +207,43 @@ function clearAll() {
 
 async function doClear() {
   showConfirm.value = false
-  try {
-    await window.api.clearHistory()
-    list.value.splice(0)
-  } catch (_) {}
+  await mutate(() => window.api.clearHistory())
+}
+
+async function mutate(operation) {
+  if (saving.value) return
+  saving.value = true
+  historyError.value = ''
+  try { await operation() }
+  catch (error) { historyError.value = error?.message || '历史保存失败，请重试' }
+  finally { saving.value = false }
 }
 
 async function load() {
+  const sequence = ++loadSequence
   try {
-    list.value = await window.api.loadHistory()
-  } catch (_) { list.value = [] }
+    const items = await window.api.loadHistory()
+    if (sequence !== loadSequence) return
+    list.value = items
+    historyError.value = ''
+  } catch (error) {
+    if (sequence === loadSequence) historyError.value = error?.message || '历史读取失败，请重试'
+  }
 }
 
 onMounted(() => {
-  load()
   unsubHistory = window.api.onHistoryUpdate(() => load())
+  load()
 })
 
 onUnmounted(() => {
+  ++loadSequence
   if (unsubHistory) unsubHistory()
 })
 </script>
 
 <style scoped>
+.history-error { color: var(--danger); font-size: var(--fs-sm); margin-bottom: var(--space-3); }
 .toolbar {
   display: flex;
   gap: var(--space-2);

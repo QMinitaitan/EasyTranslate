@@ -27,6 +27,7 @@ const api: EasyTranslateApi = {
   translate: (input: string | TranslationRequest, target?: string, providerId?: string | null) =>
     invoke('translate:do', typeof input === 'string' ? { text: input, target, providerId } : input),
   cancelTranslation: () => send('translate:cancel'),
+  onTranslationProgress: (cb) => on('translate:progress', cb),
   startRaceTranslate: (input: string | RaceRequest, target?: string, requestId?: string) =>
     send('translate:race:start', typeof input === 'string' ? { text: input, target, requestId } : input),
   onRaceProgress: (cb) => on('translate:race:progress', cb),
@@ -50,6 +51,7 @@ const api: EasyTranslateApi = {
   deleteHistory: (id) => invoke('history:delete', id),
   clearHistory: () => invoke('history:clear'),
   onHistoryUpdate: (cb) => on('history:updated', cb),
+  onHistorySaveError: (cb) => on('history:save:error', cb),
   openSettings: () => send('settings:open'),
   openMain: () => send('main:open'),
   onNavigate: (cb) => on('main:navigate', cb),

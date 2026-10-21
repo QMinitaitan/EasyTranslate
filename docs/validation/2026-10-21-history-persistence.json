@@ -1,0 +1,31 @@
+{
+  "pass": true,
+  "controlledHiddenDom": true,
+  "physicalClipboardUsed": false,
+  "beforePersistence": {
+    "text": "FAIL translated",
+    "ipcCompleted": false,
+    "historySources": [
+      "LEGACY"
+    ]
+  },
+  "failedSave": {
+    "translation": "FAIL translated",
+    "historyId": null,
+    "historyError": "翻译成功，但历史保存失败"
+  },
+  "legacyIdAndCustomFieldPreserved": true,
+  "subscribers": 2,
+  "verified": [
+    "translation",
+    "save failure",
+    "copy IPC",
+    "retry",
+    "favorite",
+    "failed unfavorite",
+    "unfavorite",
+    "delete",
+    "clear"
+  ],
+  "windowsStayedHidden": true
+}

@@ -23,9 +23,9 @@ const history = require(path.join(root, 'electron/history.cjs'))
 const durableAdd = history.add
 const queuedHistory = []
 let holdRaceHistory = true
-history.add = entry => {
-  if (entry.src === 'RACE' && holdRaceHistory) return new Promise(resolve => queuedHistory.push(() => resolve(durableAdd(entry))))
-  return durableAdd(entry)
+history.add = (entry, options) => {
+  if (entry.src === 'RACE' && holdRaceHistory) return new Promise(resolve => queuedHistory.push(() => resolve(durableAdd(entry, options))))
+  return durableAdd(entry, options)
 }
 const requests = []
 let abortAttempts = 0

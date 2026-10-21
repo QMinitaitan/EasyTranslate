@@ -301,12 +301,6 @@ function registerShortcuts(shortcutMap) {
   }
 }
 
-function broadcastHistoryUpdate() {
-  for (const w of BrowserWindow.getAllWindows()) {
-    if (!w.isDestroyed()) w.webContents.send('history:updated')
-  }
-}
-
 function broadcastConfig(channel, payload) {
   for (const win of BrowserWindow.getAllWindows()) {
     try {
@@ -324,28 +318,47 @@ async function saveSettings(partial) {
   catch (error) { reportConfigSaveError(error); throw error }
 }
 
-function addToHistory(src, dst, providerId, targetLang, extra = {}) {
+function addToHistory(src, dst, providerId, targetLang, extra = {}, options = {}) {
   const p = getProvider(providerId)
-  const item = history.add({
+  return history.add({
     engine: p ? p.name : providerId,
     color: p ? p.color : '#888',
     lang: targetLang,
     src, dst, ts: Date.now(),
     ...extra
-  })
-  broadcastHistoryUpdate()
-  return item
+  }, options)
 }
 
 const translationSessions = createTranslationSessions({
   execute: ({ id, provider }, input) => translateWith(provider, id, input),
   saveHistory: ({ text, target, engine, result, isCurrent }) =>
-    isCurrent() ? addToHistory(text, result.text, engine.id, target) : null
+    addToHistory(text, result.text, engine.id, target, {}, { isCurrent })
 })
+
+// Keep progress owned by the requesting renderer until completion or replacement.
+async function runSessionForSender(sender, request, channel) {
+  let sessionId
+  const offProgress = translationSessions.subscribe((snapshot, progress) => {
+    if (snapshot.sessionId !== sessionId || !progress || sender.isDestroyed()) return
+    sender.send(channel, progress)
+  })
+  const session = translationSessions.start(request)
+  sessionId = session.sessionId
+  const onDestroyed = () => {
+    if (translationSessions.current()?.sessionId === sessionId) translationSessions.cancel()
+  }
+  sender.once?.('destroyed', onDestroyed)
+  try { return { sessionId, completed: await session.done } }
+  finally {
+    offProgress()
+    sender.removeListener?.('destroyed', onDestroyed)
+  }
+}
 
 app.whenReady().then(() => {
   // Initialize once before any translation trigger; subsequent reads use the durable cache.
   loadConfig()
+  try { history.load() } catch { /* Home displays the read failure; mutations protect the existing file. */ }
   createMainWindow()
   createTray()
   const server = process.platform === 'win32' ? null : startSocketServer()
@@ -354,6 +367,8 @@ app.whenReady().then(() => {
   const unsubscribeConfig = subscribeConfig(() => {
     broadcastConfig('config:updated')
   })
+  const unsubscribeHistory = history.subscribe(() => broadcastConfig('history:updated'))
+  const unsubscribeHistoryErrors = history.subscribeErrors(message => broadcastConfig('history:save:error', message))
   let configFlushed = false
   let flushInProgress = false
   app.on('before-quit', (event) => {
@@ -361,11 +376,12 @@ app.whenReady().then(() => {
     event.preventDefault()
     if (flushInProgress) return
     flushInProgress = true
+    translationSessions.cancel()
     // A final geometry snapshot includes changes still in the window's debounce timer.
     if (popupWin && !popupWin.isDestroyed()) {
       popupBoundsStore.update(popupWin.getBounds(), { preservePosition: cursorPositioningSupported })
     }
-    flushConfig().finally(() => {
+    Promise.all([history.flush(), flushConfig()]).catch(reportConfigSaveError).finally(() => {
       configFlushed = true
       app.isQuiting = true
       app.quit()
@@ -373,6 +389,8 @@ app.whenReady().then(() => {
   })
   app.on('will-quit', () => {
     unsubscribeConfig()
+    unsubscribeHistory()
+    unsubscribeHistoryErrors()
     translationSessions.dispose()
     try {
       server?.close()
@@ -386,7 +404,7 @@ app.whenReady().then(() => {
     if (partial.shortcuts || partial.shortcut !== undefined) registerShortcuts(getShortcutMap(next))
     return next
   })
-  ipcMain.handle('translate:do', async (_evt, payload) => {
+  ipcMain.handle('translate:do', async (event, payload) => {
     const request = parseTranslationRequest(payload)
     if (!request) return { error: '无效的翻译请求' }
     const { text, target, providerId, requestId } = request
@@ -401,10 +419,10 @@ app.whenReady().then(() => {
       ? { id: selected[0], provider: selected[1] }
       : undefined
     const targetLang = target || (cfg.target || '中文(简体)')
-    const session = translationSessions.start({ text, target: targetLang, engine, requestId })
-    const completed = await session.done
+    const { sessionId, completed } = await runSessionForSender(event.sender,
+      { text, target: targetLang, engine, requestId }, 'translate:progress')
     return {
-      ...completed.result, sessionId: session.sessionId, requestId,
+      ...completed.result, sessionId, requestId,
       ...(completed.status === 'superseded' ? { stale: true } : {})
     }
   })
@@ -425,32 +443,16 @@ app.whenReady().then(() => {
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')
     const enabled = Object.entries(providers).filter(([id, config]) => config && inspectProvider(id, config).available)
-    let sessionId
-    const offProgress = translationSessions.subscribe((snapshot, progress) => {
-      if (snapshot.sessionId !== sessionId || !progress || event.sender.isDestroyed()) return
-      event.sender.send('translate:race:progress', progress)
-    })
-    const session = translationSessions.start({
+    const { sessionId, completed } = await runSessionForSender(event.sender, {
       text, target: targetLang, mode: 'race', requestId,
       engines: enabled.map(([id, provider]) => ({ id, provider }))
+    }, 'translate:race:progress')
+    if (completed.status === 'superseded' || translationSessions.current()?.sessionId !== sessionId || event.sender.isDestroyed()) return
+    event.sender.send('translate:race:done', {
+      requestId, sessionId, results: completed.results,
+      best: completed.results.find(result => !result.error && result.text) || null,
+      ...(completed.status === 'error' ? { error: completed.result?.error } : {})
     })
-    sessionId = session.sessionId
-    const onDestroyed = () => {
-      if (translationSessions.current()?.sessionId === sessionId) translationSessions.cancel()
-    }
-    event.sender.once?.('destroyed', onDestroyed)
-    try {
-      const completed = await session.done
-      if (completed.status === 'superseded' || translationSessions.current()?.sessionId !== sessionId || event.sender.isDestroyed()) return
-      event.sender.send('translate:race:done', {
-        requestId, sessionId, results: completed.results,
-        best: completed.results.find(result => !result.error && result.text) || null,
-        ...(completed.status === 'error' ? { error: completed.result?.error } : {})
-      })
-    } finally {
-      offProgress()
-      event.sender.removeListener?.('destroyed', onDestroyed)
-    }
   })
   ipcMain.handle('providers:list', () => getAllProviders())
   ipcMain.handle('providers:capabilities', (_event, input) => {
@@ -514,28 +516,24 @@ app.whenReady().then(() => {
   })
   ipcMain.handle('popup:bounds:reset', () => resetPopupBounds())
   ipcMain.handle('history:load', () => history.load())
-  ipcMain.handle('history:favorite', (_evt, payload) => {
-    let item = payload.historyId
-      ? history.setFavorite(payload.historyId, true)
+  ipcMain.handle('history:favorite', async (_evt, payload) => {
+    if (!payload || typeof payload !== 'object' ||
+        !['src', 'dst', 'providerId', 'target'].every(key => typeof payload[key] === 'string')) throw new Error('无效的收藏请求')
+    let item = payload.historyId !== undefined
+      ? await history.setFavorite(payload.historyId, true)
       : null
     if (!item) {
-      item = addToHistory(
+      item = await addToHistory(
         payload.src,
         payload.dst,
         payload.providerId,
         payload.target,
         { favorite: true }
       )
-    } else {
-      broadcastHistoryUpdate()
     }
     return item
   })
-  ipcMain.handle('history:favorite:set', (_evt, id, favorite) => {
-    const item = history.setFavorite(id, favorite)
-    broadcastHistoryUpdate()
-    return item
-  })
+  ipcMain.handle('history:favorite:set', (_evt, id, favorite) => history.setFavorite(id, favorite))
   ipcMain.handle('history:delete', (_evt, id) => history.remove(id))
   ipcMain.handle('history:clear', () => history.clearAll())
   ipcMain.on('popup:dismiss', () => {

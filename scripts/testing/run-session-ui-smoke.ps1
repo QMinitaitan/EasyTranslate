@@ -1,4 +1,4 @@
-param([string]$Repo = '', [string]$ElectronPath = '', [string]$OutputRoot = '', [ValidateSet('single', 'race')][string]$Scenario = 'single')
+param([string]$Repo = '', [string]$ElectronPath = '', [string]$OutputRoot = '', [ValidateSet('single', 'race', 'history')][string]$Scenario = 'single')
 $ErrorActionPreference = 'Stop'
 $t2Project = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if (!$Repo) { $Repo = $t2Project }
@@ -27,7 +27,7 @@ $t2Environment = @{
   EASY_SESSION_TEST_ROOT = [IO.Path]::GetFullPath($Repo)
   EASY_SESSION_TEST_OUTPUT = $t2Output
 }
-$t2Harness = Join-Path $PSScriptRoot $(if ($Scenario -eq 'race') { 'race-ui-smoke.cjs' } else { 'session-ui-smoke.cjs' })
+$t2Harness = Join-Path $PSScriptRoot $(if ($Scenario -eq 'race') { 'race-ui-smoke.cjs' } elseif ($Scenario -eq 'history') { 'history-ui-smoke.cjs' } else { 'session-ui-smoke.cjs' })
 $t2Process = Start-Process -FilePath $ElectronPath -ArgumentList ('"{0}"' -f $t2Harness) -Environment $t2Environment -WindowStyle Hidden -PassThru -Wait -RedirectStandardOutput (Join-Path $t2Output 'stdout.txt') -RedirectStandardError (Join-Path $t2Output 'stderr.txt')
 Write-Output "Smoke evidence: $t2Output"
 Get-Content -Encoding utf8 -LiteralPath (Join-Path $t2Output 'result.json')

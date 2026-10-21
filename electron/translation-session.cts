@@ -1,4 +1,4 @@
-import type { ProviderConfig, TranslationResult } from './shared/ipc-contract.cjs'
+import type { HistoryId, ProviderConfig, TranslationResult } from './shared/ipc-contract.cjs'
 import { rankRaceResults } from './race.cjs'
 
 export interface SessionEngine { id: string; provider: ProviderConfig }
@@ -34,7 +34,7 @@ export interface SessionHistoryEntry {
 }
 interface Dependencies {
   execute(engine: SessionEngine, input: { text: string; target: string; signal: AbortSignal }): Promise<{ text?: string | null }>
-  saveHistory(entry: SessionHistoryEntry): { id: number } | null | Promise<{ id: number } | null>
+  saveHistory(entry: SessionHistoryEntry): { id: HistoryId } | null | Promise<{ id: HistoryId } | null>
   now?: () => number
 }
 interface ActiveSession {
