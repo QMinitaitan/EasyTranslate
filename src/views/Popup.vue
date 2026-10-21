@@ -267,7 +267,7 @@ const engineLabel = ref('')
 const raceResults = ref([])
 const raceActiveIdx = ref(0)
 const firstDone = ref(false)
-const raceOk = computed(() => raceResults.value.filter(r => !r.error))
+const raceOk = computed(() => raceResults.value.filter(r => !r.error && r.text?.trim()))
 const raceErrors = computed(() => raceResults.value.filter(r => r.error))
 const raceActive = computed(() => raceOk.value[raceActiveIdx.value] || { text: '', engine: '', ms: 0 })
 const raceSwapping = ref(false)
@@ -378,6 +378,7 @@ function setFontScale(value) {
 let offTrigger = null
 let raceOffProgress = null
 let raceOffDone = null
+let singleOffProgress = null
 let raceRequestSeq = 0
 let activeRaceRequestId = null
 let translationSequence = 0
@@ -410,6 +411,8 @@ async function doTranslate(text) {
   raceSwapping.value = false
   raceOffProgress?.()
   raceOffDone?.()
+  singleOffProgress?.()
+  singleOffProgress = null
   raceOffProgress = null
   raceOffDone = null
   activeRaceRequestId = null
@@ -437,8 +440,10 @@ async function doTranslate(text) {
     activeRaceRequestId = requestId
     raceOffProgress = window.api.onRaceProgress((result) => {
       if (sequence !== translationSequence || result.requestId !== activeRaceRequestId) return
-      raceResults.value.push(result)
-      if (!result.error && !firstDone.value) {
+      const existing = raceResults.value.findIndex(item => item.engine === result.engine)
+      if (existing < 0) raceResults.value.push(result)
+      else raceResults.value[existing] = result
+      if (!result.error && result.text?.trim() && !firstDone.value) {
         firstDone.value = true
         dst.value = result.text
         latency.value = result.ms
@@ -448,7 +453,13 @@ async function doTranslate(text) {
     })
     raceOffDone = window.api.onRaceDone((data) => {
       if (sequence !== translationSequence || data.requestId !== activeRaceRequestId) return
+      raceOffProgress?.()
+      raceOffDone?.()
+      raceOffProgress = null
+      raceOffDone = null
+      const selectedEngine = raceActive.value.engine
       raceResults.value = data.results || raceResults.value
+      saveWarning.value = raceResults.value.find(result => result.historyError)?.historyError || ''
       if (!firstDone.value && (data.error || !data.best)) {
         state.value = 'error'
         errorMsg.value = data.error || raceErrors.value[0]?.error || '所有翻译引擎均请求失败'
@@ -460,25 +471,34 @@ async function doTranslate(text) {
         engineLabel.value = engineDisplayName(data.best.engine)
         state.value = 'idle'
       }
-      raceActiveIdx.value = 0
+      const selectedIndex = raceOk.value.findIndex(result => result.engine === selectedEngine)
+      raceActiveIdx.value = selectedIndex >= 0 ? selectedIndex : 0
     })
     window.api.startRaceTranslate(text, targetLang.value, requestId)
     return
   } else {
     const requestId = `single-${Date.now()}-${sequence}`
-    try {
-      const r = await window.api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId })
-      if (sequence !== translationSequence || r.stale || (r.requestId && r.requestId !== requestId)) return
+    const showResult = r => {
+      if (sequence !== translationSequence || r.stale || r.requestId !== requestId) return
       if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
       dst.value = r.text
       latency.value = r.ms
       engineLabel.value = engineDisplayName(r.engine) || engineLabel.value
       saveWarning.value = r.historyError || ''
       state.value = 'idle'
+    }
+    const offProgress = window.api.onTranslationProgress(showResult)
+    singleOffProgress = offProgress
+    try {
+      const r = await window.api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId })
+      showResult(r)
     } catch (error) {
       if (sequence !== translationSequence) return
       state.value = 'error'
       errorMsg.value = error?.message || '翻译失败'
+    } finally {
+      offProgress()
+      if (singleOffProgress === offProgress) singleOffProgress = null
     }
   }
 }
@@ -553,6 +573,7 @@ onUnmounted(() => {
   clearTimeout(raceSwapTimer)
   clearTimeout(copiedTimer)
   offTrigger?.()
+  singleOffProgress?.()
   raceOffProgress?.()
   raceOffDone?.()
 })

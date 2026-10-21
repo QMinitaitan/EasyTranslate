@@ -72,3 +72,17 @@ test('compiled preload preserves race identity and subscriptions can be released
     { channel: 'translate:race:start', payload: { text: 'world', target: '中文(简体)', requestId: 'typed-race' } }
   ])
 })
+
+test('single progress and history persistence errors retain identity and release listeners', () => {
+  const { api, ipc } = loadPreload()
+  const observed = []
+  const offProgress = api.onTranslationProgress(result => observed.push(result.requestId))
+  const offError = api.onHistorySaveError(message => observed.push(message))
+  ipc.emit('translate:progress', {}, { requestId: 'current', text: 'visible before storage' })
+  ipc.emit('history:save:error', {}, '历史保存失败')
+  offProgress()
+  offError()
+  ipc.emit('translate:progress', {}, { requestId: 'late' })
+  ipc.emit('history:save:error', {}, 'late')
+  assert.deepEqual(observed, ['current', '历史保存失败'])
+})

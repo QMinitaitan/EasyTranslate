@@ -15,7 +15,7 @@ export interface TranslationResult {
   engine?: string
   ms?: number
   error?: string | null
-  historyId?: number
+  historyId?: HistoryId
   historyError?: string
   sessionId?: string
   requestId?: string
@@ -28,6 +28,7 @@ export interface RaceResult extends TranslationResult {
 
 export interface RaceDone {
   requestId?: string
+  sessionId?: string
   results?: RaceResult[]
   best?: RaceResult | null
   error?: string
@@ -121,8 +122,9 @@ export type ConfigUpdate = Partial<Omit<AppConfig, 'providers' | 'shortcuts'>> &
   shortcuts?: Partial<Shortcuts>
 }
 
+export type HistoryId = number | string
 export interface HistoryEntry {
-  id: number
+  id: HistoryId
   src: string
   dst: string
   engine: string
@@ -130,10 +132,11 @@ export interface HistoryEntry {
   lang: string
   ts: number
   favorite: boolean
+  [key: string]: unknown
 }
 
 export interface FavoriteRequest {
-  historyId?: number
+  historyId?: HistoryId
   src: string
   dst: string
   providerId: string
@@ -156,8 +159,8 @@ export interface InvokeChannels {
   'shortcuts:save': { args: [Partial<Shortcuts>]; result: void }
   'history:load': { args: []; result: HistoryEntry[] }
   'history:favorite': { args: [FavoriteRequest]; result: HistoryEntry | null }
-  'history:favorite:set': { args: [number, boolean]; result: HistoryEntry | null }
-  'history:delete': { args: [number]; result: HistoryEntry[] }
+  'history:favorite:set': { args: [HistoryId, boolean]; result: HistoryEntry | null }
+  'history:delete': { args: [HistoryId]; result: HistoryEntry[] }
   'history:clear': { args: []; result: HistoryEntry[] }
 }
 
@@ -174,9 +177,11 @@ export interface SendChannels {
 
 export interface EventChannels {
   'translate:trigger': TranslationTrigger
+  'translate:progress': TranslationResult
   'translate:race:progress': RaceResult
   'translate:race:done': RaceDone
   'history:updated': void
+  'history:save:error': string
   'config:updated': void
   'config:save:error': string
   'main:navigate': string
@@ -191,6 +196,7 @@ export interface EasyTranslateApi {
   translate(request: TranslationRequest): Promise<TranslationResult>
   translate(text: string, target?: string, providerId?: string | null): Promise<TranslationResult>
   cancelTranslation(): void
+  onTranslationProgress(cb: (result: TranslationResult) => void): Unsubscribe
   startRaceTranslate(request: RaceRequest): void
   startRaceTranslate(text: string, target?: string, requestId?: string): void
   onRaceProgress(cb: (result: RaceResult) => void): Unsubscribe
@@ -212,10 +218,11 @@ export interface EasyTranslateApi {
   saveShortcuts(shortcuts: Partial<Shortcuts>): Promise<void>
   loadHistory(): Promise<HistoryEntry[]>
   saveFavorite(payload: FavoriteRequest): Promise<HistoryEntry | null>
-  setFavorite(id: number, favorite: boolean): Promise<HistoryEntry | null>
-  deleteHistory(id: number): Promise<HistoryEntry[]>
+  setFavorite(id: HistoryId, favorite: boolean): Promise<HistoryEntry | null>
+  deleteHistory(id: HistoryId): Promise<HistoryEntry[]>
   clearHistory(): Promise<HistoryEntry[]>
   onHistoryUpdate(cb: () => void): Unsubscribe
+  onHistorySaveError(cb: (message: string) => void): Unsubscribe
   openSettings(): void
   openMain(): void
   onNavigate(cb: (path: string) => void): Unsubscribe
