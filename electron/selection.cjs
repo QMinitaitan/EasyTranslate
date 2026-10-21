@@ -40,15 +40,9 @@ function restoreClipboard(clipboardApi, snapshot) {
 
 async function sendCopyShortcut(platform, runCommand = runFile) {
   if (platform === 'win32') {
-    const memberDefinition =
-      '[DllImport("user32.dll")] public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);'
-    const script = [
-      `Add-Type -MemberDefinition '${memberDefinition}' -Name NativeKeyboard -Namespace EasyTranslate`,
-      '[EasyTranslate.NativeKeyboard]::keybd_event(0x11, 0, 0, [UIntPtr]::Zero)',
-      '[EasyTranslate.NativeKeyboard]::keybd_event(0x43, 0, 0, [UIntPtr]::Zero)',
-      '[EasyTranslate.NativeKeyboard]::keybd_event(0x43, 0, 2, [UIntPtr]::Zero)',
-      '[EasyTranslate.NativeKeyboard]::keybd_event(0x11, 0, 2, [UIntPtr]::Zero)'
-    ].join('; ')
+    // The measured built-in assembly path avoids compiling a P/Invoke type per capture.
+    // SendWait does not guarantee cross-process completion; captureWithCopy still polls.
+    const script = "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('^c')"
     return runCommand('powershell.exe', [
       '-NoProfile',
       '-NonInteractive',
@@ -75,7 +69,9 @@ async function captureWithCopy({
   copyShortcut = sendCopyShortcut,
   wait = delay
 }) {
-  const original = snapshotClipboard(clipboardApi)
+  let original
+  try { original = snapshotClipboard(clipboardApi) }
+  catch (_) { return emptySelection('clipboard-read-failed') }
   const sentinel = `__easytranslate_selection_${Date.now()}_${Math.random()}__`
   let result = emptySelection('copy-timeout')
   let restoreFailed = false
@@ -84,7 +80,9 @@ async function captureWithCopy({
     clipboardApi.writeText(sentinel)
     // Give the global-shortcut keys time to be released before sending Ctrl/Cmd+C.
     await wait(120)
-    const copyResult = await copyShortcut(platform, runCommand)
+    let copyResult
+    try { copyResult = await copyShortcut(platform, runCommand) }
+    catch (_) { copyResult = { err: true } }
     if (copyResult?.err) {
       result = emptySelection('copy-command-failed')
     } else {
@@ -97,6 +95,8 @@ async function captureWithCopy({
         await wait(25)
       }
     }
+  } catch (_) {
+    result = emptySelection('clipboard-capture-failed')
   } finally {
     // Restore the user's clipboard so translating a selection is non-destructive.
     try {

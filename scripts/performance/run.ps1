@@ -9,64 +9,9 @@ if ((Test-Path -LiteralPath $all) -and (Get-ChildItem -LiteralPath $all -Force |
   throw 'Choose a fresh benchmark Label: existing raw observations must not be mixed or overwritten.'
 }
 New-Item -ItemType Directory -Path $all -Force | Out-Null
-@{logicalProcessors=[Environment]::ProcessorCount;os=[Environment]::OSVersion.VersionString;repo=$Repo;main=$Main;electronPath=$ElectronPath} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $all 'environment.json') -Encoding UTF8
+@{logicalProcessors=[Environment]::ProcessorCount;os=[Environment]::OSVersion.VersionString;repo=$Repo;main=$Main;electronPath=$ElectronPath;sampler='causal-creation-v2';samplerSha256=(Get-FileHash -LiteralPath (Join-Path $bench 'process-sampler.cs') -Algorithm SHA256).Hash} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $all 'environment.json') -Encoding UTF8
 Add-Type -AssemblyName System.Windows.Forms
-Add-Type -TypeDefinition @'
-using System;
-using System.IO;
-using System.Text;
-using System.Linq;
-using System.Threading;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Collections.Generic;
-public static class BenchNative {
- [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
- [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
- [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
- [StructLayout(LayoutKind.Sequential)] struct PBI {public IntPtr ExitStatus,PebBaseAddress,AffinityMask,BasePriority,UniqueProcessId,ParentId;}
- [DllImport("ntdll.dll")] static extern int NtQueryInformationProcess(IntPtr h,int cls,ref PBI data,int length,out int used);
- static volatile bool stop;
- static Thread worker;
- public static void Start(int root,string output) {
-  stop=false;
-  worker=new Thread(()=> {
-   var last=new Dictionary<int,double>();
-   double cumulative=0;
-   using(var file=new StreamWriter(output,false,new UTF8Encoding(false))) {
-    file.WriteLine("t,count,privateBytes,workingSetBytes,cumulativeCpuSeconds,pids,samplingMs");
-    while(!stop) {
-     var clock=Stopwatch.StartNew();
-     var ps=Process.GetProcesses();
-     var parents=new Dictionary<int,int>();
-     foreach(var p in ps) try {var data=new PBI();int used; if(NtQueryInformationProcess(p.Handle,0,ref data,Marshal.SizeOf(typeof(PBI)),out used)==0) parents[p.Id]=data.ParentId.ToInt32();} catch {}
-     var tree=new HashSet<int>{root};
-     bool changed=true;
-     while(changed) {changed=false; foreach(var pair in parents) if(tree.Contains(pair.Value)&&tree.Add(pair.Key)) changed=true;}
-     long priv=0,ws=0;int count=0;var ids=new List<int>();
-     foreach(var p in ps) {
-      try {if(tree.Contains(p.Id)) {
-       count++;ids.Add(p.Id);priv+=p.PrivateMemorySize64;ws+=p.WorkingSet64;
-       double cpu=p.TotalProcessorTime.TotalSeconds,prior;
-       if(last.TryGetValue(p.Id,out prior)) cumulative+=Math.Max(0,cpu-prior); else cumulative+=cpu;
-       last[p.Id]=cpu;
-      }} catch {} finally {p.Dispose();}
-     }
-     file.WriteLine(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()+","+count+","+priv+","+ws+","+cumulative.ToString(System.Globalization.CultureInfo.InvariantCulture)+","+String.Join(";",ids)+","+clock.ElapsedMilliseconds);
-     file.Flush();
-     Thread.Sleep(Math.Max(1,100-(int)clock.ElapsedMilliseconds));
-    }
-   }
-  });
-  worker.IsBackground=true;worker.Start();
- }
- public static void Stop() {stop=true;if(worker!=null)worker.Join(5000);}
- public static void AltQ() {
-  keybd_event(0x12,0,0,UIntPtr.Zero);keybd_event(0x51,0,0,UIntPtr.Zero);
-  keybd_event(0x51,0,2,UIntPtr.Zero);keybd_event(0x12,0,2,UIntPtr.Zero);
- }
-}
-'@
+Add-Type -TypeDefinition (Get-Content -LiteralPath (Join-Path $bench 'process-sampler.cs') -Raw -Encoding UTF8)
 # Keep supported original clipboard payloads only in this runner's memory.
 $saved = New-Object System.Windows.Forms.DataObject
 $original = [System.Windows.Forms.Clipboard]::GetDataObject()
