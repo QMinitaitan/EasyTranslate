@@ -1,13 +1,15 @@
 import { computed, ref } from 'vue'
 
+type Locale = 'zh-CN' | 'en'
+
 const STORAGE_KEY = 'translate-app.ui-language'
 
-function detectSystemLocale() {
+function detectSystemLocale(): Locale {
   const language = typeof navigator !== 'undefined' ? navigator.language : ''
   return language.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en'
 }
 
-function initialLocale() {
+function initialLocale(): Locale {
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY)
     if (saved === 'zh-CN' || saved === 'en') return saved
@@ -42,7 +44,7 @@ const messages = {
   }
 }
 
-function setLocale(value) {
+function setLocale(value: string) {
   locale.value = value === 'zh-CN' ? 'zh-CN' : 'en'
   document.documentElement.lang = locale.value
   try {
@@ -51,7 +53,7 @@ function setLocale(value) {
 }
 
 export function useLocale() {
-  const t = key => messages[locale.value]?.[key] || messages['zh-CN'][key] || key
+  const t = (key: keyof typeof messages['zh-CN']) => messages[locale.value]?.[key] || messages['zh-CN'][key] || key
   return {
     locale,
     isEnglish: computed(() => locale.value === 'en'),

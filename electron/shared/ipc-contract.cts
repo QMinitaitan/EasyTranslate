@@ -1,4 +1,4 @@
-/** Shared wire data. Legacy positional preload calls remain supported during migration. */
+/** Concrete shared wire data; every translation request uses this object contract. */
 export interface TranslationRequest {
   text: string
   target?: string
@@ -135,15 +135,8 @@ export interface HistoryEntry {
   [key: string]: unknown
 }
 
-export interface FavoriteRequest {
-  historyId?: HistoryId
-  src: string
-  dst: string
-  providerId: string
-  target: string
-}
-
 export interface InvokeChannels {
+  'app:flush:done': { args: [string, boolean]; result: void }
   'translate:do': { args: [TranslationRequest]; result: TranslationResult }
   'config:load': { args: []; result: AppConfig }
   'config:save': { args: [ConfigUpdate]; result: AppConfig }
@@ -158,13 +151,13 @@ export interface InvokeChannels {
   'shortcuts:load': { args: []; result: Shortcuts }
   'shortcuts:save': { args: [Partial<Shortcuts>]; result: void }
   'history:load': { args: []; result: HistoryEntry[] }
-  'history:favorite': { args: [FavoriteRequest]; result: HistoryEntry | null }
   'history:favorite:set': { args: [HistoryId, boolean]; result: HistoryEntry | null }
   'history:delete': { args: [HistoryId]; result: HistoryEntry[] }
   'history:clear': { args: []; result: HistoryEntry[] }
 }
 
 export interface SendChannels {
+  'app:flush:register': [boolean]
   'translate:cancel': []
   'translate:race:start': [RaceRequest]
   'settings:open': []
@@ -176,6 +169,7 @@ export interface SendChannels {
 }
 
 export interface EventChannels {
+  'app:before-quit': string
   'translate:trigger': TranslationTrigger
   'translate:progress': TranslationResult
   'translate:race:progress': RaceResult
@@ -191,14 +185,14 @@ export type Unsubscribe = () => void
 
 export interface EasyTranslateApi {
   platform: NodeJS.Platform
+  onBeforeQuit(cb: (token: string) => void): Unsubscribe
+  completeQuitFlush(token: string, saved?: boolean): Promise<void>
   isPopup(): boolean
   triggerTranslate(cb: (payload: TranslationTrigger) => void): Unsubscribe
   translate(request: TranslationRequest): Promise<TranslationResult>
-  translate(text: string, target?: string, providerId?: string | null): Promise<TranslationResult>
   cancelTranslation(): void
   onTranslationProgress(cb: (result: TranslationResult) => void): Unsubscribe
   startRaceTranslate(request: RaceRequest): void
-  startRaceTranslate(text: string, target?: string, requestId?: string): void
   onRaceProgress(cb: (result: RaceResult) => void): Unsubscribe
   onRaceDone(cb: (data: RaceDone) => void): Unsubscribe
   loadConfig(): Promise<AppConfig>
@@ -217,7 +211,6 @@ export interface EasyTranslateApi {
   loadShortcuts(): Promise<Shortcuts>
   saveShortcuts(shortcuts: Partial<Shortcuts>): Promise<void>
   loadHistory(): Promise<HistoryEntry[]>
-  saveFavorite(payload: FavoriteRequest): Promise<HistoryEntry | null>
   setFavorite(id: HistoryId, favorite: boolean): Promise<HistoryEntry | null>
   deleteHistory(id: HistoryId): Promise<HistoryEntry[]>
   clearHistory(): Promise<HistoryEntry[]>

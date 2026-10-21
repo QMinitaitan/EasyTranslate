@@ -159,7 +159,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { ProviderMetadata, RaceResult, TranslationResult, Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
+import type { EngineOption, EngineSelection } from '../types'
+import { errorMessage } from '../types'
+import { trackSettingsSave } from '../composables/usePendingSettings'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { Pin, X, Copy, Check, AlertCircle, MousePointerClick, Moon, Settings, PenLine, Volume2, Square } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
@@ -168,13 +172,14 @@ import { useTheme } from '../composables/useTheme'
 import { useSpeech } from '../composables/useSpeech'
 import EngineSelect from '../components/EngineSelect.vue'
 
+const api = window.api
 const route = useRoute()
 const {
   mode: themeMode,
   resolvedTheme,
   toggleLightDark
 } = useTheme()
-const isWindow = computed(() => route.query.window === 'popup' || window.api?.isPopup?.())
+const isWindow = computed(() => route.query.window === 'popup' || api?.isPopup?.())
 const themeTitle = computed(() => {
   const next = resolvedTheme.value === 'dark' ? '浅色' : '深色'
   return themeMode.value === 'system'
@@ -183,20 +188,21 @@ const themeTitle = computed(() => {
 })
 
 // Provider metadata loaded once from backend — name, color, id for display
-const providerMeta = ref([])
-const engines = ref([])
+const providerMeta = ref<ProviderMetadata[]>([])
+const engines = ref<EngineOption[]>([])
 
 async function loadEngines() {
+  if (!api) return
   try {
     const [cfg, meta, capabilities] = await Promise.all([
-      window.api.loadConfig(),
-      window.api.listProviders(),
-      window.api.providerCapabilities()
+      api.loadConfig(),
+      api.listProviders(),
+      api.providerCapabilities()
     ])
     providerMeta.value = meta
     raceMode.value = cfg.raceMode !== false
     const providers = cfg.providers || {}
-    const list = []
+    const list: EngineOption[] = []
     for (const m of meta) {
       const p = providers[m.id]
       if (p && capabilities.find(capability => capability.id === m.id)?.available) {
@@ -218,7 +224,7 @@ async function loadEngines() {
   }
 }
 
-function engineDisplayName(raw) {
+function engineDisplayName(raw: string = '') {
   const found = providerMeta.value.find(m => m.name === raw || m.id === raw)
   return found ? found.name : raw
 }
@@ -239,8 +245,8 @@ const targetIdx = ref(0)
 const manualDir = ref(false)
 const targetLang = computed(() => targetLangMap[targetIdx.value])
 const langLabel = computed(() => targetIdx.value === 0 ? '英 → 中' : '中 → 英')
-const srcEl = ref(null)
-const dstEl = ref(null)
+const srcEl = ref<HTMLElement | null>(null)
+const dstEl = ref<HTMLElement | null>(null)
 function onSrcEdit() {
   const el = srcEl.value
   if (!el) return
@@ -255,30 +261,30 @@ function toggleDirection() {
   manualDir.value = true
   if (src.value) doTranslate(src.value)
 }
-function hasCJK(t) { return /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/.test(t) }
+function hasCJK(t: string) { return /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/.test(t) }
 
-const state = ref('idle')
+const state = ref<'idle' | 'loading' | 'empty' | 'error'>('idle')
 const src = ref('')
 const dst = ref('')
 const errorMsg = ref('')
 const saveWarning = ref('')
 const latency = ref(0)
 const engineLabel = ref('')
-const raceResults = ref([])
+const raceResults = ref<RaceResult[]>([])
 const raceActiveIdx = ref(0)
 const firstDone = ref(false)
 const raceOk = computed(() => raceResults.value.filter(r => !r.error && r.text?.trim()))
 const raceErrors = computed(() => raceResults.value.filter(r => r.error))
 const raceActive = computed(() => raceOk.value[raceActiveIdx.value] || { text: '', engine: '', ms: 0 })
 const raceSwapping = ref(false)
-let raceSwapTimer = null
-const translationEdits = ref({})
+let raceSwapTimer: number | undefined
+const translationEdits = ref<Record<string, string>>({})
 
 function cycleRace() {
   if (raceOk.value.length < 2 || raceSwapping.value) return
   raceSwapping.value = true
   clearTimeout(raceSwapTimer)
-  raceSwapTimer = setTimeout(() => {
+  raceSwapTimer = window.setTimeout(() => {
     raceActiveIdx.value = (raceActiveIdx.value + 1) % raceOk.value.length
     requestAnimationFrame(() => { raceSwapping.value = false })
   }, 75)
@@ -288,7 +294,7 @@ const activeTranslationKey = computed(() =>
   raceMode.value ? `race:${raceActive.value.engine || 'pending'}` : 'single'
 )
 const baseTranslation = computed(() =>
-  raceMode.value ? raceActive.value.text : dst.value
+  raceMode.value ? (raceActive.value.text || '') : dst.value
 )
 const activeTranslation = computed(() => {
   const key = activeTranslationKey.value
@@ -326,7 +332,7 @@ const FONT_SCALE_MAX = 1.6
 const FONT_SCALE_STEP = 0.1
 
 function loadFontScale() {
-  const saved = Number.parseFloat(window.localStorage?.getItem(FONT_SCALE_KEY))
+  const saved = Number.parseFloat(window.localStorage?.getItem(FONT_SCALE_KEY) || '')
   return Number.isFinite(saved)
     ? Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, saved))
     : 1
@@ -335,9 +341,9 @@ function loadFontScale() {
 const fontScale = ref(loadFontScale())
 const popupFontStyle = computed(() => ({ '--popup-font-scale': fontScale.value }))
 const zoomNotice = ref(false)
-let zoomNoticeTimer = null
+let zoomNoticeTimer: number | undefined
 
-function onKeyDown(e) {
+function onKeyDown(e: KeyboardEvent) {
   if (e.altKey) {
     if (e.key === '=' || e.key === '+') {
       e.preventDefault()
@@ -354,7 +360,7 @@ function onKeyDown(e) {
   }
 }
 
-function onWheel(e) {
+function onWheel(e: WheelEvent) {
   if (!e.altKey) return
   e.preventDefault()
   e.stopPropagation()
@@ -362,48 +368,48 @@ function onWheel(e) {
   adjustFont(e.deltaY < 0 ? FONT_SCALE_STEP : -FONT_SCALE_STEP)
 }
 
-function adjustFont(delta) {
+function adjustFont(delta: number) {
   setFontScale(fontScale.value + delta)
 }
 
-function setFontScale(value) {
+function setFontScale(value: number) {
   const next = Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, value))
   fontScale.value = Math.round(next * 10) / 10
   window.localStorage?.setItem(FONT_SCALE_KEY, String(fontScale.value))
   zoomNotice.value = true
   clearTimeout(zoomNoticeTimer)
-  zoomNoticeTimer = setTimeout(() => { zoomNotice.value = false }, 700)
+  zoomNoticeTimer = window.setTimeout(() => { zoomNotice.value = false }, 700)
 }
 
-let offTrigger = null
-let raceOffProgress = null
-let raceOffDone = null
-let singleOffProgress = null
+let offTrigger: Unsubscribe | null = null
+let raceOffProgress: Unsubscribe | null = null
+let raceOffDone: Unsubscribe | null = null
+let singleOffProgress: Unsubscribe | null = null
 let raceRequestSeq = 0
-let activeRaceRequestId = null
+let activeRaceRequestId: string | null = null
 let translationSequence = 0
 let triggerSequence = 0
-let pinNoticeTimer = null
-let copiedTimer = null
+let pinNoticeTimer: number | undefined
+let copiedTimer: number | undefined
 let popupMounted = false
 
-function onEngineChange(payload) {
-  if (payload && payload.race) {
+function onEngineChange(payload: EngineSelection) {
+  if ('race' in payload) {
     raceMode.value = true
-    window.api.saveConfig?.({ raceMode: true })
+    if (api) void trackSettingsSave(api.saveConfig({ raceMode: true })).catch(() => {})
     if (src.value) doTranslate(src.value)
     return
   }
-  if (payload && payload.color) {
+  if ('color' in payload) {
     setBrand(payload.color)
     engineLabel.value = payload.name
     raceMode.value = false
-    window.api.saveConfig?.({ raceMode: false })
+    if (api) void trackSettingsSave(api.saveConfig({ raceMode: false })).catch(() => {})
     if (src.value) doTranslate(src.value)
   }
 }
 
-async function doTranslate(text) {
+async function doTranslate(text: string) {
   ++triggerSequence
   const sequence = ++translationSequence
   stopSpeech()
@@ -425,20 +431,21 @@ async function doTranslate(text) {
   raceResults.value = []
   raceActiveIdx.value = 0
   if (!text) {
-    window.api.cancelTranslation?.()
+    api?.cancelTranslation()
     state.value = 'empty'
     return
   }
+  if (!api) { state.value = 'error'; errorMsg.value = '桌面翻译服务不可用'; return }
   state.value = 'loading'
   if (!manualDir.value) targetIdx.value = hasCJK(text) ? 1 : 0
   if (raceMode.value) {
-    window.api.cancelTranslation?.()
+    api?.cancelTranslation()
     raceResults.value = []
     raceActiveIdx.value = 0
     firstDone.value = false
     const requestId = `${Date.now()}-${++raceRequestSeq}`
     activeRaceRequestId = requestId
-    raceOffProgress = window.api.onRaceProgress((result) => {
+    raceOffProgress = api.onRaceProgress((result) => {
       if (sequence !== translationSequence || result.requestId !== activeRaceRequestId) return
       const existing = raceResults.value.findIndex(item => item.engine === result.engine)
       if (existing < 0) raceResults.value.push(result)
@@ -446,12 +453,12 @@ async function doTranslate(text) {
       if (!result.error && result.text?.trim() && !firstDone.value) {
         firstDone.value = true
         dst.value = result.text
-        latency.value = result.ms
+        latency.value = result.ms || 0
         engineLabel.value = engineDisplayName(result.engine)
         state.value = 'idle'
       }
     })
-    raceOffDone = window.api.onRaceDone((data) => {
+    raceOffDone = api.onRaceDone((data) => {
       if (sequence !== translationSequence || data.requestId !== activeRaceRequestId) return
       raceOffProgress?.()
       raceOffDone?.()
@@ -466,36 +473,36 @@ async function doTranslate(text) {
         return
       }
       if (!firstDone.value && data.best) {
-        dst.value = data.best.text
-        latency.value = data.best.ms
+        dst.value = data.best.text || ''
+        latency.value = data.best.ms || 0
         engineLabel.value = engineDisplayName(data.best.engine)
         state.value = 'idle'
       }
       const selectedIndex = raceOk.value.findIndex(result => result.engine === selectedEngine)
       raceActiveIdx.value = selectedIndex >= 0 ? selectedIndex : 0
     })
-    window.api.startRaceTranslate(text, targetLang.value, requestId)
+    api.startRaceTranslate({ text, target: targetLang.value, requestId })
     return
   } else {
     const requestId = `single-${Date.now()}-${sequence}`
-    const showResult = r => {
+    const showResult = (r: TranslationResult) => {
       if (sequence !== translationSequence || r.stale || r.requestId !== requestId) return
       if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
-      dst.value = r.text
-      latency.value = r.ms
+      dst.value = r.text || ''
+      latency.value = r.ms || 0
       engineLabel.value = engineDisplayName(r.engine) || engineLabel.value
       saveWarning.value = r.historyError || ''
       state.value = 'idle'
     }
-    const offProgress = window.api.onTranslationProgress(showResult)
+    const offProgress = api.onTranslationProgress(showResult)
     singleOffProgress = offProgress
     try {
-      const r = await window.api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId })
+      const r = await api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId })
       showResult(r)
     } catch (error) {
       if (sequence !== translationSequence) return
       state.value = 'error'
-      errorMsg.value = error?.message || '翻译失败'
+      errorMsg.value = errorMessage(error, '翻译失败')
     } finally {
       offProgress()
       if (singleOffProgress === offProgress) singleOffProgress = null
@@ -506,27 +513,27 @@ async function doTranslate(text) {
 function retry() { if (src.value) doTranslate(src.value) }
 function close() {
   stopSpeech()
-  window.api.closePopup?.()
+  api?.closePopup()
 }
 function openSettings() {
   stopSpeech()
-  window.api.openSettings?.()
+  api?.openSettings()
 }
 function togglePin() {
   pinned.value = !pinned.value
-  window.api.pinPopup?.(pinned.value)
+  api?.pinPopup(pinned.value)
 }
-function togglePinFromBody(e) {
+function togglePinFromBody(e: MouseEvent) {
   if (e.button !== 0) return
-  if (e.target.closest?.('button, a, input, textarea, select, [contenteditable="true"], [role="button"], .no-pin-toggle')) return
+  if (e.target instanceof Element && e.target.closest('button, a, input, textarea, select, [contenteditable="true"], [role="button"], .no-pin-toggle')) return
   togglePin()
   pinNotice.value = pinned.value ? '悬浮窗已固定' : '悬浮窗已取消固定'
   clearTimeout(pinNoticeTimer)
-  pinNoticeTimer = setTimeout(() => { pinNotice.value = '' }, 900)
+  pinNoticeTimer = window.setTimeout(() => { pinNotice.value = '' }, 900)
 }
-async function writeClipboard(text) {
+async function writeClipboard(text: string) {
   if (!text) return
-  if (window.api?.copyText) await window.api.copyText(text)
+  if (api?.copyText) await api.copyText(text)
   else await navigator.clipboard.writeText(text)
 }
 async function copyDst() {
@@ -536,7 +543,7 @@ async function copyDst() {
     await writeClipboard(text)
     copied.value = true
     clearTimeout(copiedTimer)
-    copiedTimer = setTimeout(() => { copied.value = false }, 1000)
+    copiedTimer = window.setTimeout(() => { copied.value = false }, 1000)
   } catch (_) {}
 }
 onMounted(async () => {
@@ -545,27 +552,27 @@ onMounted(async () => {
   if (!popupMounted) return
   document.addEventListener('wheel', onWheel, { passive: false, capture: true })
   document.addEventListener('keydown', onKeyDown)
-  if (window.api?.triggerTranslate) {
-    offTrigger = window.api.triggerTranslate(async (payload) => {
+  if (api?.triggerTranslate) {
+    offTrigger = api.triggerTranslate(async (payload) => {
       const trigger = ++triggerSequence
       ++translationSequence
-      window.api.cancelTranslation?.()
+      api?.cancelTranslation()
       await loadEngines()
       if (trigger !== triggerSequence) return
       doTranslate(payload.text)
     })
   }
-  if (isWindow.value && window.api?.popupReady) {
-    const ready = await window.api.popupReady()
+  if (isWindow.value && api?.popupReady) {
+    const ready = await api.popupReady()
     if (popupMounted) pinned.value = ready.pinned
   }
 })
 onUnmounted(() => {
   popupMounted = false
-  if (isWindow.value) window.api?.popupNotReady?.()
+  if (isWindow.value) api?.popupNotReady?.()
   ++translationSequence
   ++triggerSequence
-  window.api.cancelTranslation?.()
+  api?.cancelTranslation()
   document.removeEventListener('wheel', onWheel, { capture: true })
   document.removeEventListener('keydown', onKeyDown)
   clearTimeout(pinNoticeTimer)

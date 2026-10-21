@@ -19,7 +19,7 @@ electron.app.on('browser-window-created', (_event, window) => {
 const actions = {}
 electron.globalShortcut.register = (shortcut, callback) => { actions[shortcut] = callback; return true }
 require(path.join(root, 'electron/selection.cjs')).getSelection = async () => ({ text: '', source: 'controlled-selection' })
-const history = require(path.join(root, 'electron/history.cjs'))
+const history = require(path.join(root, 'dist-electron/history-store.cjs'))
 const durableAdd = history.add
 const queuedHistory = []
 let holdRaceHistory = true
@@ -60,7 +60,7 @@ async function wait(check, label) {
   }
   throw new Error(`Timed out: ${label}`)
 }
-require(path.join(root, 'electron/main.cjs'))
+require(path.resolve(root, JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).main))
 electron.app.whenReady().then(async () => {
   try {
     await wait(() => actions['Alt+Q'], 'registered action')
@@ -144,7 +144,6 @@ electron.app.whenReady().then(async () => {
     const result = { pass: true, controlledHiddenDom: true, screenshot, beforeSaveAndSlow, chosenComparisonAfterDone: 'EDITED SLOW', raceHistoryCount: raceHistory.length, raceToSingleHistory: raceToSingleHistory.map(item => item.src), singleToRaceHistory: singleToRaceHistory.map(item => item.src), abortAttempts, windows: electron.BrowserWindow.getAllWindows().length, requests: requests.map(({ source, engine }) => ({ source, engine })) }
     fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify(result, null, 2))
     console.log(JSON.stringify(result))
-    electron.app.isQuiting = true
     electron.app.quit()
   } catch (error) {
     fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify({ pass: false, error: error.stack, requests: requests.map(({ source, engine }) => ({ source, engine })) }, null, 2))

@@ -42,7 +42,7 @@ function launchSwitches(platform, sessionType, waylandDisplay) {
   }
 
   try {
-    const mainPath = path.join(__dirname, '../electron/main.cjs')
+    const mainPath = path.join(__dirname, '../dist-electron/main.cjs')
     delete require.cache[require.resolve(mainPath)]
     require(mainPath)
   } finally {

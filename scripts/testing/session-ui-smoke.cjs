@@ -55,7 +55,7 @@ async function wait(check, label, timeout = 7000) {
   }
   throw new Error(`Timed out: ${label}`)
 }
-require(path.join(root, 'electron/main.cjs'))
+require(path.resolve(root, JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).main))
 electron.app.whenReady().then(async () => {
   try {
     await wait(() => actions['Alt+Q'], 'shortcut registration')
@@ -97,7 +97,6 @@ electron.app.whenReady().then(async () => {
     const result = { pass: true, queuedTriggerHistory: afterQueuedTrigger.map(item => item.src), overlapVisible: 'TRANSLATED B', overlapHistory: afterOverlap.map(item => item.src), retryVisible: 'TRANSLATED FAIL', finalHistory: history.map(item => item.src), requests, abortAttempts, windows: electron.BrowserWindow.getAllWindows().length }
     fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify(result, null, 2))
     console.log(JSON.stringify(result))
-    electron.app.isQuiting = true
     electron.app.quit()
   } catch (error) {
     fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify({ pass: false, error: error.stack, requests }, null, 2))

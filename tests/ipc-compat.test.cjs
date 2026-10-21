@@ -27,15 +27,12 @@ function loadPreload() {
   return { api, ipc, requests }
 }
 
-test('compiled preload translates old positional calls and typed requests through the same IPC contract', async () => {
+test('compiled preload translates a concrete typed request through the public IPC contract', async () => {
   const { api, requests } = loadPreload()
-  const oldResult = await api.translate('hello', '中文(简体)', 'deepseek')
   const newResult = await api.translate({ text: 'hello', target: '中文(简体)', providerId: 'deepseek' })
 
-  assert.equal(oldResult.text, '你好')
   assert.equal(newResult.text, '你好')
   assert.deepEqual(JSON.parse(JSON.stringify(requests)), [
-    { channel: 'translate:do', payload: { text: 'hello', target: '中文(简体)', providerId: 'deepseek' } },
     { channel: 'translate:do', payload: { text: 'hello', target: '中文(简体)', providerId: 'deepseek' } }
   ])
 })
@@ -60,7 +57,6 @@ test('compiled preload preserves race identity and subscriptions can be released
   const { api, ipc, requests } = loadPreload()
   const observed = []
   const off = api.onRaceProgress((result) => observed.push(result.text))
-  api.startRaceTranslate('hello', '中文(简体)', 'old-race')
   api.startRaceTranslate({ text: 'world', target: '中文(简体)', requestId: 'typed-race' })
   ipc.emit('translate:race:progress', {}, { requestId: 'typed-race', text: '世界' })
   off()
@@ -68,7 +64,6 @@ test('compiled preload preserves race identity and subscriptions can be released
 
   assert.deepEqual(observed, ['世界'])
   assert.deepEqual(JSON.parse(JSON.stringify(requests)), [
-    { channel: 'translate:race:start', payload: { text: 'hello', target: '中文(简体)', requestId: 'old-race' } },
     { channel: 'translate:race:start', payload: { text: 'world', target: '中文(简体)', requestId: 'typed-race' } }
   ])
 })
@@ -85,4 +80,20 @@ test('single progress and history persistence errors retain identity and release
   ipc.emit('translate:progress', {}, { requestId: 'late' })
   ipc.emit('history:save:error', {}, 'late')
   assert.deepEqual(observed, ['current', '历史保存失败'])
+})
+
+test('renderer save-drain participation has scoped registration and an explicit acknowledgement', async () => {
+  const { api, ipc, requests } = loadPreload()
+  const tokens = []
+  const off = api.onBeforeQuit(token => tokens.push(token))
+  ipc.emit('app:before-quit', {}, 'quit-current')
+  await api.completeQuitFlush(tokens[0])
+  off()
+  ipc.emit('app:before-quit', {}, 'quit-late')
+  assert.deepEqual(tokens, ['quit-current'])
+  assert.deepEqual(JSON.parse(JSON.stringify(requests)), [
+    { channel: 'app:flush:register', payload: true },
+    { channel: 'app:flush:done', payload: 'quit-current' },
+    { channel: 'app:flush:register', payload: false }
+  ])
 })

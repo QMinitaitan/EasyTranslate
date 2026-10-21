@@ -38,25 +38,26 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { EngineOption, EngineSelection } from '../types'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { ChevronDown, Zap, Check } from 'lucide-vue-next'
 
-const props = defineProps({
-  engines: { type: Array, required: true },
-  modelValue: { type: String, required: true },
-  raceMode: { type: Boolean, default: false }
-})
-const emit = defineEmits(['update:modelValue', 'update:raceMode', 'change'])
+const props = withDefaults(defineProps<{ engines: EngineOption[]; modelValue: string; raceMode?: boolean }>(), { raceMode: false })
+const emit = defineEmits<{
+  'update:modelValue': [name: string]
+  'update:raceMode': [race: boolean]
+  change: [selection: EngineSelection]
+}>()
 
 const open = ref(false)
-const root = ref(null)
+const root = ref<HTMLElement | null>(null)
 
 const current = computed(() => props.engines.find(e => e.name === props.modelValue))
 const isRace = computed(() => props.raceMode)
 const currentColor = computed(() => isRace.value ? '#7c3aed' : (current.value?.color || 'var(--brand)'))
 
-function pickEngine(e) {
+function pickEngine(e: EngineOption) {
   emit('update:raceMode', false)
   emit('update:modelValue', e.name)
   emit('change', e)
@@ -68,8 +69,8 @@ function pickRace() {
   open.value = false
 }
 
-function onClickOutside(e) {
-  if (root.value && !root.value.contains(e.target)) open.value = false
+function onClickOutside(e: MouseEvent) {
+  if (root.value && e.target instanceof Node && !root.value.contains(e.target)) open.value = false
 }
 onMounted(() => document.addEventListener('mousedown', onClickOutside))
 onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))

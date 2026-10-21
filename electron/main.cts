@@ -1,17 +1,20 @@
-const { app, BrowserWindow, Menu, ipcMain, shell, clipboard, screen, Tray, nativeImage } = require('electron')
-const path = require('path')
-const fs = require('fs')
-const net = require('net')
-const { getSelection } = require('./selection.cjs')
-const { translateWith, inspectProvider, getProviderCapabilities, probeProvider } = require('./translate.cjs')
-const { getProvider, getAll: getAllProviders } = require('./providers.cjs')
-const { load: loadConfig, save: saveConfig, flush: flushConfig, subscribe: subscribeConfig } = require('./config.cjs')
-const history = require('./history.cjs')
-const autoStart = require('./autostart.cjs')
-const { createTranslationSessions } = require('../dist-electron/translation-session.cjs')
-const { createDesktopRuntime } = require('../dist-electron/desktop-runtime.cjs')
-const { parseTranslationRequest, parseRaceRequest, parseProviderConfigs, parseProviderProbe } = require('../dist-electron/shared/ipc-contract.cjs')
-const { supportsCursorPositioning } = require('./popup-bounds.cjs')
+import { app, BrowserWindow, Menu, ipcMain, clipboard, screen, Tray, nativeImage, globalShortcut } from 'electron'
+import type { WebContents } from 'electron'
+import * as path from 'node:path'
+import * as fs from 'node:fs'
+import * as net from 'node:net'
+import { randomUUID } from 'node:crypto'
+import { getSelection } from '../electron/selection.cjs'
+import { translateWith, inspectProvider, getProviderCapabilities, probeProvider } from './provider-service.cjs'
+import { getProvider, getAll as getAllProviders } from './providers.cjs'
+import { load as loadConfig, save as saveConfig, flush as flushConfig, subscribe as subscribeConfig } from './config-store.cjs'
+import * as history from './history-store.cjs'
+import * as autoStart from '../electron/autostart.cjs'
+import { createTranslationSessions, type SessionRequest } from './translation-session.cjs'
+import { createDesktopRuntime } from './desktop-runtime.cjs'
+import { parseTranslationRequest, parseRaceRequest, parseProviderConfigs, parseProviderProbe } from './shared/ipc-contract.cjs'
+import type { AppConfig, ConfigUpdate, EventChannels, Shortcuts } from './shared/ipc-contract.cjs'
+import { supportsCursorPositioning } from '../electron/popup-bounds.cjs'
 
 const isDev = !!process.env.VITE_DEV_SERVER_URL
 const cursorPositioningSupported = supportsCursorPositioning(process.platform, process.env)
@@ -29,13 +32,14 @@ if (!cursorPositioningSupported) {
 
 Menu.setApplicationMenu(null)
 
-let mainWin = null
-let tray = null
+let mainWin: BrowserWindow | null = null
+let tray: Tray | null = null
+let quitPhase: 'running' | 'draining' | 'ready' = 'running'
 const desktop = createDesktopRuntime({
   createWindow: options => new BrowserWindow(options),
   frontend: {
     htmlPath: path.join(__dirname, '../dist/index.html'),
-    preloadPath: path.join(__dirname, '../dist-electron/preload.cjs'),
+    preloadPath: path.join(__dirname, 'preload.cjs'),
     devServerUrl: process.env.VITE_DEV_SERVER_URL
   },
   screen, loadConfig, saveConfig, onSaveError: reportConfigSaveError
@@ -47,16 +51,16 @@ function createTray() {
     if (img.isEmpty()) throw new Error(`failed to load ${trayIconPath}`)
     tray = new Tray(img.resize({ width: 16, height: 16 }))
     const ctxMenu = Menu.buildFromTemplate([
-      { label: '打开设置', click: () => { mainWin.show(); mainWin.focus() } },
+      { label: '打开设置', click: () => { mainWin?.show(); mainWin?.focus() } },
       { type: 'separator' },
-      { label: '退出', click: () => { app.isQuiting = true; app.quit() } }
+      { label: '退出', click: () => app.quit() }
     ])
     tray.setToolTip('Translate · 划词翻译')
     tray.setContextMenu(ctxMenu)
-    tray.on('click', () => { mainWin.show(); mainWin.focus() })
+    tray.on('click', () => { mainWin?.show(); mainWin?.focus() })
     console.log('[translate] tray created')
   } catch (e) {
-    console.warn('[translate] tray not available:', e.message)
+    console.warn('[translate] tray not available:', e instanceof Error ? e.message : 'unknown error')
   }
 }
 
@@ -75,47 +79,53 @@ function createMainWindow() {
     show: false,
     paintWhenInitiallyHidden: !initiallyHidden,
     webPreferences: {
-      preload: path.join(__dirname, '../dist-electron/preload.cjs'),
+      preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true, nodeIntegration: false
     }
   })
   if (!windowIcon.isEmpty() && process.platform !== 'darwin') {
     mainWin.setIcon(windowIcon)
   }
-  mainWin.webContents.once('did-finish-load', () => desktop.schedulePrewarm())
-  if (isDev) mainWin.loadURL(process.env.VITE_DEV_SERVER_URL)
+  mainWin.webContents.once('did-finish-load', () => { if (quitPhase === 'running') desktop.schedulePrewarm() })
+  if (isDev) mainWin.loadURL(process.env.VITE_DEV_SERVER_URL!)
   else mainWin.loadFile(path.join(__dirname, '../dist/index.html'))
   if (!initiallyHidden) mainWin.once('ready-to-show', () => {
-    mainWin.show()
-    mainWin.focus()
+    mainWin?.show()
+    mainWin?.focus()
   })
   mainWin.on('close', (e) => {
-    if (app.isQuiting) return
+    if (quitPhase === 'ready') return
+    if (quitPhase === 'draining') { e.preventDefault(); return }
     const cfg = loadConfig()
     if (cfg.closeAction === 'quit') {
-      app.isQuiting = true
+      e.preventDefault()
       app.quit()
       return
     }
     e.preventDefault()
-    mainWin.hide()
+    mainWin?.hide()
   })
 }
 
 let selectionCaptureBusy = false
-async function onShortcut() {
-  if (selectionCaptureBusy) return
+let selectionCapture: Promise<void> | undefined
+function onShortcut(): Promise<void> {
+  if (selectionCaptureBusy || quitPhase !== 'running') return Promise.resolve()
   selectionCaptureBusy = true
   desktop.beginSelectionCapture()
   translationSessions.cancel()
-  try {
-    const { text, source, reason } = await getSelection()
-    const detail = reason ? `${source}/${reason}` : source
-    console.log(`[translate] selection capture: ${detail}, ${text.length} chars`)
-    desktop.showTranslation(text || '')
-  } finally {
-    selectionCaptureBusy = false
-  }
+  const capture = (async () => {
+    try {
+      const { text, source, reason } = await getSelection()
+      const detail = reason ? `${source}/${reason}` : source
+      console.log(`[translate] selection capture: ${detail}, ${text.length} chars`)
+      if (quitPhase === 'running') desktop.showTranslation(text || '')
+    } finally { selectionCaptureBusy = false }
+  })()
+  selectionCapture = capture
+  const release = () => { if (selectionCapture === capture) selectionCapture = undefined }
+  void capture.then(release, release)
+  return capture
 }
 
 const SOCK_PATH = path.join(process.env.HOME || '/tmp', '.translate-app.sock')
@@ -142,13 +152,13 @@ function startSocketServer() {
 const SHORTCUT_ACTIONS = {
   translate: onShortcut,
   show: () => {
-    if (!mainWin) return
+    if (!mainWin || quitPhase !== 'running') return
     if (mainWin.isVisible()) mainWin.hide()
     else { mainWin.show(); mainWin.focus() }
   }
 }
 
-function getShortcutMap(cfg) {
+function getShortcutMap(cfg: AppConfig): Shortcuts {
   const saved = cfg.shortcuts || {}
   return {
     translate: saved.translate ?? cfg.shortcut ?? 'Alt+Q',
@@ -156,13 +166,12 @@ function getShortcutMap(cfg) {
   }
 }
 
-function registerShortcuts(shortcutMap) {
+function registerShortcuts(shortcutMap: Shortcuts) {
   try {
-    const { globalShortcut } = require('electron')
     globalShortcut.unregisterAll()
     for (const [id, accel] of Object.entries(shortcutMap)) {
       if (!accel) continue
-      const action = SHORTCUT_ACTIONS[id]
+      const action = SHORTCUT_ACTIONS[id as keyof Shortcuts]
       if (!action) continue
       const ok = globalShortcut.register(accel, action)
       console.log(`[translate] globalShortcut ${id}: ${accel} → ${ok ? 'OK' : 'FAILED'}`)
@@ -172,7 +181,7 @@ function registerShortcuts(shortcutMap) {
   }
 }
 
-function broadcastConfig(channel, payload) {
+function broadcastConfig<C extends keyof EventChannels>(channel: C, payload?: EventChannels[C]) {
   for (const win of BrowserWindow.getAllWindows()) {
     try {
       if (!win.isDestroyed() && !win.webContents.isDestroyed?.()) win.webContents.send(channel, payload)
@@ -180,35 +189,34 @@ function broadcastConfig(channel, payload) {
   }
 }
 
-function reportConfigSaveError(error) {
-  broadcastConfig('config:save:error', error?.message || '配置保存失败，请重试')
+function reportConfigSaveError(error: unknown) {
+  broadcastConfig('config:save:error', error instanceof Error ? error.message : '配置保存失败，请重试')
 }
 
-async function saveSettings(partial) {
+async function saveSettings(partial: unknown) {
   try { return await saveConfig(partial) }
   catch (error) { reportConfigSaveError(error); throw error }
 }
 
-function addToHistory(src, dst, providerId, targetLang, extra = {}, options = {}) {
+function addToHistory(src: string, dst: string, providerId: string, targetLang: string, options: { isCurrent(): boolean }) {
   const p = getProvider(providerId)
   return history.add({
     engine: p ? p.name : providerId,
     color: p ? p.color : '#888',
     lang: targetLang,
-    src, dst, ts: Date.now(),
-    ...extra
+    src, dst, ts: Date.now()
   }, options)
 }
 
 const translationSessions = createTranslationSessions({
   execute: ({ id, provider }, input) => translateWith(provider, id, input),
   saveHistory: ({ text, target, engine, result, isCurrent }) =>
-    addToHistory(text, result.text, engine.id, target, {}, { isCurrent })
+    addToHistory(text, result.text!, engine.id, target, { isCurrent })
 })
 
 // Keep progress owned by the requesting renderer until completion or replacement.
-async function runSessionForSender(sender, request, channel) {
-  let sessionId
+async function runSessionForSender(sender: WebContents, request: SessionRequest, channel: 'translate:progress' | 'translate:race:progress') {
+  let sessionId: string
   const offProgress = translationSessions.subscribe((snapshot, progress) => {
     if (snapshot.sessionId !== sessionId || !progress || sender.isDestroyed()) return
     sender.send(channel, progress)
@@ -226,6 +234,41 @@ async function runSessionForSender(sender, request, channel) {
   }
 }
 
+const quitParticipants = new Map<WebContents, () => void>()
+const quitWaiters = new Map<WebContents, { token: string; finish(saved: boolean): void }>()
+const quitSaveError = '退出前未能保存待处理设置，请重试'
+function setQuitParticipant(sender: WebContents, registered: boolean) {
+  if (!registered) {
+    quitParticipants.get(sender)?.()
+    quitParticipants.delete(sender)
+    quitWaiters.get(sender)?.finish(false)
+    return
+  }
+  if (quitParticipants.has(sender) || sender.isDestroyed() || !BrowserWindow.getAllWindows().some(win => !win.isDestroyed() && win.webContents === sender)) return
+  const destroyed = () => setQuitParticipant(sender, false)
+  sender.once('destroyed', destroyed)
+  quitParticipants.set(sender, () => sender.removeListener('destroyed', destroyed))
+}
+async function drainRendererSettings() {
+  const results = await Promise.allSettled([...quitParticipants.keys()].map(sender => new Promise<void>((resolve, reject) => {
+    const token = randomUUID()
+    const timer = setTimeout(() => finish(false), 3000)
+    const finish = (saved: boolean) => {
+      clearTimeout(timer)
+      quitWaiters.delete(sender)
+      if (saved) resolve()
+      else reject(new Error(quitSaveError))
+    }
+    quitWaiters.set(sender, { token, finish })
+    try { sender.send('app:before-quit', token) }
+    catch { finish(false) }
+  })))
+  if (results.some(result => result.status === 'rejected')) throw new Error(quitSaveError)
+}
+function requireRunning() {
+  if (quitPhase !== 'running') throw new Error('应用正在退出，请稍后重试')
+}
+
 app.whenReady().then(() => {
   // Initialize once before any translation trigger; subsequent reads use the durable cache.
   loadConfig()
@@ -240,19 +283,23 @@ app.whenReady().then(() => {
   })
   const unsubscribeHistory = history.subscribe(() => broadcastConfig('history:updated'))
   const unsubscribeHistoryErrors = history.subscribeErrors(message => broadcastConfig('history:save:error', message))
-  let configFlushed = false
-  let flushInProgress = false
   app.on('before-quit', (event) => {
-    if (configFlushed) return
+    if (quitPhase === 'ready') return
     event.preventDefault()
-    if (flushInProgress) return
-    flushInProgress = true
+    if (quitPhase === 'draining') return
+    quitPhase = 'draining'
+    globalShortcut.unregisterAll()
+    desktop.beginSelectionCapture()
     translationSessions.cancel()
-    // Flush the window-owned debounce before draining both durable storage queues.
-    void desktop.flush().catch(() => {}).then(() => Promise.all([history.flush(), flushConfig()])).catch(reportConfigSaveError).finally(() => {
-      configFlushed = true
-      app.isQuiting = true
+    // The renderer owns debounce timers; drain them before desktop and storage queues.
+    void drainRendererSettings().then(() => selectionCapture).then(() => desktop.flush()).then(() => Promise.all([history.flush(), flushConfig()])).then(() => {
+      quitPhase = 'ready'
       app.quit()
+    }).catch(error => {
+      quitPhase = 'running'
+      registerShortcuts(getShortcutMap(loadConfig()))
+      reportConfigSaveError(error)
+      if (mainWin && !mainWin.isDestroyed()) { mainWin.show(); mainWin.focus() }
     })
   })
   app.on('will-quit', () => {
@@ -261,26 +308,41 @@ app.whenReady().then(() => {
     unsubscribeHistoryErrors()
     translationSessions.dispose()
     desktop.dispose()
+    for (const off of quitParticipants.values()) off()
+    quitParticipants.clear()
+    for (const waiter of quitWaiters.values()) waiter.finish(false)
     try {
       server?.close()
       if (process.platform !== 'win32') fs.unlinkSync(SOCK_PATH)
     } catch (_) {}
   })
 
+  ipcMain.on('app:flush:register', (event, registered: unknown) => {
+    if (typeof registered === 'boolean') setQuitParticipant(event.sender, registered)
+  })
+  ipcMain.handle('app:flush:done', (event, token: unknown, saved: unknown) => {
+    const waiter = quitWaiters.get(event.sender)
+    if (typeof token !== 'string' || typeof saved !== 'boolean' || !waiter || waiter.token !== token) throw new Error('无效的退出保存确认')
+    waiter.finish(saved)
+  })
+
   ipcMain.handle('config:load', () => loadConfig())
-  ipcMain.handle('config:save', async (_evt, partial) => {
+  ipcMain.handle('config:save', async (_evt, partial: unknown) => {
+    const previous = getShortcutMap(loadConfig())
     const next = await saveSettings(partial)
-    if (partial.shortcuts || partial.shortcut !== undefined) registerShortcuts(getShortcutMap(next))
+    const shortcuts = getShortcutMap(next)
+    if (quitPhase === 'running' && (previous.translate !== shortcuts.translate || previous.show !== shortcuts.show)) registerShortcuts(shortcuts)
     return next
   })
-  ipcMain.handle('translate:do', async (event, payload) => {
+  ipcMain.handle('translate:do', async (event, payload: unknown) => {
+    requireRunning()
     const request = parseTranslationRequest(payload)
     if (!request) return { error: '无效的翻译请求' }
     const { text, target, providerId, requestId } = request
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     const selected = providerId
-      ? [providerId, providers[providerId]]
+      ? [providerId, providers[providerId]] as const
       : Object.entries(providers).find(([id, config]) => config && inspectProvider(id, config).available)
     // An explicit unavailable engine still enters the session so it supersedes old work;
     // the shared execution capability returns its precise reason before any network call.
@@ -296,13 +358,13 @@ app.whenReady().then(() => {
     }
   })
   ipcMain.on('translate:cancel', () => translationSessions.cancel())
-  ipcMain.on('translate:race:start', async (event, payload) => {
+  ipcMain.on('translate:race:start', async (event, payload: unknown) => {
     const request = parseRaceRequest(payload)
-    if (!request) {
+    if (!request || quitPhase !== 'running') {
       if (!event.sender.isDestroyed()) {
         event.sender.send('translate:race:done', {
-          requestId: typeof payload?.requestId === 'string' ? payload.requestId : undefined,
-          error: '无效的翻译请求'
+          requestId: request?.requestId ?? (payload && typeof payload === 'object' && 'requestId' in payload && typeof payload.requestId === 'string' ? payload.requestId : undefined),
+          error: quitPhase === 'running' ? '无效的翻译请求' : '应用正在退出，请稍后重试'
         })
       }
       return
@@ -324,17 +386,19 @@ app.whenReady().then(() => {
     })
   })
   ipcMain.handle('providers:list', () => getAllProviders())
-  ipcMain.handle('providers:capabilities', (_event, input) => {
+  ipcMain.handle('providers:capabilities', (_event, input: unknown) => {
     const providers = input === undefined ? loadConfig().providers : parseProviderConfigs(input)
     if (!providers) throw new Error('无效的引擎配置')
     return getProviderCapabilities(providers)
   })
-  ipcMain.handle('providers:probe', (_event, input) => {
+  ipcMain.handle('providers:probe', (_event, input: unknown) => {
+    requireRunning()
     const request = parseProviderProbe(input)
     if (!request) throw new Error('无效的引擎探测请求')
     return probeProvider(request.providerId, request.config || loadConfig().providers[request.providerId] || {})
   })
   ipcMain.on('settings:open', () => {
+    if (quitPhase !== 'running') return
     desktop.hide()
     if (mainWin && !mainWin.isDestroyed()) {
       mainWin.show()
@@ -343,58 +407,55 @@ app.whenReady().then(() => {
     }
   })
   ipcMain.on('main:open', () => {
+    if (quitPhase !== 'running') return
     if (!mainWin || mainWin.isDestroyed()) return
     mainWin.show()
     mainWin.focus()
     mainWin.webContents.send('main:navigate', '/')
   })
-  ipcMain.handle('clipboard:write', (_evt, text) => {
-    clipboard.writeText(String(text || ''))
+  ipcMain.handle('clipboard:write', (_evt, text: unknown) => {
+    requireRunning()
+    if (typeof text !== 'string') throw new Error('无效的复制文本')
+    clipboard.writeText(text)
     return true
   })
   ipcMain.handle('autostart:get', () => autoStart.isEnabled(app))
-  ipcMain.handle('autostart:set', async (_evt, enabled) => {
+  ipcMain.handle('autostart:set', async (_evt, enabled: unknown) => {
+    requireRunning()
     if (typeof enabled !== 'boolean') throw new Error('无效的开机启动设置')
     const actual = autoStart.setEnabled(app, enabled)
     await saveSettings({ autoLaunch: actual })
     return actual
   })
   ipcMain.handle('popup:ready', (event) => {
+    requireRunning()
     const state = desktop.markReady(event.sender)
     if (!state) throw new Error('Only the current popup can declare application readiness')
     return state
   })
   ipcMain.on('popup:unready', event => desktop.markNotReady(event.sender))
   ipcMain.on('popup:close', () => desktop.hide())
-  ipcMain.on('popup:pin', (_event, pinned) => desktop.setPinned(pinned))
-  ipcMain.on('popup:resize', (_event, bounds) => desktop.resize(bounds?.width, bounds?.height))
+  ipcMain.on('popup:pin', (_event, pinned: unknown) => {
+    if (quitPhase === 'running' && typeof pinned === 'boolean') desktop.setPinned(pinned)
+  })
   ipcMain.handle('shortcuts:load', () => getShortcutMap(loadConfig()))
-  ipcMain.handle('shortcuts:save', async (_evt, shortcuts) => {
+  ipcMain.handle('shortcuts:save', async (_evt, shortcuts: unknown) => {
     const cfg = await saveSettings({ shortcuts })
-    registerShortcuts(cfg.shortcuts)
+    if (quitPhase === 'running') registerShortcuts(cfg.shortcuts)
   })
   ipcMain.handle('popup:bounds:reset', () => desktop.resetBounds())
   ipcMain.handle('history:load', () => history.load())
-  ipcMain.handle('history:favorite', async (_evt, payload) => {
-    if (!payload || typeof payload !== 'object' ||
-        !['src', 'dst', 'providerId', 'target'].every(key => typeof payload[key] === 'string')) throw new Error('无效的收藏请求')
-    let item = payload.historyId !== undefined
-      ? await history.setFavorite(payload.historyId, true)
-      : null
-    if (!item) {
-      item = await addToHistory(
-        payload.src,
-        payload.dst,
-        payload.providerId,
-        payload.target,
-        { favorite: true }
-      )
-    }
-    return item
+  ipcMain.handle('history:favorite:set', async (_evt, id: unknown, favorite: unknown) => {
+    requireRunning()
+    if (!history.isHistoryId(id) || typeof favorite !== 'boolean') throw new Error('无效的收藏更新')
+    return history.setFavorite(id, favorite)
   })
-  ipcMain.handle('history:favorite:set', (_evt, id, favorite) => history.setFavorite(id, favorite))
-  ipcMain.handle('history:delete', (_evt, id) => history.remove(id))
-  ipcMain.handle('history:clear', () => history.clearAll())
+  ipcMain.handle('history:delete', (_evt, id: unknown) => {
+    requireRunning()
+    if (!history.isHistoryId(id)) throw new Error('无效的历史记录标识')
+    return history.remove(id)
+  })
+  ipcMain.handle('history:clear', () => { requireRunning(); return history.clearAll() })
   ipcMain.on('popup:dismiss', () => desktop.dismiss())
 
   app.on('activate', () => {

@@ -6,7 +6,7 @@ const os = require('node:os')
 const path = require('node:path')
 const { EventEmitter } = require('node:events')
 
-async function withMain(run) {
+async function withMain(run, { history = [] } = {}) {
   const temporaryHome = fs.mkdtempSync(path.join(os.tmpdir(), 'easytranslate-ipc-'))
   const originalHome = process.env.HOME
   const originalProfile = process.env.USERPROFILE
@@ -16,6 +16,8 @@ async function withMain(run) {
   const events = new Map()
   const windows = []
   const notifications = []
+  const appEvents = new Map()
+  let quitCount = 0
   let ready
   class Window extends EventEmitter {
     constructor(options) {
@@ -23,16 +25,20 @@ async function withMain(run) {
       this.options = options
       this.webContents = new EventEmitter()
       this.webContents.send = (channel, payload) => notifications.push({ channel, payload })
+      this.webContents.isDestroyed = () => false
       windows.push(this)
     }
     loadFile() {}
+    show() { this.shown = true }
+    focus() {}
     setIcon() {}
     isDestroyed() { return false }
     static getAllWindows() { return windows }
   }
   const electron = {
     app: {
-      setName() {}, setAppUserModelId() {}, on() {},
+      setName() {}, setAppUserModelId() {}, on: (name, callback) => appEvents.set(name, callback),
+      quit: () => { quitCount++ },
       commandLine: { appendSwitch() {} },
       whenReady: () => ({ then: (callback) => { ready = callback } })
     },
@@ -49,17 +55,16 @@ async function withMain(run) {
   Module._load = function (name, parent, isMain) {
     return name === 'electron' ? electron : originalLoad.call(this, name, parent, isMain)
   }
-  const mainPath = require.resolve('../electron/main.cjs')
+  fs.writeFileSync(path.join(temporaryHome, '.translate-app.history.json'), JSON.stringify(history))
+  const mainPath = require.resolve('../dist-electron/main.cjs')
   delete require.cache[mainPath]
   // Config/history capture the isolated home on require, never the developer's credentials.
-  delete require.cache[require.resolve('../electron/config.cjs')]
   delete require.cache[require.resolve('../dist-electron/config-store.cjs')]
-  delete require.cache[require.resolve('../electron/history.cjs')]
   delete require.cache[require.resolve('../dist-electron/history-store.cjs')]
   try {
     require(mainPath)
     await ready()
-    return await run({ handles, events, windows, notifications })
+    return await run({ handles, events, windows, notifications, appEvents, quitCount: () => quitCount })
   } finally {
     Module._load = originalLoad
     Object.defineProperty(process, 'platform', originalPlatform)
@@ -117,19 +122,62 @@ test('engine IPC validates untyped drafts and reports unsupported probes without
 test('history IPC awaits durable mutations and consistently notifies all existing windows', async () => {
   await withMain(async ({ handles, windows, notifications }) => {
     new windows[0].constructor({})
-    const save = handles.get('history:favorite')
-    const entry = await save({}, { src: 'source', dst: 'translation', providerId: 'deepseek', target: 'English' })
+    const save = handles.get('history:favorite:set')
+    const entry = await save({}, 'old', true)
     assert.equal(entry.favorite, true)
     assert.equal(notifications.filter(item => item.channel === 'history:updated').length, 2)
     await handles.get('history:favorite:set')({}, entry.id, false)
     assert.equal(handles.get('history:load')({})[0].favorite, false)
     await handles.get('history:delete')({}, entry.id)
-    const next = await save({}, { src: 'second', dst: 'translation', providerId: 'deepseek', target: 'English' })
-    assert.notEqual(next.id, entry.id)
     await handles.get('history:clear')({})
     assert.deepEqual(handles.get('history:load')({}), [])
-    assert.equal(notifications.filter(item => item.channel === 'history:updated').length, 10)
-    await assert.rejects(save({}, null), /无效的收藏请求/)
-    await assert.rejects(handles.get('history:favorite:set')({}, next.id, 'yes'), /无效的收藏更新/)
+    assert.equal(notifications.filter(item => item.channel === 'history:updated').length, 8)
+    await assert.rejects(save({}, 'second', 'yes'), /无效的收藏更新/)
+  }, { history: ['old', 'second'].map(id => ({ id, src: id, dst: 'translation', engine: 'DeepSeek', color: '#6366f1', lang: 'English', ts: 100, favorite: false })) })
+})
+
+test('native quit waits for its registered renderer save acknowledgement and refuses new translation work', async () => {
+  await withMain(async ({ handles, events, windows, notifications, appEvents, quitCount }) => {
+    const sender = windows[0].webContents
+    events.get('app:flush:register')({ sender }, true)
+    appEvents.get('before-quit')({ preventDefault() {} })
+    const request = notifications.find(item => item.channel === 'app:before-quit')
+    assert.equal(quitCount(), 0)
+    await assert.rejects(handles.get('translate:do')({ sender }, { text: 'new' }), /正在退出/)
+    assert.throws(() => handles.get('app:flush:done')({ sender }, 'wrong-token', true), /无效/)
+    await handles.get('config:save')({}, { launchToTray: false })
+    handles.get('app:flush:done')({ sender }, request.payload, true)
+    await new Promise(resolve => setImmediate(resolve))
+    assert.equal(quitCount(), 1)
+    assert.equal(handles.get('config:load')({}).launchToTray, false)
+  })
+})
+
+test('failed renderer save aborts native quit and a later acknowledged retry can quit', async () => {
+  await withMain(async ({ handles, events, windows, notifications, appEvents, quitCount }) => {
+    const sender = windows[0].webContents
+    events.get('app:flush:register')({ sender }, true)
+    const start = () => appEvents.get('before-quit')({ preventDefault() {} })
+    start()
+    handles.get('app:flush:done')({ sender }, notifications.findLast(item => item.channel === 'app:before-quit').payload, false)
+    await new Promise(resolve => setImmediate(resolve))
+    assert.equal(quitCount(), 0)
+    assert.ok(notifications.some(item => item.channel === 'config:save:error'))
+    assert.equal(windows[0].shown, true)
+    const result = await handles.get('translate:do')({ sender }, { text: '' })
+    assert.equal(result.stale, undefined)
+    start()
+    handles.get('app:flush:done')({ sender }, notifications.findLast(item => item.channel === 'app:before-quit').payload, true)
+    await new Promise(resolve => setImmediate(resolve))
+    assert.equal(quitCount(), 1)
+  })
+})
+
+test('untyped clipboard and history payloads are rejected without coercing them', async () => {
+  await withMain(async ({ handles }) => {
+    assert.throws(() => handles.get('clipboard:write')({}, { text: 'object' }), /无效/)
+    await assert.rejects(handles.get('history:favorite:set')({}, {}, true), /无效/)
+    await assert.rejects(handles.get('history:favorite:set')({}, 'old', 'false'), /无效/)
+    assert.throws(() => handles.get('history:delete')({}, NaN), /无效/)
   })
 })
