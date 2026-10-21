@@ -71,8 +71,9 @@ const monitor = setInterval(async () => {
   if (popup && !popup.isDestroyed()) {
     const text = await popup.webContents.executeJavaScript("document.querySelector('.dst-text')?.textContent || ''").catch(() => '')
     const wanted = mode === 'queue' ? 'PREWARM_B' : 'PREWARM_A'
-    if (text === `TRANSLATED ${wanted}` && !fs.existsSync(path.join(output, 'result.json'))) {
-      const items = JSON.parse(fs.readFileSync(path.join(output, '.translate-app.history.json'), 'utf8'))
+    const historyPath = path.join(output, '.translate-app.history.json')
+    if (text === `TRANSLATED ${wanted}` && !fs.existsSync(path.join(output, 'result.json')) && fs.existsSync(historyPath)) {
+      const items = JSON.parse(fs.readFileSync(historyPath, 'utf8'))
       assert.deepEqual(requests, [wanted])
       assert.deepEqual(items.map(item => item.src), [wanted])
       fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify({ pass: true, mode, visible: text, requests, history: items.map(item => item.src), windows: windowCount }, null, 2))
