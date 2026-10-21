@@ -18,9 +18,9 @@
     <div class="sortable-list" :class="{ 'is-sorting': sorting }">
       <div
         v-for="(item, index) in orderedItems"
-        :key="item[itemKey]"
+        :key="item.id"
         class="sortable-item"
-        :class="{ dragging: draggingId === item[itemKey] }"
+        :class="{ dragging: draggingId === item.id }"
         @dragover.prevent="moveDraggedTo(index)"
         @drop.prevent="finishDrag"
       >
@@ -31,10 +31,10 @@
           draggable="true"
           :title="labels.handle"
           :aria-label="`${labels.handle}: ${itemLabel(item)}`"
-          @dragstart="startDrag(item[itemKey], $event)"
+          @dragstart="startDrag(item.id, $event)"
           @dragend="finishDrag"
-          @keydown.alt.up.prevent="moveBy(item[itemKey], -1)"
-          @keydown.alt.down.prevent="moveBy(item[itemKey], 1)"
+          @keydown.alt.up.prevent="moveBy(item.id, -1)"
+          @keydown.alt.down.prevent="moveBy(item.id, 1)"
         >
           <GripVertical :size="15" :stroke-width="1.75" />
         </button>
@@ -46,22 +46,17 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts" generic="T extends { id: string; name: string }">
 import { computed, ref } from 'vue'
 import { GripVertical, ListRestart } from 'lucide-vue-next'
 import { useLocale } from '../composables/useLocale'
 
-const props = defineProps({
-  items: { type: Array, required: true },
-  modelValue: { type: Array, default: () => [] },
-  itemKey: { type: String, default: 'id' },
-  labelKey: { type: String, default: 'name' }
-})
-
-const emit = defineEmits(['update:modelValue', 'reorder'])
+const props = withDefaults(defineProps<{ items: T[]; modelValue?: string[] }>(), { modelValue: () => [] })
+const emit = defineEmits<{ 'update:modelValue': [order: string[]]; reorder: [order: string[]] }>()
+defineSlots<{ default(props: { item: T; sorting: boolean }): unknown }>()
 const { isEnglish } = useLocale()
 const sorting = ref(false)
-const draggingId = ref(null)
+const draggingId = ref<string | null>(null)
 
 const labels = computed(() => isEnglish.value ? {
   reorder: 'Reorder',
@@ -75,7 +70,7 @@ const labels = computed(() => isEnglish.value ? {
   handle: '移动设置项'
 })
 
-const defaultIds = computed(() => props.items.map(item => item[props.itemKey]))
+const defaultIds = computed(() => props.items.map(item => item.id))
 const normalizedIds = computed(() => {
   const available = new Set(defaultIds.value)
   const saved = props.modelValue.filter(id => available.has(id))
@@ -83,26 +78,27 @@ const normalizedIds = computed(() => {
   return [...saved, ...missing]
 })
 const orderedItems = computed(() => {
-  const byId = new Map(props.items.map(item => [item[props.itemKey], item]))
-  return normalizedIds.value.map(id => byId.get(id)).filter(Boolean)
+  const byId = new Map(props.items.map(item => [item.id, item]))
+  return normalizedIds.value.flatMap(id => { const item = byId.get(id); return item ? [item] : [] })
 })
 
-function itemLabel(item) {
-  return item[props.labelKey] || item[props.itemKey]
+function itemLabel(item: T) {
+  return item.name || item.id
 }
 
-function updateOrder(next, persist = true) {
+function updateOrder(next: string[], persist = true) {
   emit('update:modelValue', next)
   if (persist) emit('reorder', next)
 }
 
-function startDrag(id, event) {
+function startDrag(id: string, event: DragEvent) {
   draggingId.value = id
+  if (!event.dataTransfer) return
   event.dataTransfer.effectAllowed = 'move'
   event.dataTransfer.setData('text/plain', String(id))
 }
 
-function moveDraggedTo(targetIndex) {
+function moveDraggedTo(targetIndex: number) {
   if (draggingId.value === null) return
   const order = [...normalizedIds.value]
   const fromIndex = order.indexOf(draggingId.value)
@@ -112,7 +108,7 @@ function moveDraggedTo(targetIndex) {
   updateOrder(order, false)
 }
 
-function moveBy(id, offset) {
+function moveBy(id: string, offset: number) {
   const order = [...normalizedIds.value]
   const fromIndex = order.indexOf(id)
   const targetIndex = Math.max(0, Math.min(order.length - 1, fromIndex + offset))

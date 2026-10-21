@@ -103,7 +103,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { ConfigUpdate, Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
+import { errorMessage, savedOrder } from '../types'
+import { registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
 import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
 import BaseSelect from '../components/BaseSelect.vue'
 import SortableSettingList from '../components/SortableSettingList.vue'
@@ -173,15 +176,15 @@ const autoLaunch = ref(false)
 const autoLaunchBusy = ref(false)
 const autoLaunchError = ref('')
 const popupResetDone = ref(false)
-const settingsOrder = ref([])
+const settingsOrder = ref<string[]>([])
 const saveError = ref('')
 let saving = false
 let saveGeneration = 0
-let offConfigUpdate = null
+let offConfigUpdate: Unsubscribe | undefined
 
 let hydrated = false
-let saveTimer = null
-let resetTimer = null
+let saveTimer: number | undefined
+let resetTimer: number | undefined
 
 async function loadSettings() {
   if (!window.api?.loadConfig) {
@@ -199,35 +202,37 @@ async function loadSettings() {
     launchToTray.value = !!cfg.launchToTray
     raceMode.value = cfg.raceMode !== false
     autoLaunch.value = !!systemAutoLaunch
-    settingsOrder.value = cfg.settingsOrder?.general || []
+    settingsOrder.value = savedOrder(cfg.settingsOrder?.general)
   } catch (error) {
-    autoLaunchError.value = error?.message || text.value.readAutoLaunchError
+    autoLaunchError.value = errorMessage(error, text.value.readAutoLaunchError)
   } finally {
     await nextTick()
     hydrated = true
   }
 }
 
-async function persist(partial) {
+async function persist(partial: ConfigUpdate) {
   if (!window.api?.saveConfig) return
   const generation = ++saveGeneration
   saving = true
   try {
-    await window.api.saveConfig(partial)
+    await trackSettingsSave(window.api.saveConfig(partial))
     if (generation === saveGeneration) saveError.value = ''
+    return true
   } catch (error) {
-    if (generation === saveGeneration) saveError.value = error?.message || (isEnglish.value ? 'Unable to save settings' : '配置保存失败')
+    if (generation === saveGeneration) saveError.value = errorMessage(error, (isEnglish.value ? 'Unable to save settings' : '配置保存失败'))
+    return false
   } finally {
     if (generation === saveGeneration) saving = false
   }
 }
 
-function saveSettingsOrder(order) {
+function saveSettingsOrder(order: string[]) {
   persist({ settingsOrder: { general: order } })
 }
 
 function savePreferences() {
-  saveTimer = null
+  saveTimer = undefined
   return persist({
     uiLanguage: locale.value, closeAction: closeAction.value,
     launchToTray: launchToTray.value, raceMode: raceMode.value
@@ -237,7 +242,7 @@ function savePreferences() {
 function scheduleSave() {
   if (!hydrated || !window.api?.saveConfig) return
   clearTimeout(saveTimer)
-  saveTimer = setTimeout(savePreferences, 120)
+  saveTimer = window.setTimeout(savePreferences, 120)
 }
 
 watch(locale, () => {
@@ -252,11 +257,11 @@ async function changeAutoLaunch() {
   autoLaunchBusy.value = true
   autoLaunchError.value = ''
   try {
-    autoLaunch.value = !!(await window.api.setAutoLaunch(requested))
+    autoLaunch.value = !!(await trackSettingsSave(window.api.setAutoLaunch(requested)))
   } catch (error) {
     // The system change may have succeeded even when its JSON preference failed to save.
     autoLaunch.value = await window.api.getAutoLaunch().catch(() => !requested)
-    autoLaunchError.value = error?.message || text.value.autoLaunchError
+    autoLaunchError.value = errorMessage(error, text.value.autoLaunchError)
   } finally {
     autoLaunchBusy.value = false
   }
@@ -270,11 +275,15 @@ async function resetPopupSize() {
     saveError.value = ''
     popupResetDone.value = true
     clearTimeout(resetTimer)
-    resetTimer = setTimeout(() => { popupResetDone.value = false }, 1800)
+    resetTimer = window.setTimeout(() => { popupResetDone.value = false }, 1800)
   } catch (error) {
-    saveError.value = error?.message || (isEnglish.value ? 'Unable to save window size' : '窗口设置保存失败')
+    saveError.value = errorMessage(error, (isEnglish.value ? 'Unable to save window size' : '窗口设置保存失败'))
   }
 }
+
+const unregisterFlush = registerSettingsFlush(() => {
+  if (saveTimer !== undefined) { window.clearTimeout(saveTimer); return savePreferences() }
+})
 
 onMounted(() => {
   offConfigUpdate = window.api?.onConfigUpdate?.(() => {
@@ -283,6 +292,7 @@ onMounted(() => {
   loadSettings()
 })
 onUnmounted(() => {
+  unregisterFlush()
   if (saveTimer) { clearTimeout(saveTimer); savePreferences() }
   clearTimeout(resetTimer)
   offConfigUpdate?.()

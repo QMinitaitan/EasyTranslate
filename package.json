@@ -23,7 +23,7 @@
     "dev:web": "vite",
     "build:electron": "tsc -p tsconfig.electron.json",
     "build": "npm run build:electron && vite build",
-    "typecheck": "tsc -p tsconfig.electron.json --noEmit && tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.electron.json --noEmit && vue-tsc --noEmit -p tsconfig.json",
     "test": "npm run build:electron && node --test tests/*.test.cjs",
     "check": "npm run typecheck && npm test && npm run build",
     "dist:linux": "npm run build && electron-builder --linux deb --x64",
@@ -43,6 +43,7 @@
     "vite": "^5.3.1",
     "vue": "^3.5.40",
     "vue-router": "^4.6.4",
+    "vue-tsc": "3.3.13",
     "wait-on": "^7.2.0"
   }
 }
