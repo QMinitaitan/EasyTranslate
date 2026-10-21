@@ -61,6 +61,10 @@ function createTray() {
 }
 
 function createMainWindow() {
+  const cfg = loadConfig()
+  const forceShow = process.argv.includes('--show')
+  const forceHidden = process.argv.includes('--hidden')
+  const initiallyHidden = !forceShow && (forceHidden || cfg.launchToTray)
   const windowIcon = nativeImage.createFromPath(windowIconPath)
   mainWin = new BrowserWindow({
     width: 1100, height: 720, minWidth: 900, minHeight: 600,
@@ -69,6 +73,7 @@ function createMainWindow() {
     titleBarStyle: 'default',
     backgroundColor: '#fafafa',
     show: false,
+    paintWhenInitiallyHidden: !initiallyHidden,
     webPreferences: {
       preload: path.join(__dirname, '../dist-electron/preload.cjs'),
       contextIsolation: true, nodeIntegration: false
@@ -80,11 +85,7 @@ function createMainWindow() {
   mainWin.webContents.once('did-finish-load', () => desktop.schedulePrewarm())
   if (isDev) mainWin.loadURL(process.env.VITE_DEV_SERVER_URL)
   else mainWin.loadFile(path.join(__dirname, '../dist/index.html'))
-  mainWin.once('ready-to-show', () => {
-    const cfg = loadConfig()
-    const forceShow = process.argv.includes('--show')
-    const forceHidden = process.argv.includes('--hidden')
-    if (!forceShow && (forceHidden || cfg.launchToTray)) return
+  if (!initiallyHidden) mainWin.once('ready-to-show', () => {
     mainWin.show()
     mainWin.focus()
   })
