@@ -91,7 +91,7 @@
 <script setup lang="ts">
 import type { ProviderConfig, ProviderMetadata, ProviderCapability, Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
 import { savedOrder } from '../types'
-import { registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
+import { createSettingsMutation, registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
 interface ProviderDraft extends ProviderConfig {
   id: string; name: string; color: string; desc?: string; builtin: boolean
   endpoint: string; region: string; model: string; prompt: string; secret: string
@@ -227,18 +227,30 @@ onMounted(async () => {
   }
 })
 
-function saveProviderOrder(order: string[]) {
+async function persistProviderOrder(order: string[]): Promise<boolean> {
   const api = window.api
-  if (!api) return
-  void trackSettingsSave(api.saveConfig({ settingsOrder: { providers: order } })).catch(() => {
+  if (!api) return false
+  try {
+    await trackSettingsSave(api.saveConfig({ settingsOrder: { providers: order } }))
+    return true
+  } catch (_) {
     saveError.value = isEnglish.value ? 'Unable to save provider order' : '引擎排序保存失败'
-  })
+    return false
+  }
+}
+const providerOrderSave = createSettingsMutation('provider-order', persistProviderOrder)
+const providerSettingsSave = createSettingsMutation('providers', persistProviders)
+
+function saveProviderOrder(order: string[]) {
+  providerOrderSave.update([...order])
+  void providerOrderSave.save()
 }
 
 let saveTimer: number | undefined
 watch(() => JSON.stringify(providerDraft()), () => {
   if (!hydrated || disposed) return
   draftVersion += 1
+  providerSettingsSave.update(providerDraft())
   for (const provider of providers) {
     provider.testVersion += 1
     provider.testState = 'idle'
@@ -277,10 +289,11 @@ async function refreshCapabilities() {
   }
 }
 
-async function persist() {
+async function persistProviders(value: Record<string, Partial<ProviderConfig>>): Promise<boolean> {
   const version = draftVersion
   try {
-    if (window.api) await trackSettingsSave(window.api.saveConfig({ providers: providerDraft() }))
+    if (!window.api) return false
+    await trackSettingsSave(window.api.saveConfig({ providers: value }))
     if (version === draftVersion) saveError.value = ''
     return true
   } catch (_) {
@@ -289,6 +302,8 @@ async function persist() {
   }
 }
 
+function persist() { return providerSettingsSave.save() }
+
 let _cachedMeta: ProviderMetadata[] | null = null
 async function resetDefaults() {
   const api = window.api
@@ -296,6 +311,7 @@ async function resetDefaults() {
   if (!_cachedMeta) _cachedMeta = await api.listProviders()
   providers.length = 0
   providers.push(...buildFromMeta(_cachedMeta, {}))
+  providerSettingsSave.update(providerDraft())
   await persist()
 }
 
@@ -341,7 +357,8 @@ async function testProvider(p: ProviderDraft) {
 }
 
 const unregisterFlush = registerSettingsFlush(() => {
-  if (saveTimer !== undefined) { window.clearTimeout(saveTimer); saveTimer = undefined; return persist() }
+  window.clearTimeout(saveTimer)
+  saveTimer = undefined
 })
 
 onUnmounted(() => {
@@ -350,7 +367,11 @@ onUnmounted(() => {
   offConfig?.()
   capabilityVersion += 1
   for (const provider of providers) provider.testVersion += 1
-  if (saveTimer) { clearTimeout(saveTimer); saveTimer = undefined; void persist() }
+  clearTimeout(saveTimer)
+  saveTimer = undefined
+  void persist()
+  providerSettingsSave.release()
+  providerOrderSave.release()
 })
 </script>
 

@@ -2,12 +2,69 @@
 type SaveFlush = () => void | Promise<unknown>
 const owners = new Set<SaveFlush>()
 const active = new Set<Promise<unknown>>()
+const mutationOwners = new Map<string, () => void>()
 let draining: Promise<void> | undefined
 let drainErrors: unknown[] | undefined
 
 export function registerSettingsFlush(flush: SaveFlush): () => void {
   owners.add(flush)
   return () => { owners.delete(flush) }
+}
+
+/** Own a concrete unsaved mutation independently of a debounce timer or view. */
+export function createSettingsMutation<T>(key: string, persist: (value: T) => Promise<boolean>) {
+  let pending: { value: T } | undefined
+  let running: Promise<boolean> | undefined
+  let released = false
+  const unregister = registerSettingsFlush(flush)
+
+  function releaseIfSaved() {
+    if (released && !pending && !running) {
+      unregister()
+      if (mutationOwners.get(key) === supersede) mutationOwners.delete(key)
+    }
+  }
+
+  function supersede() {
+    pending = undefined
+    released = true
+    unregister()
+  }
+
+  function update(value: T) {
+    const previous = mutationOwners.get(key)
+    if (previous && previous !== supersede) previous()
+    mutationOwners.set(key, supersede)
+    pending = { value }
+  }
+
+  function save(): Promise<boolean> {
+    if (running) return running
+    const snapshot = pending
+    if (!snapshot) return Promise.resolve(true)
+    running = persist(snapshot.value).then(saved => {
+      if (saved && pending === snapshot) pending = undefined
+      return saved
+    }).finally(() => {
+      running = undefined
+      releaseIfSaved()
+    })
+    return running
+  }
+
+  async function flush(): Promise<boolean> {
+    do {
+      if (!await save()) return false
+    } while (pending)
+    return true
+  }
+
+  function release() {
+    released = true
+    releaseIfSaved()
+  }
+
+  return { update, save, flush, release, isPending: () => !!pending }
 }
 
 export function trackSettingsSave<T>(save: Promise<T>): Promise<T> {
