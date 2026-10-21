@@ -22,6 +22,12 @@ function on<C extends keyof EventChannels>(channel: C, cb: (payload: EventChanne
 
 const api: EasyTranslateApi = {
   platform: process.platform,
+  onBeforeQuit: (cb) => {
+    const off = on('app:before-quit', cb)
+    send('app:flush:register', true)
+    return () => { off(); send('app:flush:register', false) }
+  },
+  completeQuitFlush: (token) => invoke('app:flush:done', token),
   isPopup: () => window.location.hash.includes('/popup') && window.location.hash.includes('window=popup'),
   triggerTranslate: (cb) => on('translate:trigger', cb),
   translate: (input: string | TranslationRequest, target?: string, providerId?: string | null) =>

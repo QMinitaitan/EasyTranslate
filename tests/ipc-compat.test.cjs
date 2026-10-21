@@ -86,3 +86,19 @@ test('single progress and history persistence errors retain identity and release
   ipc.emit('history:save:error', {}, 'late')
   assert.deepEqual(observed, ['current', '历史保存失败'])
 })
+
+test('renderer save-drain participation has scoped registration and an explicit acknowledgement', async () => {
+  const { api, ipc, requests } = loadPreload()
+  const tokens = []
+  const off = api.onBeforeQuit(token => tokens.push(token))
+  ipc.emit('app:before-quit', {}, 'quit-current')
+  await api.completeQuitFlush(tokens[0])
+  off()
+  ipc.emit('app:before-quit', {}, 'quit-late')
+  assert.deepEqual(tokens, ['quit-current'])
+  assert.deepEqual(JSON.parse(JSON.stringify(requests)), [
+    { channel: 'app:flush:register', payload: true },
+    { channel: 'app:flush:done', payload: 'quit-current' },
+    { channel: 'app:flush:register', payload: false }
+  ])
+})

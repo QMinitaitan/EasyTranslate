@@ -144,6 +144,7 @@ export interface FavoriteRequest {
 }
 
 export interface InvokeChannels {
+  'app:flush:done': { args: [string]; result: void }
   'translate:do': { args: [TranslationRequest]; result: TranslationResult }
   'config:load': { args: []; result: AppConfig }
   'config:save': { args: [ConfigUpdate]; result: AppConfig }
@@ -165,6 +166,7 @@ export interface InvokeChannels {
 }
 
 export interface SendChannels {
+  'app:flush:register': [boolean]
   'translate:cancel': []
   'translate:race:start': [RaceRequest]
   'settings:open': []
@@ -176,6 +178,7 @@ export interface SendChannels {
 }
 
 export interface EventChannels {
+  'app:before-quit': string
   'translate:trigger': TranslationTrigger
   'translate:progress': TranslationResult
   'translate:race:progress': RaceResult
@@ -191,6 +194,8 @@ export type Unsubscribe = () => void
 
 export interface EasyTranslateApi {
   platform: NodeJS.Platform
+  onBeforeQuit(cb: (token: string) => void): Unsubscribe
+  completeQuitFlush(token: string): Promise<void>
   isPopup(): boolean
   triggerTranslate(cb: (payload: TranslationTrigger) => void): Unsubscribe
   translate(request: TranslationRequest): Promise<TranslationResult>
