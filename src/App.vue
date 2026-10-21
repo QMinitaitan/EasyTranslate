@@ -60,9 +60,15 @@
     </main>
     <CommandPalette v-model:open="paletteOpen" />
   </div>
-  <div v-if="configSaveError" class="config-save-error no-drag" role="alert">
-    <span>{{ configSaveError }}</span>
-    <button type="button" class="icon-btn" :aria-label="isEnglish ? 'Dismiss' : '关闭'" @click="configSaveError = ''">×</button>
+  <div class="save-errors no-drag">
+    <div v-if="configSaveError" class="config-save-error" role="alert">
+      <span>{{ configSaveError }}</span>
+      <button type="button" class="icon-btn" :aria-label="isEnglish ? 'Dismiss' : '关闭'" @click="configSaveError = ''">×</button>
+    </div>
+    <div v-if="historySaveError" class="history-save-error" role="alert">
+      <span>{{ historySaveError }}</span>
+      <button type="button" class="icon-btn" :aria-label="isEnglish ? 'Dismiss' : '关闭'" @click="historySaveError = ''">×</button>
+    </div>
   </div>
 </template>
 
@@ -78,6 +84,7 @@ import appMarkUrl from '../assets/icon-v3/easytranslate-mark.svg'
 const { mode, setMode } = useTheme()
 const { setLocale, t, isEnglish } = useLocale()
 const configSaveError = ref('')
+const historySaveError = ref('')
 const paletteOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
@@ -85,6 +92,8 @@ const isPopupRoute = computed(() => route.path.startsWith('/popup') && route.que
 let offNavigate = null
 let offConfigUpdate = null
 let offConfigSaveError = null
+let offHistorySaveError = null
+let offHistoryUpdate = null
 
 async function refreshLocale() {
   const cfg = await window.api?.loadConfig?.()
@@ -95,19 +104,26 @@ onMounted(async () => {
   offNavigate = window.api?.onNavigate?.((path) => router.push(path))
   offConfigUpdate = window.api?.onConfigUpdate?.(() => { refreshLocale().catch(() => {}) })
   offConfigSaveError = window.api?.onConfigSaveError?.((message) => { configSaveError.value = message })
+  offHistorySaveError = window.api?.onHistorySaveError?.((message) => { historySaveError.value = message })
+  offHistoryUpdate = window.api?.onHistoryUpdate?.(() => { historySaveError.value = '' })
   await refreshLocale().catch(() => {})
 })
 
-onUnmounted(() => { offNavigate?.(); offConfigUpdate?.(); offConfigSaveError?.() })
+onUnmounted(() => { offNavigate?.(); offConfigUpdate?.(); offConfigSaveError?.(); offHistorySaveError?.(); offHistoryUpdate?.() })
 </script>
 
 <style scoped>
-.config-save-error {
+.save-errors {
   position: fixed;
   z-index: 1000;
   top: 12px;
   right: 12px;
   max-width: min(480px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.config-save-error, .history-save-error {
   display: flex;
   align-items: center;
   gap: var(--space-3);

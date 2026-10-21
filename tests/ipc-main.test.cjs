@@ -55,6 +55,7 @@ async function withMain(run) {
   delete require.cache[require.resolve('../electron/config.cjs')]
   delete require.cache[require.resolve('../dist-electron/config-store.cjs')]
   delete require.cache[require.resolve('../electron/history.cjs')]
+  delete require.cache[require.resolve('../dist-electron/history-store.cjs')]
   try {
     require(mainPath)
     await ready()
@@ -110,5 +111,25 @@ test('engine IPC validates untyped drafts and reports unsupported probes without
     assert.equal(result.ok, false)
     assert.equal(result.status, 'unsupported')
     assert.doesNotMatch(JSON.stringify(result), /synthetic-key/)
+  })
+})
+
+test('history IPC awaits durable mutations and consistently notifies all existing windows', async () => {
+  await withMain(async ({ handles, windows, notifications }) => {
+    new windows[0].constructor({})
+    const save = handles.get('history:favorite')
+    const entry = await save({}, { src: 'source', dst: 'translation', providerId: 'deepseek', target: 'English' })
+    assert.equal(entry.favorite, true)
+    assert.equal(notifications.filter(item => item.channel === 'history:updated').length, 2)
+    await handles.get('history:favorite:set')({}, entry.id, false)
+    assert.equal(handles.get('history:load')({})[0].favorite, false)
+    await handles.get('history:delete')({}, entry.id)
+    const next = await save({}, { src: 'second', dst: 'translation', providerId: 'deepseek', target: 'English' })
+    assert.notEqual(next.id, entry.id)
+    await handles.get('history:clear')({})
+    assert.deepEqual(handles.get('history:load')({}), [])
+    assert.equal(notifications.filter(item => item.channel === 'history:updated').length, 10)
+    await assert.rejects(save({}, null), /无效的收藏请求/)
+    await assert.rejects(handles.get('history:favorite:set')({}, next.id, 'yes'), /无效的收藏更新/)
   })
 })
