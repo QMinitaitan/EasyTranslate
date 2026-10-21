@@ -378,6 +378,7 @@ function setFontScale(value) {
 let offTrigger = null
 let raceOffProgress = null
 let raceOffDone = null
+let singleOffProgress = null
 let raceRequestSeq = 0
 let activeRaceRequestId = null
 let translationSequence = 0
@@ -409,6 +410,8 @@ async function doTranslate(text) {
   raceSwapping.value = false
   raceOffProgress?.()
   raceOffDone?.()
+  singleOffProgress?.()
+  singleOffProgress = null
   raceOffProgress = null
   raceOffDone = null
   activeRaceRequestId = null
@@ -474,19 +477,27 @@ async function doTranslate(text) {
     return
   } else {
     const requestId = `single-${Date.now()}-${sequence}`
-    try {
-      const r = await window.api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId })
-      if (sequence !== translationSequence || r.stale || (r.requestId && r.requestId !== requestId)) return
+    const showResult = r => {
+      if (sequence !== translationSequence || r.stale || r.requestId !== requestId) return
       if (r.error) { state.value = 'error'; errorMsg.value = r.error; return }
       dst.value = r.text
       latency.value = r.ms
       engineLabel.value = engineDisplayName(r.engine) || engineLabel.value
       saveWarning.value = r.historyError || ''
       state.value = 'idle'
+    }
+    const offProgress = window.api.onTranslationProgress(showResult)
+    singleOffProgress = offProgress
+    try {
+      const r = await window.api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId })
+      showResult(r)
     } catch (error) {
       if (sequence !== translationSequence) return
       state.value = 'error'
       errorMsg.value = error?.message || '翻译失败'
+    } finally {
+      offProgress()
+      if (singleOffProgress === offProgress) singleOffProgress = null
     }
   }
 }
@@ -553,6 +564,7 @@ onUnmounted(() => {
   clearTimeout(raceSwapTimer)
   clearTimeout(copiedTimer)
   offTrigger?.()
+  singleOffProgress?.()
   raceOffProgress?.()
   raceOffDone?.()
 })
