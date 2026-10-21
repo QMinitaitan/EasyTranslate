@@ -108,19 +108,24 @@ function createMainWindow() {
 }
 
 let selectionCaptureBusy = false
-async function onShortcut() {
-  if (selectionCaptureBusy || quitPhase !== 'running') return
+let selectionCapture: Promise<void> | undefined
+function onShortcut(): Promise<void> {
+  if (selectionCaptureBusy || quitPhase !== 'running') return Promise.resolve()
   selectionCaptureBusy = true
   desktop.beginSelectionCapture()
   translationSessions.cancel()
-  try {
-    const { text, source, reason } = await getSelection()
-    const detail = reason ? `${source}/${reason}` : source
-    console.log(`[translate] selection capture: ${detail}, ${text.length} chars`)
-    if (quitPhase === 'running') desktop.showTranslation(text || '')
-  } finally {
-    selectionCaptureBusy = false
-  }
+  const capture = (async () => {
+    try {
+      const { text, source, reason } = await getSelection()
+      const detail = reason ? `${source}/${reason}` : source
+      console.log(`[translate] selection capture: ${detail}, ${text.length} chars`)
+      if (quitPhase === 'running') desktop.showTranslation(text || '')
+    } finally { selectionCaptureBusy = false }
+  })()
+  selectionCapture = capture
+  const release = () => { if (selectionCapture === capture) selectionCapture = undefined }
+  void capture.then(release, release)
+  return capture
 }
 
 const SOCK_PATH = path.join(process.env.HOME || '/tmp', '.translate-app.sock')
@@ -287,13 +292,14 @@ app.whenReady().then(() => {
     desktop.beginSelectionCapture()
     translationSessions.cancel()
     // The renderer owns debounce timers; drain them before desktop and storage queues.
-    void drainRendererSettings().then(() => desktop.flush()).then(() => Promise.all([history.flush(), flushConfig()])).then(() => {
+    void drainRendererSettings().then(() => selectionCapture).then(() => desktop.flush()).then(() => Promise.all([history.flush(), flushConfig()])).then(() => {
       quitPhase = 'ready'
       app.quit()
     }).catch(error => {
       quitPhase = 'running'
       registerShortcuts(getShortcutMap(loadConfig()))
       reportConfigSaveError(error)
+      if (mainWin && !mainWin.isDestroyed()) { mainWin.show(); mainWin.focus() }
     })
   })
   app.on('will-quit', () => {
@@ -408,6 +414,7 @@ app.whenReady().then(() => {
     mainWin.webContents.send('main:navigate', '/')
   })
   ipcMain.handle('clipboard:write', (_evt, text: unknown) => {
+    requireRunning()
     if (typeof text !== 'string') throw new Error('无效的复制文本')
     clipboard.writeText(text)
     return true

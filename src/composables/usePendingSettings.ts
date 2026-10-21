@@ -39,7 +39,9 @@ export function createSettingsMutation<T>(key: string, persist: (value: T) => Pr
   }
 
   function save(): Promise<boolean> {
-    if (running) return running
+    // A newer debounce may fire during the prior write; keep that requested save
+    // attached to completion so its latest snapshot is not stranded until quit.
+    if (running) return running.then(saved => saved ? save() : false)
     const snapshot = pending
     if (!snapshot) return Promise.resolve(true)
     running = persist(snapshot.value).then(saved => {

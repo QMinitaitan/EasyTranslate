@@ -1,4 +1,4 @@
-/** Shared wire data. Legacy positional preload calls remain supported during migration. */
+/** Concrete shared wire data; every translation request uses this object contract. */
 export interface TranslationRequest {
   text: string
   target?: string

@@ -173,7 +173,3 @@ for (const p of PROVIDERS) byId[p.id] = p
 
 export function getProvider(id: string): ProviderMetadata | undefined { return byId[id] }
 export function getAll() { return PROVIDERS }
-
-
-
-

@@ -29,6 +29,8 @@ async function withMain(run, { history = [] } = {}) {
       windows.push(this)
     }
     loadFile() {}
+    show() { this.shown = true }
+    focus() {}
     setIcon() {}
     isDestroyed() { return false }
     static getAllWindows() { return windows }
@@ -161,6 +163,7 @@ test('failed renderer save aborts native quit and a later acknowledged retry can
     await new Promise(resolve => setImmediate(resolve))
     assert.equal(quitCount(), 0)
     assert.ok(notifications.some(item => item.channel === 'config:save:error'))
+    assert.equal(windows[0].shown, true)
     const result = await handles.get('translate:do')({ sender }, { text: '' })
     assert.equal(result.stale, undefined)
     start()

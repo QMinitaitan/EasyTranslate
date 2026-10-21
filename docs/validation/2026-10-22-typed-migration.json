@@ -1,0 +1,516 @@
+{
+  "dateLocal": "2026-10-22",
+  "baseIntegration": "3e1836db21382b4554dbc8bd0fe4f9b5de1ac10f",
+  "check": {
+    "passed": true,
+    "tests": 95,
+    "failures": 0,
+    "electronStrict": true,
+    "vueSfcChecked": 13,
+    "rendererTypecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "productionBuild": true
+  },
+  "nativeQuit": {
+    "passed": 10,
+    "failed": 0,
+    "controlledHiddenDom": true,
+    "physicalClipboardUsed": false,
+    "originalDebounceRed": [
+      {
+        "fixture": "quit-app-20261021-155250-969",
+        "result": {
+          "pass": false,
+          "mode": "app",
+          "actual": true,
+          "expected": false,
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "app",
+          "edited": {
+            "requested": false,
+            "at": 595.5999999940395
+          },
+          "before": true,
+          "controlledHiddenDom": true
+        }
+      },
+      {
+        "fixture": "quit-close-20261021-155308-575",
+        "result": {
+          "pass": false,
+          "mode": "close",
+          "actual": true,
+          "expected": false,
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "close",
+          "edited": {
+            "requested": false,
+            "at": 380.19999998807907
+          },
+          "before": true,
+          "controlledHiddenDom": true
+        }
+      }
+    ],
+    "captureCleanupRed": {
+      "naturalExit": false,
+      "elapsedMs": 62.82940000000008,
+      "selectionCleanup": false,
+      "triggerCount": 0
+    },
+    "cases": [
+      {
+        "fixture": "quit-general-app-none-20261021-161559-153",
+        "result": {
+          "pass": true,
+          "mode": "app",
+          "setting": "general",
+          "fault": "none",
+          "actual": false,
+          "expected": false,
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "app",
+          "setting": "general",
+          "edited": {
+            "requested": false,
+            "at": 328.10000002384186
+          },
+          "before": true,
+          "quitBeforeDebounceMs": 1.199999988079071,
+          "controlledHiddenDom": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 70.10530000000006
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      },
+      {
+        "fixture": "quit-general-close-none-20261021-161601-136",
+        "result": {
+          "pass": true,
+          "mode": "close",
+          "setting": "general",
+          "fault": "none",
+          "actual": false,
+          "expected": false,
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "close",
+          "setting": "general",
+          "edited": {
+            "requested": false,
+            "at": 240.30000001192093
+          },
+          "before": true,
+          "quitBeforeDebounceMs": 2.2999999821186066,
+          "controlledHiddenDom": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 48.68919999999997
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      },
+      {
+        "fixture": "quit-api-app-none-20261021-161603-022",
+        "result": {
+          "pass": true,
+          "mode": "app",
+          "setting": "api",
+          "fault": "none",
+          "actual": "quit-fixture-model",
+          "expected": "quit-fixture-model",
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "app",
+          "setting": "api",
+          "edited": {
+            "requested": "quit-fixture-model",
+            "at": 340
+          },
+          "before": "original-model",
+          "quitBeforeDebounceMs": 4.899999976158142,
+          "controlledHiddenDom": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 68.85540000000003
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      },
+      {
+        "fixture": "quit-api-close-none-20261021-161604-981",
+        "result": {
+          "pass": true,
+          "mode": "close",
+          "setting": "api",
+          "fault": "none",
+          "actual": "quit-fixture-model",
+          "expected": "quit-fixture-model",
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "close",
+          "setting": "api",
+          "edited": {
+            "requested": "quit-fixture-model",
+            "at": 330.40000000596046
+          },
+          "before": "original-model",
+          "quitBeforeDebounceMs": 4.5999999940395355,
+          "controlledHiddenDom": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 57.233499999999935
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      },
+      {
+        "fixture": "quit-shortcut-app-none-20261021-161607-009",
+        "result": {
+          "pass": true,
+          "mode": "app",
+          "setting": "shortcut",
+          "fault": "none",
+          "actual": "",
+          "expected": "",
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "app",
+          "setting": "shortcut",
+          "edited": {
+            "requested": "",
+            "at": 344
+          },
+          "before": "Alt+Q",
+          "quitBeforeDebounceMs": 2.300000011920929,
+          "controlledHiddenDom": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 65.27549999999997
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      },
+      {
+        "fixture": "quit-shortcut-close-none-20261021-161608-995",
+        "result": {
+          "pass": true,
+          "mode": "close",
+          "setting": "shortcut",
+          "fault": "none",
+          "actual": "",
+          "expected": "",
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "close",
+          "setting": "shortcut",
+          "edited": {
+            "requested": "",
+            "at": 349.5
+          },
+          "before": "Alt+Q",
+          "quitBeforeDebounceMs": 1.300000011920929,
+          "controlledHiddenDom": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 44.1816
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      },
+      {
+        "fixture": "quit-general-close-disk-20261021-161610-962",
+        "result": {
+          "pass": true,
+          "mode": "close",
+          "setting": "general",
+          "fault": "disk",
+          "actual": false,
+          "expected": false,
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "close",
+          "setting": "general",
+          "edited": {
+            "requested": false,
+            "at": 372.5
+          },
+          "before": true,
+          "quitBeforeDebounceMs": 3.7000000178813934,
+          "controlledHiddenDom": true
+        },
+        "aborted": {
+          "fault": "disk",
+          "elapsedMs": 22.431500000000028,
+          "windowKeptOpen": true,
+          "errorWindowShowRequested": true,
+          "usable": true,
+          "durableBeforeRetry": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 78.12619999999993
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      },
+      {
+        "fixture": "quit-general-close-timeout-20261021-161613-143",
+        "result": {
+          "pass": true,
+          "mode": "close",
+          "setting": "general",
+          "fault": "timeout",
+          "actual": false,
+          "expected": false,
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "close",
+          "setting": "general",
+          "edited": {
+            "requested": false,
+            "at": 321.69999998807907
+          },
+          "before": true,
+          "quitBeforeDebounceMs": 1.5,
+          "controlledHiddenDom": true
+        },
+        "aborted": {
+          "fault": "timeout",
+          "elapsedMs": 3023.1758,
+          "windowKeptOpen": true,
+          "errorWindowShowRequested": true,
+          "usable": true,
+          "durableBeforeRetry": false
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 52.347299999999905
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      },
+      {
+        "fixture": "quit-capture-app-none-20261021-161618-177",
+        "result": {
+          "pass": true,
+          "mode": "app",
+          "setting": "capture",
+          "fault": "none",
+          "actual": "Alt+Q",
+          "expected": "Alt+Q",
+          "controlledHiddenDom": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 221.98620000000005,
+          "selectionCleanup": true,
+          "triggerCount": 0
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null,
+          "selectionCleanup": false,
+          "triggerCount": 0
+        }
+      },
+      {
+        "fixture": "quit-startup-app-none-20261021-161620-347",
+        "result": {
+          "pass": true,
+          "mode": "app",
+          "setting": "startup",
+          "fault": "none",
+          "actual": "Alt+Q",
+          "expected": "Alt+Q",
+          "controlledHiddenDom": true
+        },
+        "edit": {
+          "mode": "app",
+          "setting": "startup",
+          "loadingWindow": true
+        },
+        "exit": {
+          "naturalExit": true,
+          "elapsedMs": 19.167500000000018
+        },
+        "restartExit": {
+          "naturalExit": true,
+          "elapsedMs": null
+        }
+      }
+    ]
+  },
+  "sameApp": {
+    "pass": true,
+    "controlledHiddenDom": true,
+    "physicalClipboardUsed": false,
+    "beforePersistence": {
+      "text": "FAIL translated",
+      "ipcCompleted": false,
+      "historySources": [
+        "LEGACY"
+      ]
+    },
+    "failedSave": {
+      "translation": "FAIL translated",
+      "historyId": null,
+      "historyError": "翻译成功，但历史保存失败"
+    },
+    "legacyIdAndCustomFieldPreserved": true,
+    "subscribers": 2,
+    "verified": [
+      "translation",
+      "save failure",
+      "copy IPC",
+      "retry",
+      "favorite",
+      "failed unfavorite",
+      "unfavorite",
+      "delete",
+      "clear"
+    ],
+    "windowsStayedHidden": true,
+    "sameAppSequence": [
+      "single",
+      "save failure and retry",
+      "favorites",
+      "delete and clear",
+      "API settings",
+      "General settings",
+      "race",
+      "comparison switch and edit",
+      "pin and unpin",
+      "native resize and UI reset",
+      "hide",
+      "race history"
+    ]
+  },
+  "raceRegression": {
+    "pass": true,
+    "controlledHiddenDom": true,
+    "screenshot": {
+      "captured": false,
+      "reason": "Current display surface not available for capture"
+    },
+    "beforeSaveAndSlow": {
+      "text": "RACE fast",
+      "historyCount": 0,
+      "slowFinished": false
+    },
+    "chosenComparisonAfterDone": "EDITED SLOW",
+    "raceHistoryCount": 1,
+    "raceToSingleHistory": [
+      "SINGLE_CURRENT"
+    ],
+    "singleToRaceHistory": [
+      "RACE_CURRENT"
+    ],
+    "abortAttempts": 6,
+    "windows": 2,
+    "requests": [
+      {
+        "source": "RACE",
+        "engine": "fast"
+      },
+      {
+        "source": "RACE",
+        "engine": "slow"
+      },
+      {
+        "source": "OLD_RACE",
+        "engine": "fast"
+      },
+      {
+        "source": "OLD_RACE",
+        "engine": "slow"
+      },
+      {
+        "source": "OLD_RACE",
+        "engine": "fast"
+      },
+      {
+        "source": "SINGLE_CURRENT",
+        "engine": "fast"
+      },
+      {
+        "source": "OLD_SINGLE",
+        "engine": "fast"
+      },
+      {
+        "source": "OLD_SINGLE",
+        "engine": "fast"
+      },
+      {
+        "source": "OLD_SINGLE",
+        "engine": "slow"
+      },
+      {
+        "source": "RACE_CURRENT",
+        "engine": "fast"
+      },
+      {
+        "source": "RACE_CURRENT",
+        "engine": "slow"
+      }
+    ]
+  },
+  "compiledHashes": {
+    "main.cjs": "ef3b16952663ef7b0f774c06e99c44e55e6963b38c5bd60e690b6c08f6150bb6",
+    "preload.cjs": "51f4d3d50d132301bf1a225f6e8e5fea62656ba096cd03209d82791df86bf342"
+  },
+  "evidenceArchive": "E:\\EasyTranslate-implementation-notes-20261020\\typed-migration-native-evidence-20261022",
+  "excludedAttempts": [
+    {
+      "kind": "setup",
+      "fixture": "quit-red-api-original",
+      "reason": "Root checkout had no compiled provider-service output. No application behavior was measured; owned fixture was stopped. A later fixture guard reports setup errors without an Electron modal."
+    },
+    {
+      "kind": "fixture-selector",
+      "fixture": "flow-session-ui-20261021-161156-201",
+      "reason": "OpenAI text matched another provider description; selector was narrowed to provider title and the full flow rerun passed."
+    }
+  ],
+  "limitations": [
+    "Controlled transport/storage failures and acknowledgement drop; no paid provider requests.",
+    "Windows native app.quit/main.close and relaunch are real; window show/focus and clipboard calls are intercepted for desktop isolation.",
+    "Hidden compositor screenshots are not evidence. Final installed/native focus and resource verification belongs to #11."
+  ]
+}

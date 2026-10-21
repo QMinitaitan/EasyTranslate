@@ -144,7 +144,6 @@ electron.app.whenReady().then(async () => {
     const result = { pass: true, controlledHiddenDom: true, screenshot, beforeSaveAndSlow, chosenComparisonAfterDone: 'EDITED SLOW', raceHistoryCount: raceHistory.length, raceToSingleHistory: raceToSingleHistory.map(item => item.src), singleToRaceHistory: singleToRaceHistory.map(item => item.src), abortAttempts, windows: electron.BrowserWindow.getAllWindows().length, requests: requests.map(({ source, engine }) => ({ source, engine })) }
     fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify(result, null, 2))
     console.log(JSON.stringify(result))
-    electron.app.isQuiting = true
     electron.app.quit()
   } catch (error) {
     fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify({ pass: false, error: error.stack, requests: requests.map(({ source, engine }) => ({ source, engine })) }, null, 2))

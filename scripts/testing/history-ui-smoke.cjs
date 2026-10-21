@@ -5,6 +5,7 @@ const { EventEmitter } = require('node:events')
 const { PassThrough } = require('node:stream')
 const root = process.env.EASY_SESSION_TEST_ROOT || path.resolve(__dirname, '../..')
 const output = process.env.EASY_SESSION_TEST_OUTPUT
+const fullFlow = process.env.EASY_SESSION_TEST_SCENARIO === 'flow'
 if (!output) throw new Error('EASY_SESSION_TEST_OUTPUT requires an isolated fixture directory')
 const electron = require('electron')
 electron.app.setPath('userData', path.join(output, 'userData'))
@@ -15,6 +16,8 @@ electron.app.on('browser-window-created', (_event, window) => {
   window.show = () => {}
   window.focus = () => {}
   window.webContents.setBackgroundThrottling(false)
+  const hide = window.hide.bind(window)
+  window.hide = () => { window.testHideCount = (window.testHideCount || 0) + 1; hide() }
 })
 const copied = []
 electron.clipboard.writeText = value => copied.push(value)
@@ -50,13 +53,16 @@ require('node:https').request = (_url, _options, callback) => {
   let body = ''
   request.write = chunk => { body += chunk }
   request.destroy = () => request
-  request.end = () => setTimeout(() => {
-    const input = JSON.parse(body).messages[1].content
+  request.end = () => {
+    const data = JSON.parse(body)
+    setTimeout(() => {
+    const input = data.messages[1].content
     const response = new PassThrough()
     response.statusCode = 200
     callback(response)
-    response.end(JSON.stringify({ choices: [{ message: { content: `${input} translated` } }] }))
-  }, 20)
+    response.end(JSON.stringify({ choices: [{ message: { content: input === 'FLOW_RACE' ? `${input} ${data.model}` : `${input} translated` } }] }))
+  }, data.model === 'slow' ? 100 : 20)
+  }
   return request
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -131,12 +137,47 @@ electron.app.whenReady().then(async () => {
     await evaluate(main, "document.querySelector('.confirm-actions .btn-danger').click()")
     await wait(async () => !(await sources(main)).length && !(await sources(mirror)).length, 'clear reaches both subscribers')
     assert.deepEqual(JSON.parse(fs.readFileSync(historyPath, 'utf8')), [])
+    if (fullFlow) {
+      await evaluate(main, "window.location.hash='#/settings/api'")
+      await wait(() => evaluate(main, "[...document.querySelectorAll('.setting-row')].some(row=>row.querySelector('.setting-row-title')?.textContent.includes('OpenAI'))"), 'actual API settings in the same app')
+      await evaluate(main, `(() => {
+        const input = [...document.querySelectorAll('.setting-row')].find(row=>row.querySelector('.setting-row-title')?.textContent.includes('OpenAI')).querySelector('input')
+        input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true }))
+      })()`)
+      await wait(() => evaluate(main, 'window.api.loadConfig().then(cfg=>cfg.providers.openai.enabled)'), 'provider UI change is durable')
+      await evaluate(main, "window.location.hash='#/settings/general'")
+      await wait(() => evaluate(main, "[...document.querySelectorAll('.setting-row')].some(row=>row.textContent.includes('并排竞速'))"), 'General settings')
+      await evaluate(main, `(() => {
+        const input = [...document.querySelectorAll('.setting-row')].find(row=>row.textContent.includes('并排竞速')).querySelector('input')
+        input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true }))
+      })()`)
+      await wait(() => evaluate(main, 'window.api.loadConfig().then(cfg=>cfg.raceMode)'), 'race preference is durable')
+      trigger('FLOW_RACE')
+      await wait(() => evaluate(popup, "document.querySelector('.race-count')?.textContent==='1/2'"), 'both race results in same app')
+      await evaluate(popup, "document.querySelector('.race-cycle').click()")
+      await wait(async () => await displayed() === 'FLOW_RACE slow', 'switch current comparison')
+      await evaluate(popup, "document.querySelector('.dst-text').innerText='FLOW EDIT'; document.querySelector('.dst-text').dispatchEvent(new Event('blur'))")
+      assert.equal(await displayed(), 'FLOW EDIT')
+      await evaluate(popup, "document.querySelector('button[title=\"固定窗口\"]').click()")
+      await wait(() => evaluate(popup, 'window.api.popupReady().then(state=>state.pinned)'), 'pin state through real desktop IPC')
+      await evaluate(popup, "document.querySelector('button[title=\"固定窗口\"]').click()")
+      await wait(() => evaluate(popup, 'window.api.popupReady().then(state=>!state.pinned)'), 'unpin state')
+      popup.setSize(460, 540)
+      assert.deepEqual(popup.getSize(), [460, 540])
+      await evaluate(main, "[...document.querySelectorAll('.setting-row')].find(row=>row.textContent.includes('悬浮窗大小')).querySelector('button').click()")
+      await wait(() => popup.getSize()[0] === 380 && popup.getSize()[1] === 500, 'actual settings reset restores window size')
+      await evaluate(popup, "document.querySelector('.popup-actions button[title=\"关闭\"]').click()")
+      await wait(() => popup.testHideCount > 0, 'popup close reaches native hide')
+      await evaluate(main, "window.location.hash='#/'")
+      await wait(async () => (await sources(main)).includes('FLOW_RACE'), 'race history available after settings navigation')
+      assert.equal(JSON.parse(fs.readFileSync(historyPath, 'utf8')).filter(item => item.src === 'FLOW_RACE').length, 1)
+    }
     assert.deepEqual(fs.readdirSync(output).filter(name => name.endsWith('.tmp')), [])
     assert.ok(electron.BrowserWindow.getAllWindows().every(window => !window.isVisible()))
     const result = { pass: true, controlledHiddenDom: true, physicalClipboardUsed: false, beforePersistence, failedSave: { translation: responses[0].text, historyId: responses[0].historyId ?? null, historyError: responses[0].historyError }, legacyIdAndCustomFieldPreserved: true, subscribers: 2, verified: ['translation', 'save failure', 'copy IPC', 'retry', 'favorite', 'failed unfavorite', 'unfavorite', 'delete', 'clear'], windowsStayedHidden: true }
+    if (fullFlow) result.sameAppSequence = ['single', 'save failure and retry', 'favorites', 'delete and clear', 'API settings', 'General settings', 'race', 'comparison switch and edit', 'pin and unpin', 'native resize and UI reset', 'hide', 'race history']
     fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify(result, null, 2))
     console.log(JSON.stringify(result))
-    electron.app.isQuiting = true
     electron.app.quit()
   } catch (error) {
     fs.writeFileSync(path.join(output, 'result.json'), JSON.stringify({ pass: false, error: error.stack }, null, 2))
