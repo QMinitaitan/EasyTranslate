@@ -12,8 +12,8 @@ function fixture({ platform = 'win32', env = {}, initial = {} } = {}) {
     constructor(options) {
       super()
       this.options = options
-      this.webContents = new EventEmitter()
-      this.webContents.send = (channel, payload) => this.messages.push({ channel, payload })
+      this.contents = new EventEmitter()
+      this.contents.send = (channel, payload) => this.messages.push({ channel, payload })
       this.messages = []
       this.bounds = { x: 0, y: 0, ...options }
       this.visible = false
@@ -22,6 +22,7 @@ function fixture({ platform = 'win32', env = {}, initial = {} } = {}) {
       this.topmost = options.alwaysOnTop
       windows.push(this)
     }
+    get webContents() { if (this.dead) throw new Error('Object has been destroyed'); return this.contents }
     loadFile(file, options) { this.loaded = { file, options }; this.webContents.emit('did-start-loading'); return Promise.resolve() }
     loadURL(url) { this.loaded = url; this.webContents.emit('did-start-loading'); return Promise.resolve() }
     isDestroyed() { return this.dead }
@@ -153,6 +154,7 @@ test('renderer restart and window replacement require a new ready signal and rel
   const f = fixture()
   f.desktop.prewarm()
   const first = f.windows[0]
+  const firstContents = first.webContents
   f.desktop.markReady(first.webContents)
   f.desktop.showTranslation('initial')
   first.webContents.emit('render-process-gone')
@@ -170,10 +172,10 @@ test('renderer restart and window replacement require a new ready signal and rel
   assert.equal(first.listenerCount('move'), 0)
   assert.equal(first.listenerCount('resize'), 0)
   assert.equal(first.listenerCount('blur'), 0)
-  assert.equal(first.webContents.listenerCount('did-start-navigation'), 0)
+  assert.equal(firstContents.listenerCount('did-start-navigation'), 0)
   f.desktop.showTranslation('replacement')
   const next = f.windows[1]
-  assert.equal(f.desktop.markReady(first.webContents), null)
+  assert.equal(f.desktop.markReady(firstContents), null)
   assert.deepEqual(next.messages, [])
   f.desktop.markReady(next.webContents)
   assert.deepEqual(next.messages.map(message => message.payload.text), ['replacement'])

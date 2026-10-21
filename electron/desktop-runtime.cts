@@ -85,6 +85,9 @@ export function createDesktopRuntime({ createWindow, frontend, screen, loadConfi
       resizable: true, show: false, backgroundColor: '#fafafa',
       webPreferences: { preload: frontend.preloadPath, contextIsolation: true, nodeIntegration: false }
     })
+    // BrowserWindow.webContents is a native getter that throws after destruction.
+    // Keep the emitter identity while alive so closed cleanup never re-enters it.
+    const contents = win.webContents
     const autoHide = createPopupAutoHideController({
       isPinned: () => pinned,
       hide: () => { if (!win.isDestroyed()) win.hide() },
@@ -105,12 +108,12 @@ export function createDesktopRuntime({ createWindow, frontend, screen, loadConfi
       for (const cleanup of record.cleanup) cleanup()
       if (popup === record) { popup = null; pending = null }
     }
-    win.webContents.on('did-start-navigation', navigating)
-    win.webContents.on('render-process-gone', loading)
+    contents.on('did-start-navigation', navigating)
+    contents.on('render-process-gone', loading)
     win.on('closed', closed)
     record.cleanup.push(
-      () => win.webContents.removeListener('did-start-navigation', navigating),
-      () => win.webContents.removeListener('render-process-gone', loading),
+      () => contents.removeListener('did-start-navigation', navigating),
+      () => contents.removeListener('render-process-gone', loading),
       () => win.removeListener('closed', closed)
     )
     const moved = () => {
