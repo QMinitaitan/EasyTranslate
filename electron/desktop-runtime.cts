@@ -82,7 +82,7 @@ export function createDesktopRuntime({ createWindow, frontend, screen, loadConfi
       ...(cursorPositioningSupported ? { x: stored.x, y: stored.y } : {}),
       minWidth: MIN_POPUP_BOUNDS.width, minHeight: MIN_POPUP_BOUNDS.height,
       frame: false, transparent: false, alwaysOnTop: true, skipTaskbar: true,
-      resizable: true, show: false, backgroundColor: '#fafafa',
+      resizable: true, show: false, paintWhenInitiallyHidden: false, backgroundColor: '#fafafa',
       webPreferences: { preload: frontend.preloadPath, contextIsolation: true, nodeIntegration: false }
     })
     // BrowserWindow.webContents is a native getter that throws after destruction.

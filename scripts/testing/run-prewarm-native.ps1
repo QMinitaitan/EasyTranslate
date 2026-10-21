@@ -47,6 +47,7 @@ $form.add_Shown({
 })
 $timer.add_Tick({
  try {
+  if($script:process.HasExited){throw ('native app exited unexpectedly: '+$script:process.ExitCode)}
   if(([DateTime]::UtcNow-$script:start).TotalSeconds -gt 22){throw 'native fixture deadline'}
   $events=@()
   $eventsFile=Join-Path $run 'events.jsonl'
@@ -86,7 +87,13 @@ try{[System.Windows.Forms.Application]::Run($form)}finally{
  $timer.Stop();$timer.Dispose()
  [IO.File]::WriteAllText((Join-Path $run 'foreground.json'),($script:records|ConvertTo-Json -Depth 4))
  [IO.File]::WriteAllText((Join-Path $run 'stop'),'stop')
- if($script:process){if(!$script:process.WaitForExit(5000)){$script:process.Kill()};[IO.File]::WriteAllText((Join-Path $run 'stdout.txt'),$script:stdout.Result);[IO.File]::WriteAllText((Join-Path $run 'stderr.txt'),$script:stderr.Result)}
+ if($script:process){
+  $natural=$script:process.WaitForExit(5000)
+  if(!$natural){$script:process.Kill();$script:process.WaitForExit()}
+  [IO.File]::WriteAllText((Join-Path $run 'stdout.txt'),$script:stdout.Result);[IO.File]::WriteAllText((Join-Path $run 'stderr.txt'),$script:stderr.Result)
+  [IO.File]::WriteAllText((Join-Path $run 'shutdown.json'),(@{naturalExit=$natural;exitCode=$script:process.ExitCode}|ConvertTo-Json))
+  if(!$natural -or $script:process.ExitCode -ne 0){$script:success=$false}
+ }
  try{[System.Windows.Forms.Clipboard]::SetDataObject($saved,$true)}catch{}
 }
 Write-Output ('Native prewarm '+$Mode+': '+$script:success+'; '+$run)

@@ -41,6 +41,15 @@ require('node:https').request = (_url, _options, callback) => {
 }
 const handle = ipcMain.handle.bind(ipcMain)
 ipcMain.handle = (channel, listener) => handle(channel, async (event, ...args) => {
+  if (channel === 'popup:ready') {
+    const visibility = await event.sender.executeJavaScript('document.visibilityState')
+    if (visibility !== 'hidden') {
+      fs.writeFileSync(path.join(output, 'error.txt'), `Prewarmed renderer initialized with page visibility ${visibility}`)
+      app.exit(1)
+      throw new Error('The prewarmed renderer must initialize with the page hidden')
+    }
+    stamp('popup-initialized-hidden', { visibility })
+  }
   if (mode === 'queue' && channel === 'config:load' && event.sender.getURL().includes('window=popup')) {
     stamp('popup-config-wait')
     await new Promise(resolve => setTimeout(resolve, 5000))
