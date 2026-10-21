@@ -106,7 +106,7 @@
 <script setup lang="ts">
 import type { ConfigUpdate, Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
 import { errorMessage, savedOrder } from '../types'
-import { registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
+import { createSettingsMutation, registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
 import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
 import BaseSelect from '../components/BaseSelect.vue'
 import SortableSettingList from '../components/SortableSettingList.vue'
@@ -212,7 +212,7 @@ async function loadSettings() {
 }
 
 async function persist(partial: ConfigUpdate) {
-  if (!window.api?.saveConfig) return
+  if (!window.api?.saveConfig) return false
   const generation = ++saveGeneration
   saving = true
   try {
@@ -227,20 +227,25 @@ async function persist(partial: ConfigUpdate) {
   }
 }
 
+const preferences = createSettingsMutation<ConfigUpdate>('general-preferences', persist)
+const generalOrder = createSettingsMutation<string[]>('general-order', order => persist({ settingsOrder: { general: order } }))
+
 function saveSettingsOrder(order: string[]) {
-  persist({ settingsOrder: { general: order } })
+  generalOrder.update([...order])
+  void generalOrder.save()
 }
 
 function savePreferences() {
   saveTimer = undefined
-  return persist({
-    uiLanguage: locale.value, closeAction: closeAction.value,
-    launchToTray: launchToTray.value, raceMode: raceMode.value
-  })
+  return preferences.save()
 }
 
 function scheduleSave() {
   if (!hydrated || !window.api?.saveConfig) return
+  preferences.update({
+    uiLanguage: locale.value, closeAction: closeAction.value,
+    launchToTray: launchToTray.value, raceMode: raceMode.value
+  })
   clearTimeout(saveTimer)
   saveTimer = window.setTimeout(savePreferences, 120)
 }
@@ -282,18 +287,22 @@ async function resetPopupSize() {
 }
 
 const unregisterFlush = registerSettingsFlush(() => {
-  if (saveTimer !== undefined) { window.clearTimeout(saveTimer); return savePreferences() }
+  window.clearTimeout(saveTimer)
+  saveTimer = undefined
 })
 
 onMounted(() => {
   offConfigUpdate = window.api?.onConfigUpdate?.(() => {
-    if (!saveTimer && !saving) loadSettings()
+    if (!saveTimer && !saving && !preferences.isPending() && !generalOrder.isPending()) loadSettings()
   })
   loadSettings()
 })
 onUnmounted(() => {
   unregisterFlush()
-  if (saveTimer) { clearTimeout(saveTimer); savePreferences() }
+  clearTimeout(saveTimer)
+  void preferences.save()
+  preferences.release()
+  generalOrder.release()
   clearTimeout(resetTimer)
   offConfigUpdate?.()
 })

@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import type { Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
 import { errorMessage, savedOrder } from '../types'
-import { registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
+import { createSettingsMutation, registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
 import type { Shortcuts } from '../../electron/shared/ipc-contract.cjs'
 type ShortcutId = keyof Shortcuts
 interface ShortcutDraft { id: ShortcutId; name: string; desc: string; keys: string[] }
@@ -165,23 +165,31 @@ async function loadShortcuts() {
   }
 }
 
-async function saveShortcuts() {
+async function persistShortcuts(map: Shortcuts): Promise<boolean> {
   const api = window.api
-  if (!api) return
-  autoSaveTimer = undefined
+  if (!api) return false
   saving = true
-  const map: Shortcuts = { translate: '', show: '' }
-  for (const s of shortcuts) {
-    map[s.id] = keysToAccel(s.keys)
-  }
   try { await trackSettingsSave(api.saveShortcuts(map)); saveError.value = ''; return true }
   catch (error) { saveError.value = errorMessage(error, (isEnglish.value ? 'Unable to save shortcuts' : '快捷键保存失败')); return false }
   finally { saving = false }
 }
 
-async function saveShortcutOrder(order: string[]) {
-  try { if (window.api) await trackSettingsSave(window.api.saveConfig({ settingsOrder: { shortcuts: order } })); saveError.value = '' }
-  catch (error) { saveError.value = errorMessage(error, (isEnglish.value ? 'Unable to save settings' : '配置保存失败')) }
+async function persistShortcutOrder(order: string[]): Promise<boolean> {
+  if (!window.api) return false
+  try { await trackSettingsSave(window.api.saveConfig({ settingsOrder: { shortcuts: order } })); saveError.value = ''; return true }
+  catch (error) { saveError.value = errorMessage(error, (isEnglish.value ? 'Unable to save settings' : '配置保存失败')); return false }
+}
+const shortcutKeysSave = createSettingsMutation('shortcuts', persistShortcuts)
+const shortcutOrderSave = createSettingsMutation('shortcut-order', persistShortcutOrder)
+
+function saveShortcuts() {
+  autoSaveTimer = undefined
+  return shortcutKeysSave.save()
+}
+
+function saveShortcutOrder(order: string[]) {
+  shortcutOrderSave.update([...order])
+  void shortcutOrderSave.save()
 }
 
 function clearShortcut(s: ShortcutDraft) {
@@ -190,18 +198,22 @@ function clearShortcut(s: ShortcutDraft) {
 }
 
 function autoSave() {
+  const map: Shortcuts = { translate: '', show: '' }
+  for (const s of shortcuts) map[s.id] = keysToAccel(s.keys)
+  shortcutKeysSave.update(map)
   clearTimeout(autoSaveTimer)
   autoSaveTimer = window.setTimeout(saveShortcuts, 100)
 }
 let autoSaveTimer: number | undefined
 
 const unregisterFlush = registerSettingsFlush(() => {
-  if (autoSaveTimer !== undefined) { window.clearTimeout(autoSaveTimer); return saveShortcuts() }
+  window.clearTimeout(autoSaveTimer)
+  autoSaveTimer = undefined
 })
 
 onMounted(() => {
   offConfigUpdate = window.api?.onConfigUpdate?.(() => {
-    if (!autoSaveTimer && !saving && recording.value === null) loadShortcuts()
+    if (!autoSaveTimer && !saving && !shortcutKeysSave.isPending() && !shortcutOrderSave.isPending() && recording.value === null) loadShortcuts()
   })
   loadShortcuts()
   window.addEventListener('keydown', onKeydown, true)
@@ -209,7 +221,10 @@ onMounted(() => {
 onUnmounted(() => {
   unregisterFlush()
   disposed = true
-  if (autoSaveTimer) { clearTimeout(autoSaveTimer); saveShortcuts() }
+  clearTimeout(autoSaveTimer)
+  void shortcutKeysSave.save()
+  shortcutKeysSave.release()
+  shortcutOrderSave.release()
   offConfigUpdate?.()
   window.removeEventListener('keydown', onKeydown, true)
 })
