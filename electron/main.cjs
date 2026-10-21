@@ -8,7 +8,6 @@ const { getProvider, getAll: getAllProviders } = require('./providers.cjs')
 const { load: loadConfig, save: saveConfig, flush: flushConfig, subscribe: subscribeConfig } = require('./config.cjs')
 const history = require('./history.cjs')
 const autoStart = require('./autostart.cjs')
-const { runTranslationRace } = require('./race.cjs')
 const { createTranslationSessions } = require('../dist-electron/translation-session.cjs')
 const { createPopupAutoHideController } = require('./popup-auto-hide.cjs')
 const { parseTranslationRequest, parseRaceRequest, parseProviderConfigs, parseProviderProbe } = require('../dist-electron/shared/ipc-contract.cjs')
@@ -422,34 +421,35 @@ app.whenReady().then(() => {
       return
     }
     const { text, target, requestId } = request
-    // The legacy race remains until #4, but it already supersedes pending singles.
-    translationSessions.cancel()
     const cfg = loadConfig()
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')
     const enabled = Object.entries(providers).filter(([id, config]) => config && inspectProvider(id, config).available)
-    if (!enabled.length) {
-      event.sender.send('translate:race:done', {
-        requestId,
-        error: '未配置启用的翻译接口,请到设置中填写 API Key'
-      })
-      return
-    }
-    const race = await runTranslationRace({
-      requestId,
-      engines: enabled.map(([id, provider]) => ({ id, provider })),
-      execute: ({ id, provider }) =>
-        translateWith(provider, id, { text, target: targetLang }),
-      onFirstSuccess: (result, engine) =>
-        addToHistory(text, result.text, engine.id, targetLang),
-      onProgress: (result) => {
-        if (!event.sender.isDestroyed()) {
-          event.sender.send('translate:race:progress', result)
-        }
-      }
+    let sessionId
+    const offProgress = translationSessions.subscribe((snapshot, progress) => {
+      if (snapshot.sessionId !== sessionId || !progress || event.sender.isDestroyed()) return
+      event.sender.send('translate:race:progress', progress)
     })
-    if (!event.sender.isDestroyed()) {
-      event.sender.send('translate:race:done', race)
+    const session = translationSessions.start({
+      text, target: targetLang, mode: 'race', requestId,
+      engines: enabled.map(([id, provider]) => ({ id, provider }))
+    })
+    sessionId = session.sessionId
+    const onDestroyed = () => {
+      if (translationSessions.current()?.sessionId === sessionId) translationSessions.cancel()
+    }
+    event.sender.once?.('destroyed', onDestroyed)
+    try {
+      const completed = await session.done
+      if (completed.status === 'superseded' || translationSessions.current()?.sessionId !== sessionId || event.sender.isDestroyed()) return
+      event.sender.send('translate:race:done', {
+        requestId, sessionId, results: completed.results,
+        best: completed.results.find(result => !result.error && result.text) || null,
+        ...(completed.status === 'error' ? { error: completed.result?.error } : {})
+      })
+    } finally {
+      offProgress()
+      event.sender.removeListener?.('destroyed', onDestroyed)
     }
   })
   ipcMain.handle('providers:list', () => getAllProviders())

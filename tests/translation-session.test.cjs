@@ -215,3 +215,139 @@ test('session replacement reaches the actual adapter transport cancellation boun
   assert.deepEqual(saved, ['B'])
   sessions.dispose()
 })
+
+test('a race presents its first success before slow engines or history finish and retains later results for comparison', async () => {
+  const fast = deferred()
+  const slow = deferred()
+  const persistence = deferred()
+  const saved = []
+  const progress = []
+  const sessions = createTranslationSessions({
+    execute: selected => selected.id === 'fast' ? fast.promise : slow.promise,
+    saveHistory: entry => { saved.push(entry.engine.id); return persistence.promise }
+  })
+  sessions.subscribe((_snapshot, result) => { if (result) progress.push(result) })
+  const race = sessions.start({ text: 'source', target: 'English', mode: 'race', engines: [
+    { ...engine, id: 'slow' }, { ...engine, id: 'fast' }
+  ], requestId: 'race-first' })
+  fast.resolve({ text: 'first visible translation' })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(sessions.current().result.text, 'first visible translation')
+  assert.deepEqual(progress.map(result => result.engine), ['fast'])
+  assert.deepEqual(saved, ['fast'])
+  slow.resolve({ text: 'later comparison' })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.deepEqual(new Set(sessions.current().results.map(result => result.text)), new Set(['first visible translation', 'later comparison']))
+  assert.deepEqual(progress.map(result => result.requestId), ['race-first', 'race-first'])
+  assert.ok(progress.every(result => result.sessionId === race.sessionId))
+  persistence.resolve({ id: 901 })
+  const completed = await race.done
+  assert.equal(completed.status, 'success')
+  assert.equal(completed.results.filter(result => result.historyId === 901).length, 1)
+  sessions.dispose()
+})
+
+test('race failures and empty output cannot win before a valid success or create duplicate history', async () => {
+  const valid = deferred()
+  const saved = []
+  const progress = []
+  const sessions = createTranslationSessions({
+    execute: selected => {
+      if (selected.id === 'failed') return Promise.reject(new Error('controlled provider failure'))
+      if (selected.id === 'empty') return Promise.resolve({ text: ' \n ' })
+      return valid.promise
+    },
+    saveHistory: entry => { saved.push(entry.engine.id); return { id: 1001 } }
+  })
+  sessions.subscribe((_snapshot, result) => { if (result) progress.push(result) })
+  const race = sessions.start({ text: 'source', target: 'English', mode: 'race', requestId: 'partial-race', engines: [
+    { ...engine, id: 'failed' }, { ...engine, id: 'empty' }, { ...engine, id: 'valid' }
+  ] })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(sessions.current().status, 'loading')
+  assert.equal(sessions.current().result, undefined)
+  assert.equal(progress.length, 2)
+  assert.ok(progress.every(result => result.error))
+  assert.deepEqual(saved, [])
+  valid.resolve({ text: 'valid translation' })
+  const completed = await race.done
+  assert.equal(completed.status, 'success')
+  assert.equal(completed.result.engine, 'valid')
+  assert.equal(completed.results.filter(result => !result.error).length, 1)
+  assert.deepEqual(saved, ['valid'])
+  sessions.dispose()
+})
+
+test('all-failed and unconfigured races provide a current error instead of a successful empty result', async () => {
+  const saved = []
+  const sessions = createTranslationSessions({
+    execute: selected => selected.id === 'empty' ? Promise.resolve({ text: '' }) : Promise.reject(new Error('controlled failure')),
+    saveHistory: entry => { saved.push(entry); return { id: 1101 } }
+  })
+  const failed = await sessions.start({ text: 'source', target: 'English', mode: 'race', engines: [
+    { ...engine, id: 'empty' }, { ...engine, id: 'failed' }
+  ] }).done
+  assert.equal(failed.status, 'error')
+  assert.match(failed.result.error, /所有翻译引擎均请求失败/)
+  assert.equal(failed.pending, 0)
+  assert.equal(failed.results.length, 2)
+  const missing = await sessions.start({ text: 'source', target: 'English', mode: 'race', engines: [] }).done
+  assert.equal(missing.status, 'error')
+  assert.match(missing.result.error, /未配置/)
+  assert.deepEqual(saved, [])
+  sessions.dispose()
+})
+
+test('single-to-race, race-to-single and race-to-race replacement share cancellation and ignore late progress/completion/history', async () => {
+  for (const [oldMode, nextMode] of [['single', 'race'], ['race', 'single'], ['race', 'race']]) {
+    const oldWork = []
+    const oldSignals = []
+    const visible = []
+    const saved = []
+    const sessions = createTranslationSessions({
+      execute: (selected, input) => {
+        if (input.text === 'A') {
+          const pending = deferred()
+          oldWork.push(pending)
+          oldSignals.push(input.signal)
+          return pending.promise
+        }
+        return Promise.resolve({ text: `B ${selected.id}` })
+      },
+      saveHistory: entry => { saved.push(entry.text); return { id: 1201 } }
+    })
+    sessions.subscribe((_snapshot, result) => { if (result) visible.push(result.requestId) })
+    const input = (text, mode) => ({ text, target: 'English', requestId: text, mode, ...(mode === 'race'
+      ? { engines: [{ ...engine, id: 'one' }, { ...engine, id: 'two' }] }
+      : { engine }) })
+    const a = sessions.start(input('A', oldMode))
+    const b = sessions.start(input('B', nextMode))
+    assert.equal((await a.done).status, 'superseded')
+    const completed = await b.done
+    assert.ok(oldSignals.every(signal => signal.aborted))
+    oldWork.forEach((pending, index) => index === 0 ? pending.resolve({ text: 'late A success' }) : pending.reject(new Error('late A failure')))
+    await new Promise(resolve => setImmediate(resolve))
+    assert.deepEqual(saved, ['B'])
+    assert.ok(visible.every(requestId => requestId === 'B'))
+    assert.equal(sessions.current().sessionId, b.sessionId)
+    assert.equal(completed.results.length, nextMode === 'race' ? 2 : 1)
+    sessions.dispose()
+  }
+})
+
+test('a replacement accepted by one subscriber prevents old progress reaching later subscribers', async () => {
+  let replacement
+  const observed = []
+  const sessions = createTranslationSessions({
+    execute: async (_selected, input) => ({ text: input.text }),
+    saveHistory: () => ({ id: 1301 })
+  })
+  sessions.subscribe(snapshot => {
+    if (snapshot.status === 'success' && snapshot.text === 'A') replacement = sessions.start(request('B'))
+  })
+  sessions.subscribe((_snapshot, result) => { if (result) observed.push(result.text) })
+  await sessions.start(request('A')).done
+  await replacement.done
+  assert.deepEqual(observed, ['B'])
+  sessions.dispose()
+})
