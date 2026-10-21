@@ -35,7 +35,7 @@
   </transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, Home, SquareArrowOutUpRight, Settings2, Plug, Keyboard, Palette, Info, Sun, Moon, Monitor, Zap } from 'lucide-vue-next'
@@ -43,14 +43,14 @@ import { useTheme } from '../composables/useTheme'
 import { useLocale } from '../composables/useLocale'
 
 const props = defineProps({ open: Boolean })
-const emit = defineEmits(['update:open'])
+const emit = defineEmits<{ 'update:open': [open: boolean] }>()
 
 const router = useRouter()
 const { mode, setMode } = useTheme()
 const { isEnglish } = useLocale()
 const q = ref('')
 const cursor = ref(0)
-const inputEl = ref(null)
+const inputEl = ref<HTMLInputElement | null>(null)
 
 const commands = computed(() => [
   { key: 'go-home', label: isEnglish.value ? 'Go to History' : '前往历史', hint: '⌘', icon: Home, run: () => router.push('/') },
@@ -79,19 +79,19 @@ watch(() => props.open, v => {
 })
 watch(filtered, () => cursor.value = 0)
 
-function move(d) {
+function move(d: number) {
   const n = filtered.value.length
   if (!n) return
   cursor.value = (cursor.value + d + n) % n
 }
-function run(item) { item.run(); close() }
+function run(item: (typeof commands.value)[number]) { item.run(); close() }
 function runSelected() {
   const item = filtered.value[cursor.value]
   if (item) run(item)
 }
 function close() { emit('update:open', false) }
 
-function onKey(e) {
+function onKey(e: KeyboardEvent) {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault()
     emit('update:open', !props.open)

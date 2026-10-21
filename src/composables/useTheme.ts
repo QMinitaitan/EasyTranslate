@@ -1,13 +1,13 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const STORAGE_KEY = 'translate-app.theme'
-const VALID_MODES = new Set(['system', 'light', 'dark'])
+export type ThemeMode = 'system' | 'light' | 'dark'
 
-const mode = ref('system')
-const resolvedTheme = ref('light')
-let mql = null
-let systemListener = null
-let storageListener = null
+const mode = ref<ThemeMode>('system')
+const resolvedTheme = ref<'light' | 'dark'>('light')
+let mql: MediaQueryList | null = null
+let systemListener: (() => void) | null = null
+let storageListener: ((event: StorageEvent) => void) | null = null
 let consumerCount = 0
 
 function resolveTheme() {
@@ -22,8 +22,8 @@ function applyTheme() {
   document.documentElement.dataset.theme = resolvedTheme.value
 }
 
-function normalizeMode(value) {
-  return VALID_MODES.has(value) ? value : 'system'
+function normalizeMode(value: unknown): ThemeMode {
+  return value === 'light' || value === 'dark' ? value : 'system'
 }
 
 function startThemeSync() {
@@ -62,7 +62,7 @@ export function useTheme() {
     if (consumerCount === 0) stopThemeSync()
   })
 
-  function setMode(next) {
+  function setMode(next: ThemeMode) {
     mode.value = normalizeMode(next)
     localStorage.setItem(STORAGE_KEY, mode.value)
     applyTheme()

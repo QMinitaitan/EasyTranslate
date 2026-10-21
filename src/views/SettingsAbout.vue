@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useLocale } from '../composables/useLocale'
 import appMarkUrl from '../../assets/icon-v3/easytranslate-mark.svg'
 

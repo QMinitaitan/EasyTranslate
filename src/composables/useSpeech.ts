@@ -1,8 +1,8 @@
 import { onUnmounted, ref } from 'vue'
 
-export function useSpeech({ getText, getLanguage }) {
+export function useSpeech({ getText, getLanguage }: { getText: () => string | null | undefined; getLanguage: () => string }) {
   const speaking = ref(false)
-  let utterance = null
+  let utterance: SpeechSynthesisUtterance | null = null
 
   function stop() {
     window.speechSynthesis?.cancel()
@@ -13,7 +13,7 @@ export function useSpeech({ getText, getLanguage }) {
   function toggle() {
     const text = getText()?.trim()
     const synthesis = window.speechSynthesis
-    const Utterance = window.SpeechSynthesisUtterance
+    const Utterance = globalThis.SpeechSynthesisUtterance
     if (!text || !synthesis || !Utterance) return
 
     if (speaking.value) {

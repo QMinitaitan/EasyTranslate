@@ -72,11 +72,14 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Sun, Moon, Monitor } from 'lucide-vue-next'
+import type { Unsubscribe } from '../electron/shared/ipc-contract.cjs'
 import { useTheme } from './composables/useTheme'
 import { useLocale } from './composables/useLocale'
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { flushPendingSettings } from './composables/usePendingSettings'
+import { errorMessage } from './types'
 import { useRoute, useRouter } from 'vue-router'
 import CommandPalette from './components/CommandPalette.vue'
 import appMarkUrl from '../assets/icon-v3/easytranslate-mark.svg'
@@ -89,11 +92,12 @@ const paletteOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 const isPopupRoute = computed(() => route.path.startsWith('/popup') && route.query.window === 'popup')
-let offNavigate = null
-let offConfigUpdate = null
-let offConfigSaveError = null
-let offHistorySaveError = null
-let offHistoryUpdate = null
+let offNavigate: Unsubscribe | undefined
+let offConfigUpdate: Unsubscribe | undefined
+let offConfigSaveError: Unsubscribe | undefined
+let offHistorySaveError: Unsubscribe | undefined
+let offHistoryUpdate: Unsubscribe | undefined
+let offBeforeQuit: Unsubscribe | undefined
 
 async function refreshLocale() {
   const cfg = await window.api?.loadConfig?.()
@@ -101,6 +105,21 @@ async function refreshLocale() {
 }
 
 onMounted(async () => {
+  const api = window.api
+  offBeforeQuit = api?.onBeforeQuit(async token => {
+    let saved = true
+    try {
+      await nextTick()
+      await flushPendingSettings()
+    } catch (error) {
+      saved = false
+      configSaveError.value = errorMessage(error, isEnglish.value ? 'Unable to finish saving settings' : '退出前保存配置失败')
+    } finally {
+      await api.completeQuitFlush(token, saved).catch(error => {
+        configSaveError.value = errorMessage(error, 'Unable to acknowledge settings save')
+      })
+    }
+  })
   offNavigate = window.api?.onNavigate?.((path) => router.push(path))
   offConfigUpdate = window.api?.onConfigUpdate?.(() => { refreshLocale().catch(() => {}) })
   offConfigSaveError = window.api?.onConfigSaveError?.((message) => { configSaveError.value = message })
@@ -109,7 +128,7 @@ onMounted(async () => {
   await refreshLocale().catch(() => {})
 })
 
-onUnmounted(() => { offNavigate?.(); offConfigUpdate?.(); offConfigSaveError?.(); offHistorySaveError?.(); offHistoryUpdate?.() })
+onUnmounted(() => { offBeforeQuit?.(); offNavigate?.(); offConfigUpdate?.(); offConfigSaveError?.(); offHistorySaveError?.(); offHistoryUpdate?.() })
 </script>
 
 <style scoped>
