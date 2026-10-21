@@ -1,0 +1,1132 @@
+{
+  "run": "E:/EasyTranslate-implementation-notes-20261020/selection-comparison/runs-resource-confirmation-20261021-1",
+  "appCommit": "42dfa7808cd10036dd70e6706727f3a52543e59c",
+  "selectionSha256": "c6589542c5282d090d6f411c807301a179c21158eca877a0d114979944bebd7b",
+  "rawSha256": {
+    "events.jsonl": "b7c36aba2c8f6cd6d99849e44d4007707fc379e09b4a36bf152600f50843a528",
+    "driver.jsonl": "3377cb2ac0a1e03a9ccdb0dc30aa77a22fdc6517517051dda4ea56a09f5d2dfa",
+    "resources.csv": "8347b5344ce0a929500da9a9d1760d166089805a72ce61be719dd41384e4dd05"
+  },
+  "resourceAttribution": {
+    "status": "causal-creation-v2",
+    "samplerSha256": "899EE9392DC989B70F0A74D90FE7ABB6FE961BC32C23C162C0C129887608303B",
+    "note": "Creation-time ancestry, retained validated identities, PID+birth CPU keys; sampled peaks may miss processes shorter than a sampling interval.",
+    "audit": {
+      "samples": 241,
+      "entries": 1311,
+      "unattributableEntries": 0,
+      "birthViolations": 0,
+      "countMismatches": 0,
+      "memoryMismatches": 0,
+      "cpuCounterMismatches": 0
+    }
+  },
+  "records": [
+    {
+      "id": "original-selected-1",
+      "variant": "original",
+      "empty": false,
+      "failure": false,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 7,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 858.4718000000001,
+      "helperMs": 721.0386000000001,
+      "releaseMs": 130.63109999999995,
+      "pollingMs": 0,
+      "restoreMs": 0.44270000000005894,
+      "domMs": 1083,
+      "dom": true,
+      "visible": "visible",
+      "helperPid": 39704,
+      "peakPrivateMiB": 275.625,
+      "peakWorkingSetMiB": 439.828125,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.59375,
+      "sampledCpuPercent": 5.834807389937107,
+      "helperSampled": true
+    },
+    {
+      "id": "forms-selected-1",
+      "variant": "forms",
+      "empty": false,
+      "failure": false,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 7,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 725.9517999999998,
+      "helperMs": 593.2628,
+      "releaseMs": 126.6878999999999,
+      "pollingMs": 0,
+      "restoreMs": 0.5338999999999032,
+      "domMs": 797,
+      "dom": true,
+      "visible": "visible",
+      "helperPid": 17492,
+      "peakPrivateMiB": 380.83203125,
+      "peakWorkingSetMiB": 538.61328125,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.546875,
+      "sampledCpuPercent": 5.218272900763359,
+      "helperSampled": true
+    },
+    {
+      "id": "forms-selected-2",
+      "variant": "forms",
+      "empty": false,
+      "failure": false,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 7,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 720.0465999999997,
+      "helperMs": 583.0207,
+      "releaseMs": 131.41250000000036,
+      "pollingMs": 0,
+      "restoreMs": 0.4786999999996624,
+      "domMs": 804,
+      "dom": true,
+      "visible": "visible",
+      "helperPid": 44160,
+      "peakPrivateMiB": 370.83984375,
+      "peakWorkingSetMiB": 530.07421875,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.515625,
+      "sampledCpuPercent": 4.935155053598774,
+      "helperSampled": true
+    },
+    {
+      "id": "original-selected-2",
+      "variant": "original",
+      "empty": false,
+      "failure": false,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 7,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 834.7049999999999,
+      "helperMs": 695.0295000000006,
+      "releaseMs": 133.52210000000014,
+      "pollingMs": 0,
+      "restoreMs": 0.4798000000000684,
+      "domMs": 902,
+      "dom": true,
+      "visible": "visible",
+      "helperPid": 9928,
+      "peakPrivateMiB": 376.81640625,
+      "peakWorkingSetMiB": 540.359375,
+      "maxProcesses": 8,
+      "sampledCpuSeconds": 0.640625,
+      "sampledCpuPercent": 6.0849639057750755,
+      "helperSampled": true
+    },
+    {
+      "id": "original-selected-3",
+      "variant": "original",
+      "empty": false,
+      "failure": false,
+      "same": true,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 8,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 813.9319999999989,
+      "helperMs": 678.7549999999992,
+      "releaseMs": 130.02890000000025,
+      "pollingMs": 0,
+      "restoreMs": 0.4699000000000524,
+      "domMs": 900,
+      "dom": true,
+      "visible": "visible",
+      "helperPid": 33572,
+      "peakPrivateMiB": 396.9609375,
+      "peakWorkingSetMiB": 560.1796875,
+      "maxProcesses": 8,
+      "sampledCpuSeconds": 0.625,
+      "sampledCpuPercent": 5.139802631578947,
+      "helperSampled": true
+    },
+    {
+      "id": "forms-selected-3",
+      "variant": "forms",
+      "empty": false,
+      "failure": false,
+      "same": true,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 6,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 735.2246000000014,
+      "helperMs": 599.1609000000008,
+      "releaseMs": 130.4423000000006,
+      "pollingMs": 0,
+      "restoreMs": 0.5227999999988242,
+      "domMs": 806,
+      "dom": true,
+      "visible": "visible",
+      "helperPid": 17916,
+      "peakPrivateMiB": 384.8515625,
+      "peakWorkingSetMiB": 537.984375,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.609375,
+      "sampledCpuPercent": 6.96269424131627,
+      "helperSampled": true
+    },
+    {
+      "id": "original-empty-1",
+      "variant": "original",
+      "empty": true,
+      "failure": false,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 15,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "reason": "copy-timeout",
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 1681.9742000000006,
+      "helperMs": 675.7425999999996,
+      "releaseMs": 131.5024999999987,
+      "pollingMs": 837.1155999999974,
+      "restoreMs": 0.5884000000005472,
+      "domMs": null,
+      "dom": false,
+      "helperPid": 33596,
+      "peakPrivateMiB": 414.86328125,
+      "peakWorkingSetMiB": 560.7734375,
+      "maxProcesses": 8,
+      "sampledCpuSeconds": 0.8125,
+      "sampledCpuPercent": 3.347478576137113,
+      "helperSampled": true
+    },
+    {
+      "id": "original-failure-1",
+      "variant": "original",
+      "empty": false,
+      "failure": true,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 4,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "reason": "copy-command-failed",
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 431.7766999999985,
+      "helperMs": 297.4506999999994,
+      "releaseMs": 129.67389999999978,
+      "pollingMs": 0,
+      "restoreMs": 0.5115000000005239,
+      "domMs": null,
+      "dom": false,
+      "helperPid": 12392,
+      "peakPrivateMiB": 372.94140625,
+      "peakWorkingSetMiB": 507.5234375,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.296875,
+      "sampledCpuPercent": 5.622632575757575,
+      "helperSampled": true
+    },
+    {
+      "id": "forms-empty-1",
+      "variant": "forms",
+      "empty": true,
+      "failure": false,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 15,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "reason": "copy-timeout",
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 1618.7123999999985,
+      "helperMs": 600.5167999999994,
+      "releaseMs": 128.85299999999916,
+      "pollingMs": 855.058700000005,
+      "restoreMs": 0.509699999998702,
+      "domMs": null,
+      "dom": false,
+      "helperPid": 4088,
+      "peakPrivateMiB": 413.296875,
+      "peakWorkingSetMiB": 548.953125,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.625,
+      "sampledCpuPercent": 2.5648391332895604,
+      "helperSampled": true
+    },
+    {
+      "id": "forms-failure-1",
+      "variant": "forms",
+      "empty": false,
+      "failure": true,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 4,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "reason": "copy-command-failed",
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 410.3624000000018,
+      "helperMs": 276.3809999999976,
+      "releaseMs": 129.3055000000022,
+      "pollingMs": 0,
+      "restoreMs": 0.4989999999997963,
+      "domMs": null,
+      "dom": false,
+      "helperPid": 38304,
+      "peakPrivateMiB": 373.87109375,
+      "peakWorkingSetMiB": 513.16796875,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.296875,
+      "sampledCpuPercent": 5.762325310559006,
+      "helperSampled": true
+    },
+    {
+      "id": "original-empty-2",
+      "variant": "original",
+      "empty": true,
+      "failure": false,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 16,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "reason": "copy-timeout",
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 1743.281600000002,
+      "helperMs": 726.6373999999996,
+      "releaseMs": 131.83370000000286,
+      "pollingMs": 847.9884999999886,
+      "restoreMs": 1.3281999999999243,
+      "domMs": null,
+      "dom": false,
+      "helperPid": 23168,
+      "peakPrivateMiB": 406.53125,
+      "peakWorkingSetMiB": 558.12109375,
+      "maxProcesses": 8,
+      "sampledCpuSeconds": 0.625,
+      "sampledCpuPercent": 2.39206981016534,
+      "helperSampled": true
+    },
+    {
+      "id": "original-failure-2",
+      "variant": "original",
+      "empty": false,
+      "failure": true,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 4,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "reason": "copy-command-failed",
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 421.66519999999946,
+      "helperMs": 284.89630000000034,
+      "releaseMs": 132.01550000000134,
+      "pollingMs": 0,
+      "restoreMs": 0.5752000000029511,
+      "domMs": null,
+      "dom": false,
+      "helperPid": 11752,
+      "peakPrivateMiB": 350.1640625,
+      "peakWorkingSetMiB": 514.55859375,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.4375,
+      "sampledCpuPercent": 8.186751497005988,
+      "helperSampled": true
+    },
+    {
+      "id": "forms-empty-2",
+      "variant": "forms",
+      "empty": true,
+      "failure": false,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 14,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "reason": "copy-timeout",
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 1637.9578000000001,
+      "helperMs": 602.7956000000013,
+      "releaseMs": 127.95809999999983,
+      "pollingMs": 858.6909999999989,
+      "restoreMs": 1.0754000000015367,
+      "domMs": null,
+      "dom": false,
+      "helperPid": 13532,
+      "peakPrivateMiB": 382.078125,
+      "peakWorkingSetMiB": 541.1875,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.546875,
+      "sampledCpuPercent": 2.4275346235795454,
+      "helperSampled": true
+    },
+    {
+      "id": "forms-failure-2",
+      "variant": "forms",
+      "empty": false,
+      "failure": true,
+      "same": false,
+      "foregroundAtInvoke": true,
+      "foregroundSamples": 3,
+      "foregroundMismatches": 0,
+      "captured": true,
+      "expected": true,
+      "reason": "copy-command-failed",
+      "restored": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "fixtureReady": {
+        "text": true,
+        "html": true,
+        "rtf": true,
+        "image": true
+      },
+      "captureMs": 416.7566999999981,
+      "helperMs": 281.65859999999884,
+      "releaseMs": 129.96850000000268,
+      "pollingMs": 0,
+      "restoreMs": 0.5629999999982829,
+      "domMs": null,
+      "dom": false,
+      "helperPid": 33376,
+      "peakPrivateMiB": 343.6484375,
+      "peakWorkingSetMiB": 501.38671875,
+      "maxProcesses": 7,
+      "sampledCpuSeconds": 0.328125,
+      "sampledCpuPercent": 9.364297945205479,
+      "helperSampled": true
+    }
+  ],
+  "variants": {
+    "original": {
+      "attempts": 7,
+      "selected": 3,
+      "successfulSelected": 3,
+      "sameTextSelected": 1,
+      "sameTextSuccess": 1,
+      "allExpected": true,
+      "allRestored": true,
+      "allFixtureReady": true,
+      "helperPidsSampled": 7,
+      "foregroundAtInvoke": 7,
+      "foregroundMismatches": 0,
+      "stats": {
+        "captureMs": {
+          "n": 3,
+          "min": 813.9319999999989,
+          "p50": 834.7049999999999,
+          "p95": 858.4718000000001,
+          "max": 858.4718000000001
+        },
+        "helperMs": {
+          "n": 3,
+          "min": 678.7549999999992,
+          "p50": 695.0295000000006,
+          "p95": 721.0386000000001,
+          "max": 721.0386000000001
+        },
+        "releaseMs": {
+          "n": 3,
+          "min": 130.02890000000025,
+          "p50": 130.63109999999995,
+          "p95": 133.52210000000014,
+          "max": 133.52210000000014
+        },
+        "pollingMs": {
+          "n": 3,
+          "min": 0,
+          "p50": 0,
+          "p95": 0,
+          "max": 0
+        },
+        "restoreMs": {
+          "n": 3,
+          "min": 0.44270000000005894,
+          "p50": 0.4699000000000524,
+          "p95": 0.4798000000000684,
+          "max": 0.4798000000000684
+        },
+        "domMs": {
+          "n": 3,
+          "min": 900,
+          "p50": 902,
+          "p95": 1083,
+          "max": 1083
+        },
+        "peakPrivateMiB": {
+          "n": 3,
+          "min": 275.625,
+          "p50": 376.81640625,
+          "p95": 396.9609375,
+          "max": 396.9609375
+        },
+        "peakWorkingSetMiB": {
+          "n": 3,
+          "min": 439.828125,
+          "p50": 540.359375,
+          "p95": 560.1796875,
+          "max": 560.1796875
+        },
+        "maxProcesses": {
+          "n": 3,
+          "min": 7,
+          "p50": 8,
+          "p95": 8,
+          "max": 8
+        },
+        "sampledCpuSeconds": {
+          "n": 3,
+          "min": 0.59375,
+          "p50": 0.625,
+          "p95": 0.640625,
+          "max": 0.640625
+        },
+        "sampledCpuPercent": {
+          "n": 3,
+          "min": 5.139802631578947,
+          "p50": 5.834807389937107,
+          "p95": 6.0849639057750755,
+          "max": 6.0849639057750755
+        }
+      },
+      "empty": [
+        {
+          "id": "original-empty-1",
+          "variant": "original",
+          "empty": true,
+          "failure": false,
+          "same": false,
+          "foregroundAtInvoke": true,
+          "foregroundSamples": 15,
+          "foregroundMismatches": 0,
+          "captured": true,
+          "expected": true,
+          "reason": "copy-timeout",
+          "restored": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "fixtureReady": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "captureMs": 1681.9742000000006,
+          "helperMs": 675.7425999999996,
+          "releaseMs": 131.5024999999987,
+          "pollingMs": 837.1155999999974,
+          "restoreMs": 0.5884000000005472,
+          "domMs": null,
+          "dom": false,
+          "helperPid": 33596,
+          "peakPrivateMiB": 414.86328125,
+          "peakWorkingSetMiB": 560.7734375,
+          "maxProcesses": 8,
+          "sampledCpuSeconds": 0.8125,
+          "sampledCpuPercent": 3.347478576137113,
+          "helperSampled": true
+        },
+        {
+          "id": "original-empty-2",
+          "variant": "original",
+          "empty": true,
+          "failure": false,
+          "same": false,
+          "foregroundAtInvoke": true,
+          "foregroundSamples": 16,
+          "foregroundMismatches": 0,
+          "captured": true,
+          "expected": true,
+          "reason": "copy-timeout",
+          "restored": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "fixtureReady": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "captureMs": 1743.281600000002,
+          "helperMs": 726.6373999999996,
+          "releaseMs": 131.83370000000286,
+          "pollingMs": 847.9884999999886,
+          "restoreMs": 1.3281999999999243,
+          "domMs": null,
+          "dom": false,
+          "helperPid": 23168,
+          "peakPrivateMiB": 406.53125,
+          "peakWorkingSetMiB": 558.12109375,
+          "maxProcesses": 8,
+          "sampledCpuSeconds": 0.625,
+          "sampledCpuPercent": 2.39206981016534,
+          "helperSampled": true
+        }
+      ],
+      "failures": [
+        {
+          "id": "original-failure-1",
+          "variant": "original",
+          "empty": false,
+          "failure": true,
+          "same": false,
+          "foregroundAtInvoke": true,
+          "foregroundSamples": 4,
+          "foregroundMismatches": 0,
+          "captured": true,
+          "expected": true,
+          "reason": "copy-command-failed",
+          "restored": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "fixtureReady": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "captureMs": 431.7766999999985,
+          "helperMs": 297.4506999999994,
+          "releaseMs": 129.67389999999978,
+          "pollingMs": 0,
+          "restoreMs": 0.5115000000005239,
+          "domMs": null,
+          "dom": false,
+          "helperPid": 12392,
+          "peakPrivateMiB": 372.94140625,
+          "peakWorkingSetMiB": 507.5234375,
+          "maxProcesses": 7,
+          "sampledCpuSeconds": 0.296875,
+          "sampledCpuPercent": 5.622632575757575,
+          "helperSampled": true
+        },
+        {
+          "id": "original-failure-2",
+          "variant": "original",
+          "empty": false,
+          "failure": true,
+          "same": false,
+          "foregroundAtInvoke": true,
+          "foregroundSamples": 4,
+          "foregroundMismatches": 0,
+          "captured": true,
+          "expected": true,
+          "reason": "copy-command-failed",
+          "restored": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "fixtureReady": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "captureMs": 421.66519999999946,
+          "helperMs": 284.89630000000034,
+          "releaseMs": 132.01550000000134,
+          "pollingMs": 0,
+          "restoreMs": 0.5752000000029511,
+          "domMs": null,
+          "dom": false,
+          "helperPid": 11752,
+          "peakPrivateMiB": 350.1640625,
+          "peakWorkingSetMiB": 514.55859375,
+          "maxProcesses": 7,
+          "sampledCpuSeconds": 0.4375,
+          "sampledCpuPercent": 8.186751497005988,
+          "helperSampled": true
+        }
+      ]
+    },
+    "forms": {
+      "attempts": 7,
+      "selected": 3,
+      "successfulSelected": 3,
+      "sameTextSelected": 1,
+      "sameTextSuccess": 1,
+      "allExpected": true,
+      "allRestored": true,
+      "allFixtureReady": true,
+      "helperPidsSampled": 7,
+      "foregroundAtInvoke": 7,
+      "foregroundMismatches": 0,
+      "stats": {
+        "captureMs": {
+          "n": 3,
+          "min": 720.0465999999997,
+          "p50": 725.9517999999998,
+          "p95": 735.2246000000014,
+          "max": 735.2246000000014
+        },
+        "helperMs": {
+          "n": 3,
+          "min": 583.0207,
+          "p50": 593.2628,
+          "p95": 599.1609000000008,
+          "max": 599.1609000000008
+        },
+        "releaseMs": {
+          "n": 3,
+          "min": 126.6878999999999,
+          "p50": 130.4423000000006,
+          "p95": 131.41250000000036,
+          "max": 131.41250000000036
+        },
+        "pollingMs": {
+          "n": 3,
+          "min": 0,
+          "p50": 0,
+          "p95": 0,
+          "max": 0
+        },
+        "restoreMs": {
+          "n": 3,
+          "min": 0.4786999999996624,
+          "p50": 0.5227999999988242,
+          "p95": 0.5338999999999032,
+          "max": 0.5338999999999032
+        },
+        "domMs": {
+          "n": 3,
+          "min": 797,
+          "p50": 804,
+          "p95": 806,
+          "max": 806
+        },
+        "peakPrivateMiB": {
+          "n": 3,
+          "min": 370.83984375,
+          "p50": 380.83203125,
+          "p95": 384.8515625,
+          "max": 384.8515625
+        },
+        "peakWorkingSetMiB": {
+          "n": 3,
+          "min": 530.07421875,
+          "p50": 537.984375,
+          "p95": 538.61328125,
+          "max": 538.61328125
+        },
+        "maxProcesses": {
+          "n": 3,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        },
+        "sampledCpuSeconds": {
+          "n": 3,
+          "min": 0.515625,
+          "p50": 0.546875,
+          "p95": 0.609375,
+          "max": 0.609375
+        },
+        "sampledCpuPercent": {
+          "n": 3,
+          "min": 4.935155053598774,
+          "p50": 5.218272900763359,
+          "p95": 6.96269424131627,
+          "max": 6.96269424131627
+        }
+      },
+      "empty": [
+        {
+          "id": "forms-empty-1",
+          "variant": "forms",
+          "empty": true,
+          "failure": false,
+          "same": false,
+          "foregroundAtInvoke": true,
+          "foregroundSamples": 15,
+          "foregroundMismatches": 0,
+          "captured": true,
+          "expected": true,
+          "reason": "copy-timeout",
+          "restored": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "fixtureReady": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "captureMs": 1618.7123999999985,
+          "helperMs": 600.5167999999994,
+          "releaseMs": 128.85299999999916,
+          "pollingMs": 855.058700000005,
+          "restoreMs": 0.509699999998702,
+          "domMs": null,
+          "dom": false,
+          "helperPid": 4088,
+          "peakPrivateMiB": 413.296875,
+          "peakWorkingSetMiB": 548.953125,
+          "maxProcesses": 7,
+          "sampledCpuSeconds": 0.625,
+          "sampledCpuPercent": 2.5648391332895604,
+          "helperSampled": true
+        },
+        {
+          "id": "forms-empty-2",
+          "variant": "forms",
+          "empty": true,
+          "failure": false,
+          "same": false,
+          "foregroundAtInvoke": true,
+          "foregroundSamples": 14,
+          "foregroundMismatches": 0,
+          "captured": true,
+          "expected": true,
+          "reason": "copy-timeout",
+          "restored": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "fixtureReady": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "captureMs": 1637.9578000000001,
+          "helperMs": 602.7956000000013,
+          "releaseMs": 127.95809999999983,
+          "pollingMs": 858.6909999999989,
+          "restoreMs": 1.0754000000015367,
+          "domMs": null,
+          "dom": false,
+          "helperPid": 13532,
+          "peakPrivateMiB": 382.078125,
+          "peakWorkingSetMiB": 541.1875,
+          "maxProcesses": 7,
+          "sampledCpuSeconds": 0.546875,
+          "sampledCpuPercent": 2.4275346235795454,
+          "helperSampled": true
+        }
+      ],
+      "failures": [
+        {
+          "id": "forms-failure-1",
+          "variant": "forms",
+          "empty": false,
+          "failure": true,
+          "same": false,
+          "foregroundAtInvoke": true,
+          "foregroundSamples": 4,
+          "foregroundMismatches": 0,
+          "captured": true,
+          "expected": true,
+          "reason": "copy-command-failed",
+          "restored": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "fixtureReady": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "captureMs": 410.3624000000018,
+          "helperMs": 276.3809999999976,
+          "releaseMs": 129.3055000000022,
+          "pollingMs": 0,
+          "restoreMs": 0.4989999999997963,
+          "domMs": null,
+          "dom": false,
+          "helperPid": 38304,
+          "peakPrivateMiB": 373.87109375,
+          "peakWorkingSetMiB": 513.16796875,
+          "maxProcesses": 7,
+          "sampledCpuSeconds": 0.296875,
+          "sampledCpuPercent": 5.762325310559006,
+          "helperSampled": true
+        },
+        {
+          "id": "forms-failure-2",
+          "variant": "forms",
+          "empty": false,
+          "failure": true,
+          "same": false,
+          "foregroundAtInvoke": true,
+          "foregroundSamples": 3,
+          "foregroundMismatches": 0,
+          "captured": true,
+          "expected": true,
+          "reason": "copy-command-failed",
+          "restored": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "fixtureReady": {
+            "text": true,
+            "html": true,
+            "rtf": true,
+            "image": true
+          },
+          "captureMs": 416.7566999999981,
+          "helperMs": 281.65859999999884,
+          "releaseMs": 129.96850000000268,
+          "pollingMs": 0,
+          "restoreMs": 0.5629999999982829,
+          "domMs": null,
+          "dom": false,
+          "helperPid": 33376,
+          "peakPrivateMiB": 343.6484375,
+          "peakWorkingSetMiB": 501.38671875,
+          "maxProcesses": 7,
+          "sampledCpuSeconds": 0.328125,
+          "sampledCpuPercent": 9.364297945205479,
+          "helperSampled": true
+        }
+      ]
+    }
+  },
+  "idle": [],
+  "resources": {
+    "samples": 241,
+    "samplingMs": {
+      "n": 241,
+      "min": 26,
+      "p50": 31,
+      "p95": 43,
+      "max": 76
+    },
+    "maxProcesses": 8,
+    "peakPrivateMiB": 414.86328125,
+    "peakWorkingSetMiB": 560.7734375,
+    "windowsCreated": 2,
+    "windowMax": 2,
+    "exit": {
+      "exitCode": 0,
+      "t": 1792559170446,
+      "event": "run-end"
+    },
+    "outerClipboard": {
+      "ok": true,
+      "t": 1792559170461,
+      "event": "outer-clipboard-restored"
+    },
+    "history": {
+      "count": 6,
+      "t": 1792559169792,
+      "allSynthetic": true,
+      "event": "history"
+    }
+  },
+  "paired": {
+    "helperMs": {
+      "originalMinusFormsMs": {
+        "n": 3,
+        "min": 79.59409999999843,
+        "p50": 112.00880000000052,
+        "p95": 127.77580000000012,
+        "max": 127.77580000000012
+      },
+      "formsFaster": 3
+    },
+    "captureMs": {
+      "originalMinusFormsMs": {
+        "n": 3,
+        "min": 78.7073999999975,
+        "p50": 114.65840000000026,
+        "p95": 132.52000000000032,
+        "max": 132.52000000000032
+      },
+      "formsFaster": 3
+    }
+  }
+}

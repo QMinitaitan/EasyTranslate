@@ -23,7 +23,7 @@ for(const directory of fs.readdirSync(folder).filter(n => n.startsWith('cold-'))
  const driver = read(path.join(run,'driver.jsonl'))
  const sampleLines = fs.readFileSync(path.join(run,'resources.csv'),'utf8').trim().split(/\r?\n/)
  const keys = sampleLines.shift().split(',')
- const samples = sampleLines.map(line => Object.fromEntries(line.split(',').map((v,i) => [keys[i],keys[i]==='pids'?v:Number(v)])))
+ const samples = sampleLines.map(line => Object.fromEntries(line.split(',').map((v,i) => [keys[i],['pids','processes'].includes(keys[i])?v:Number(v)])))
  const start = driver.find(e=>e.event==='launch-start')
  const appReady = events.find(e=>e.event==='app-ready')
  const mainReady = events.find(e=>e.event==='document-ready'&&e.kind==='main')
@@ -59,7 +59,7 @@ for(const directory of fs.readdirSync(folder).filter(n => n.startsWith('cold-'))
    processCount:stats(phaseSamples.map(s=>s.count)),windows:stats(health.map(s=>s.windows)),visibleWindows:stats(health.map(s=>s.visible))})
  }
  const helperPids=new Set(events.filter(e=>e.event==='helper-start').map(e=>e.pid))
- output.resource.push({run:directory,peakPrivateMiB:Math.max(...samples.map(s=>s.privateBytes))/1048576,
+ output.resource.push({run:directory,attribution:keys.includes('processes')?'causal-creation-v2':'unverified-pid-only',peakPrivateMiB:Math.max(...samples.map(s=>s.privateBytes))/1048576,
   peakWorkingSetMiB:Math.max(...samples.map(s=>s.workingSetBytes))/1048576,
   maxProcesses:Math.max(...samples.map(s=>s.count)),helperPidsSampled:[...helperPids].filter(pid=>samples.some(s=>s.pids.split(';').includes(String(pid)))).length,
   helpers:helperPids.size,samplingMs:stats(samples.map(s=>s.samplingMs)),
