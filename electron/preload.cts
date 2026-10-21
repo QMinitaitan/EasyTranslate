@@ -27,7 +27,7 @@ const api: EasyTranslateApi = {
     send('app:flush:register', true)
     return () => { off(); send('app:flush:register', false) }
   },
-  completeQuitFlush: (token) => invoke('app:flush:done', token),
+  completeQuitFlush: (token, saved = true) => invoke('app:flush:done', token, saved),
   isPopup: () => window.location.hash.includes('/popup') && window.location.hash.includes('window=popup'),
   triggerTranslate: (cb) => on('translate:trigger', cb),
   translate: (input: string | TranslationRequest, target?: string, providerId?: string | null) =>
