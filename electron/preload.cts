@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { EasyTranslateApi, EventChannels, InvokeChannels, RaceRequest, SendChannels, TranslationRequest } from './shared/ipc-contract.cjs'
+import type { EasyTranslateApi, EventChannels, InvokeChannels, SendChannels } from './shared/ipc-contract.cjs'
 
 // Type-only shared imports disappear: Electron sandbox preloads cannot require local modules.
 function invoke<C extends keyof InvokeChannels>(channel: C, ...args: InvokeChannels[C]['args']): Promise<InvokeChannels[C]['result']> {
@@ -30,12 +30,10 @@ const api: EasyTranslateApi = {
   completeQuitFlush: (token, saved = true) => invoke('app:flush:done', token, saved),
   isPopup: () => window.location.hash.includes('/popup') && window.location.hash.includes('window=popup'),
   triggerTranslate: (cb) => on('translate:trigger', cb),
-  translate: (input: string | TranslationRequest, target?: string, providerId?: string | null) =>
-    invoke('translate:do', typeof input === 'string' ? { text: input, target, providerId } : input),
+  translate: (request) => invoke('translate:do', request),
   cancelTranslation: () => send('translate:cancel'),
   onTranslationProgress: (cb) => on('translate:progress', cb),
-  startRaceTranslate: (input: string | RaceRequest, target?: string, requestId?: string) =>
-    send('translate:race:start', typeof input === 'string' ? { text: input, target, requestId } : input),
+  startRaceTranslate: (request) => send('translate:race:start', request),
   onRaceProgress: (cb) => on('translate:race:progress', cb),
   onRaceDone: (cb) => on('translate:race:done', cb),
   loadConfig: () => invoke('config:load'),
@@ -54,7 +52,6 @@ const api: EasyTranslateApi = {
   loadShortcuts: () => invoke('shortcuts:load'),
   saveShortcuts: (shortcuts) => invoke('shortcuts:save', shortcuts),
   loadHistory: () => invoke('history:load'),
-  saveFavorite: (payload) => invoke('history:favorite', payload),
   setFavorite: (id, favorite) => invoke('history:favorite:set', id, favorite),
   deleteHistory: (id) => invoke('history:delete', id),
   clearHistory: () => invoke('history:clear'),

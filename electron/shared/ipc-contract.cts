@@ -135,14 +135,6 @@ export interface HistoryEntry {
   [key: string]: unknown
 }
 
-export interface FavoriteRequest {
-  historyId?: HistoryId
-  src: string
-  dst: string
-  providerId: string
-  target: string
-}
-
 export interface InvokeChannels {
   'app:flush:done': { args: [string, boolean]; result: void }
   'translate:do': { args: [TranslationRequest]; result: TranslationResult }
@@ -159,7 +151,6 @@ export interface InvokeChannels {
   'shortcuts:load': { args: []; result: Shortcuts }
   'shortcuts:save': { args: [Partial<Shortcuts>]; result: void }
   'history:load': { args: []; result: HistoryEntry[] }
-  'history:favorite': { args: [FavoriteRequest]; result: HistoryEntry | null }
   'history:favorite:set': { args: [HistoryId, boolean]; result: HistoryEntry | null }
   'history:delete': { args: [HistoryId]; result: HistoryEntry[] }
   'history:clear': { args: []; result: HistoryEntry[] }
@@ -199,11 +190,9 @@ export interface EasyTranslateApi {
   isPopup(): boolean
   triggerTranslate(cb: (payload: TranslationTrigger) => void): Unsubscribe
   translate(request: TranslationRequest): Promise<TranslationResult>
-  translate(text: string, target?: string, providerId?: string | null): Promise<TranslationResult>
   cancelTranslation(): void
   onTranslationProgress(cb: (result: TranslationResult) => void): Unsubscribe
   startRaceTranslate(request: RaceRequest): void
-  startRaceTranslate(text: string, target?: string, requestId?: string): void
   onRaceProgress(cb: (result: RaceResult) => void): Unsubscribe
   onRaceDone(cb: (data: RaceDone) => void): Unsubscribe
   loadConfig(): Promise<AppConfig>
@@ -222,7 +211,6 @@ export interface EasyTranslateApi {
   loadShortcuts(): Promise<Shortcuts>
   saveShortcuts(shortcuts: Partial<Shortcuts>): Promise<void>
   loadHistory(): Promise<HistoryEntry[]>
-  saveFavorite(payload: FavoriteRequest): Promise<HistoryEntry | null>
   setFavorite(id: HistoryId, favorite: boolean): Promise<HistoryEntry | null>
   deleteHistory(id: HistoryId): Promise<HistoryEntry[]>
   clearHistory(): Promise<HistoryEntry[]>
