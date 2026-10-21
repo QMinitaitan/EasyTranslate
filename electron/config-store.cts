@@ -2,9 +2,8 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import { homedir } from 'node:os'
-import type { AppConfig, ConfigUpdate, ProviderConfig, ProviderMetadata } from './shared/ipc-contract.cjs'
-
-const { getAll } = require('../electron/providers.cjs') as { getAll(): ProviderMetadata[] }
+import type { AppConfig, ConfigUpdate, ProviderConfig } from './shared/ipc-contract.cjs'
+import { getAll } from './providers.cjs'
 
 export const CONFIG_PATH = path.join(process.env.HOME || process.env.USERPROFILE || homedir(), '.translate-app.config.json')
 

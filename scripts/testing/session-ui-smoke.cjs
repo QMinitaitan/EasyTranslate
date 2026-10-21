@@ -55,7 +55,7 @@ async function wait(check, label, timeout = 7000) {
   }
   throw new Error(`Timed out: ${label}`)
 }
-require(path.join(root, 'electron/main.cjs'))
+require(path.resolve(root, JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).main))
 electron.app.whenReady().then(async () => {
   try {
     await wait(() => actions['Alt+Q'], 'shortcut registration')

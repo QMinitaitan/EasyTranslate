@@ -1,6 +1,6 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
-const { getAll } = require('../electron/providers.cjs')
+const { getAll } = require('../dist-electron/providers.cjs')
 
 test('provider metadata never ships credentials', () => {
   for (const provider of getAll()) {

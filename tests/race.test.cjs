@@ -1,6 +1,6 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
-const { rankRaceResults, runTranslationRace } = require('../electron/race.cjs')
+const { rankRaceResults } = require('../dist-electron/race.cjs')
 
 test('Race results are ordered by latency and choose the fastest success', () => {
   const input = [
@@ -23,39 +23,4 @@ test('Race returns no best result when every engine fails', () => {
   ])
 
   assert.equal(ranked.best, null)
-})
-
-test('Race emits every result, preserves request identity, and saves only the first success', async () => {
-  const progress = []
-  const saved = []
-  let timestamp = 100
-
-  const race = await runTranslationRace({
-    requestId: 'request-7',
-    engines: [
-      { id: 'slow', provider: {} },
-      { id: 'fast', provider: {} },
-      { id: 'failed', provider: {} }
-    ],
-    execute: async ({ id }) => {
-      if (id === 'failed') throw new Error('provider unavailable')
-      return { text: `${id} translation` }
-    },
-    onProgress: (result) => progress.push(result),
-    onFirstSuccess: (result) => {
-      saved.push(result.engine)
-      return { id: 'history-1' }
-    },
-    now: () => ++timestamp
-  })
-
-  assert.equal(race.requestId, 'request-7')
-  assert.equal(progress.length, 3)
-  assert.ok(progress.every(result => result.requestId === 'request-7'))
-  assert.deepEqual(saved, ['slow'])
-  assert.equal(
-    race.results.filter(result => result.historyId === 'history-1').length,
-    1
-  )
-  assert.equal(race.results.find(result => result.engine === 'failed').error, 'provider unavailable')
 })

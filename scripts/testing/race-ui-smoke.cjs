@@ -19,7 +19,7 @@ electron.app.on('browser-window-created', (_event, window) => {
 const actions = {}
 electron.globalShortcut.register = (shortcut, callback) => { actions[shortcut] = callback; return true }
 require(path.join(root, 'electron/selection.cjs')).getSelection = async () => ({ text: '', source: 'controlled-selection' })
-const history = require(path.join(root, 'electron/history.cjs'))
+const history = require(path.join(root, 'dist-electron/history-store.cjs'))
 const durableAdd = history.add
 const queuedHistory = []
 let holdRaceHistory = true
@@ -60,7 +60,7 @@ async function wait(check, label) {
   }
   throw new Error(`Timed out: ${label}`)
 }
-require(path.join(root, 'electron/main.cjs'))
+require(path.resolve(root, JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).main))
 electron.app.whenReady().then(async () => {
   try {
     await wait(() => actions['Alt+Q'], 'registered action')

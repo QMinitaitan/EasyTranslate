@@ -124,4 +124,4 @@ const health = setInterval(() => {
   if (fs.existsSync(path.join(run, 'stop'))) { electron.app.isQuiting = true; electron.app.quit() }
 }, 500)
 electron.app.on('will-quit', () => { clearInterval(health); stamp('quit') })
-require(path.join(root, 'electron/main.cjs'))
+require(process.env.EASY_BENCH_MAIN || path.resolve(root, JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).main))
