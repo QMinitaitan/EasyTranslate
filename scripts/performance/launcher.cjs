@@ -69,6 +69,7 @@ electron.ipcMain.handle = (channel, listener) => handle(channel, async (...args)
   if (channel === 'translate:do') stamp('translate-start')
   const result = await listener(...args)
   if (channel === 'translate:do') stamp('translate-end', { ok: !result?.error, historyId: result?.historyId, error: result?.error })
+  if (channel === 'popup:ready') stamp('popup-app-ready', { id: args[0].sender.id })
   return result
 })
 let windowCount = 0
