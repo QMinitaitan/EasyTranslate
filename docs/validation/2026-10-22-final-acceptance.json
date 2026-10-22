@@ -1,0 +1,64 @@
+{
+  "issue": "https://github.com/QMinitaitan/EasyTranslate/issues/11",
+  "applicationSourceCommit": "2e97ef06d5b91de1ba929ad87425a083006039ce",
+  "validationBranchAtFullCheck": "397dd65c2320cec098853439fb855d7c6ed0588e",
+  "linuxAux": "f0f614ab8d2d2913464a16ea6aad2be184d84f8a",
+  "performanceAux": "e8de49e80bf38ede8e5a05296eb47b3cb22380ca",
+  "productFilesDiffFromApplicationSource": [],
+  "productionAsarSha256": "52059ffab86fb8ec1900fdcc30e720ed481798e10f9957d63fb14d75bee618e0",
+  "fullCheck": {
+    "command": "npm run check",
+    "exitCode": 0,
+    "electronTypes": "passed",
+    "vueTypes": "passed",
+    "offlineRegressionTests": 104,
+    "passed": 104,
+    "failed": 0,
+    "productionBuild": "passed",
+    "source": "Final merged git archive overlaid into existing isolated source fixture with its existing private dependencies; no dependency installation or junction operation",
+    "workingDirectory": "E:/EasyTranslate-implementation-notes-20261020/windows-final-validation/source-2e97ef0",
+    "log": "E:/EasyTranslate-implementation-notes-20261020/windows-final-validation/final-check-397dd65.txt",
+    "logSha256": "d0ddd32a9a99af8418072be039743c7781a33b3a4021a300bf2bbeeb884a01b4",
+    "postCheckIdentity": "E:/EasyTranslate-implementation-notes-20261020/windows-final-validation/final-check-397dd65-identity.json",
+    "packagedFilesMatchingRebuiltSource": 7
+  },
+  "staticChecks": {
+    "testingCommonJsOrExpressionSyntaxFiles": 18,
+    "testingPowerShellSyntaxFiles": 13,
+    "gitDiffCheck": "passed"
+  },
+  "evidence": {
+    "windows": "2026-10-22-windows-packaged.md",
+    "windowsJson": "2026-10-22-windows-packaged.json",
+    "linux": "2026-10-22-linux-packaged.md",
+    "linuxJson": "2026-10-22-linux-packaged.json",
+    "performance": "../performance/2026-10-22-final-production.md",
+    "performanceJson": "../performance/2026-10-22-final-production.json",
+    "retainedIncompletePerformance": "../performance/2026-10-22-final-production-incomplete.md"
+  },
+  "performance": {
+    "frozenGatesPassed": 22,
+    "frozenGatesTotal": 22,
+    "firstInvocations": 7,
+    "warmInvocations": 30,
+    "emptyInvocations": 1,
+    "exactSuccessfulNonempty": 37,
+    "timeouts": 0,
+    "naturalExitsZero": 7,
+    "fixtureClipboardRestores": 38,
+    "outerClipboardFormatsPresentAfterRestore": 7,
+    "condition": "User explicitly made desktop idle; same timed harness, artifact, transport and gates. Earlier failed cohort retained."
+  },
+  "remainingCoverageLimits": [
+    "Final packaged same-as-clipboard case was invalidated by foreground/keyboard focus loss; do not count it as a semantic pass or confirmed product bug",
+    "Prior ordinary hidden-startup foreground record false:188 samples/81 bad; ordinary bridge supports application startup/hidden zero-visible/natural exit only",
+    "Tray registration/menu callback exercised, not a physical tray-icon click; speech invocation verified, not audible voice",
+    "Linux uses extracted actual .deb executable under WSLg X11 with documented root/no-sandbox/platform limits; no full GNOME/KDE/Wayland tray or portal claim"
+  ],
+  "clipboardIncident": "Earlier functional1-8 Copy probes irreversibly overwrote original clipboard with synthetic text before outer guard existed; disclosed, cannot restore original, clipboard history not inspected. Later guards restore current fixtures and cannot repair that incident.",
+  "realPaidModelApiBudget": 0,
+  "paidRequestsBasis": "Synthetic isolated controlled transport and pre-import default-deny guard, not a provider billing audit",
+  "scheduledContinuation": "remains disabled",
+  "remoteActions": "None by this worker; no main merge, release, version/tag change or daily-install replacement",
+  "nextStage": "Root integration through merger and final independent Standards/Spec review"
+}

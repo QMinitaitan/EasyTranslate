@@ -1,0 +1,373 @@
+{
+  "scope": "Issue #11 Linux build and extracted-package WSLg X11 validation",
+  "status": "passed",
+  "dateLabel": "2026-10-22",
+  "testedSource": {
+    "commit": "dd7a27427d96ce5c348c5af80f80c4d0a46c2a95",
+    "tree": "de8780e4ce609b9fad9e5da0285245338772abb2",
+    "productChangesForValidation": false
+  },
+  "rawEvidence": {
+    "windows": "E:/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1",
+    "linux": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1"
+  },
+  "environment": {
+    "distribution": "Ubuntu 22.04.3 LTS / WSL2 x86_64",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "cliNode": "22.12.0",
+    "npm": "10.9.0",
+    "electronBuilder": "26.15.3",
+    "root": true,
+    "display": "WSLg X11",
+    "dependencies": "Downloaded/extracted isolated rootfs; no system package install"
+  },
+  "build": {
+    "nativeNpmCi": "passed",
+    "strictElectronTypecheck": "passed",
+    "strictVueTypecheck": "passed",
+    "tests": {
+      "total": 95,
+      "passed": 95,
+      "failed": 0
+    },
+    "productionBuild": "passed",
+    "linuxDeb": "passed",
+    "extractedInstalledLayout": "passed",
+    "logs": [
+      "logs/environment.txt",
+      "logs/npm-ci.log",
+      "logs/check.log",
+      "logs/package.log",
+      "logs/deb-info.txt",
+      "logs/deb-control.txt",
+      "logs/deb-contents.txt",
+      "logs/artifact-sha256.txt"
+    ]
+  },
+  "artifacts": {
+    "deb": {
+      "file": "package/EasyTranslate-0.0.2-amd64.deb",
+      "bytes": 99286860,
+      "sha256": "ef87ac34207c4b335b224996022d62df90afd9ef4e077530939b3f4beaeeebef"
+    },
+    "installedAsar": {
+      "file": "installed/opt/EasyTranslate/resources/app.asar",
+      "sha256": "2b1cfb6e99d3a6cb58b7828d53c2c882ce00543eac47b4079cdb92fe29940fa2"
+    },
+    "unpackedAsar": {
+      "file": "package/linux-unpacked/resources/app.asar",
+      "sha256": "2b1cfb6e99d3a6cb58b7828d53c2c882ce00543eac47b4079cdb92fe29940fa2"
+    },
+    "desktopEntry": {
+      "file": "installed/usr/share/applications/easytranslate.desktop",
+      "exec": "/opt/EasyTranslate/easytranslate --show %U",
+      "actualMenuInvocationTested": false
+    },
+    "visiblePopup": {
+      "file": "runtime-fourth/popup.png",
+      "committedCopy": "docs/validation/2026-10-22-linux-packaged.png",
+      "width": 380,
+      "height": 500,
+      "sha256": "489d4b021d7d74db72048c82c73e7f7bbaf6f4608bb8f34d8024e0fe3eb057fd",
+      "visuallyInspected": true
+    }
+  },
+  "runtime": {
+    "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
+    "output": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth",
+    "nativeHome": {
+      "path": "/tmp/easytranslate-pr12-daoOrP",
+      "mode": "0700",
+      "uid": 0,
+      "archive": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/home",
+      "socketSupported": true,
+      "entries": [
+        {
+          "name": ".translate-app.config.json",
+          "type": "file",
+          "bytes": 2035
+        },
+        {
+          "name": ".translate-app.history.json",
+          "type": "file",
+          "bytes": 461
+        },
+        {
+          "name": ".validation-owner.json",
+          "type": "file",
+          "bytes": 171
+        }
+      ],
+      "removed": true
+    },
+    "stages": [
+      {
+        "stage": "edit",
+        "isPackaged": true,
+        "executable": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
+        "appPath": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/resources/app.asar",
+        "versions": {
+          "electron": "43.2.0",
+          "node": "24.18.0"
+        },
+        "paths": {
+          "appData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/appData",
+          "userData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/userData",
+          "sessionData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/sessionData",
+          "crashDumps": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/crashDumps",
+          "logs": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/logs"
+        },
+        "preloadErrors": [],
+        "initialMainVisible": true,
+        "display": {
+          "DISPLAY": ":0",
+          "WAYLAND_DISPLAY": "",
+          "XDG_SESSION_TYPE": "x11"
+        },
+        "shortcutsRegistered": {
+          "translate": true,
+          "show": true
+        },
+        "providerReady": true,
+        "prewarm": {
+          "visible": false,
+          "windows": 2
+        },
+        "selection": {
+          "owner": "external xclip X11 PRIMARY",
+          "source": "LINUX PRIMARY",
+          "visibleResult": "LINUX RESULT LINUX PRIMARY",
+          "socketTrigger": true
+        },
+        "popup": {
+          "visible": true,
+          "bounds": {
+            "x": 812,
+            "y": 0,
+            "width": 380,
+            "height": 500
+          },
+          "alwaysOnTop": true,
+          "nativeHandle": "08008000"
+        },
+        "capture": {
+          "width": 380,
+          "height": 500,
+          "visibleAtCapture": true
+        },
+        "history": [
+          {
+            "src": "LINUX EDIT",
+            "favorite": true
+          },
+          {
+            "src": "LINUX PRIMARY",
+            "favorite": false
+          }
+        ],
+        "immediateQuitEdit": {
+          "requested": true,
+          "before": false,
+          "elapsedMs": 1
+        },
+        "requests": [
+          "LINUX PRIMARY",
+          "LINUX EDIT"
+        ],
+        "pass": true,
+        "quitBoundary": {
+          "elapsedSinceEditMs": 39,
+          "launchToTrayBeforeQuit": false,
+          "inspectorDisconnected": true
+        },
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "inspectorDisconnectedBeforeQuit": true,
+        "socketRemovedAfterExit": true,
+        "command": {
+          "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
+          "args": [
+            "--inspect-brk=127.0.0.1:0",
+            "--no-sandbox",
+            "--ozone-platform=x11",
+            "--disable-gpu"
+          ]
+        }
+      },
+      {
+        "stage": "verify",
+        "isPackaged": true,
+        "executable": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
+        "appPath": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/resources/app.asar",
+        "versions": {
+          "electron": "43.2.0",
+          "node": "24.18.0"
+        },
+        "paths": {
+          "appData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/appData",
+          "userData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/userData",
+          "sessionData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/sessionData",
+          "crashDumps": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/crashDumps",
+          "logs": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/logs"
+        },
+        "preloadErrors": [],
+        "initialMainVisible": false,
+        "display": {
+          "DISPLAY": ":0",
+          "WAYLAND_DISPLAY": "",
+          "XDG_SESSION_TYPE": "x11"
+        },
+        "shortcutsRegistered": {
+          "translate": true,
+          "show": true
+        },
+        "persisted": {
+          "launchToTray": true,
+          "history": [
+            {
+              "src": "LINUX EDIT",
+              "favorite": true
+            },
+            {
+              "src": "LINUX PRIMARY",
+              "favorite": false
+            }
+          ]
+        },
+        "pass": true,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "inspectorDisconnectedBeforeQuit": true,
+        "socketRemovedAfterExit": true,
+        "command": {
+          "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
+          "args": [
+            "--inspect-brk=127.0.0.1:0",
+            "--no-sandbox",
+            "--ozone-platform=x11",
+            "--disable-gpu"
+          ]
+        }
+      }
+    ],
+    "transport": "50 ms in-process controlled HTTPS boundary; no external provider network",
+    "status": "passed",
+    "primaryOwner": {
+      "pid": 528,
+      "selection": "X11 PRIMARY",
+      "contents": "synthetic only",
+      "exit": {
+        "code": null,
+        "signal": "SIGTERM"
+      }
+    }
+  },
+  "postRunCleanup": {
+    "exactPackagedBinaryProcesses": [],
+    "nativeHomeAbsent": true,
+    "primaryOwnerExitObserved": {
+      "code": null,
+      "signal": "SIGTERM"
+    }
+  },
+  "retainedAttempts": [
+    {
+      "label": "first",
+      "status": "failed-environment",
+      "evidence": [
+        "logs/runtime-first.log",
+        "runtime-first/edit-stderr.txt"
+      ],
+      "reason": "Long DrvFs HOME socket listen EINVAL; Unix socket path limit exceeded"
+    },
+    {
+      "label": "second",
+      "status": "failed-environment",
+      "evidence": [
+        "logs/runtime-second.log",
+        "runtime-second/edit-stderr.txt"
+      ],
+      "reason": "Short DrvFs HOME alias socket listen ENOTSUP"
+    },
+    {
+      "label": "third",
+      "status": "failed-harness",
+      "evidence": [
+        "logs/runtime-third.log",
+        "runtime-third/edit-failure.json",
+        "runtime-third/edit-stdout.txt",
+        "runtime-third/edit-stderr.txt",
+        "runtime-third/home-recovery.json"
+      ],
+      "reason": "Nested quoted pin selector generated invalid JavaScript after successful PRIMARY/source edit/favorite; recursive socket copy then masked summary",
+      "recovery": {
+        "path": "/tmp/easytranslate-pr12-7Rebb3",
+        "alreadyAbsentAtRecovery": true,
+        "archivedFiles": [
+          ".translate-app.history.json",
+          ".validation-owner.json"
+        ],
+        "note": "No removal attempted. Previous runtime had ended; native temporary directory was absent at subsequent recovery command. Original pin selector and cpSync errors remain preserved."
+      }
+    },
+    {
+      "label": "fourth",
+      "status": "passed",
+      "evidence": [
+        "logs/runtime-fourth.log",
+        "runtime-fourth/summary.json",
+        "runtime-fourth/edit-result.json",
+        "runtime-fourth/verify-result.json",
+        "runtime-fourth/edit-quit-boundary.json",
+        "runtime-fourth/edit-will-quit.json",
+        "runtime-fourth/verify-will-quit.json",
+        "runtime-fourth/post-run-cleanup.json",
+        "runtime-fourth/popup.png"
+      ]
+    }
+  ],
+  "platformPolicy": {
+    "wayland": "Native display choice retained; GlobalShortcutsPortal enabled only for Linux Wayland",
+    "evidence": "Passing tests/platform.test.cjs within native Linux check",
+    "actualWaylandPortalTested": false
+  },
+  "instrumentation": {
+    "entry": "Loopback inspector pause at first compiled packaged main entry, before imports",
+    "productUnmodified": true,
+    "publicInterfaces": "Real preload IPC and Vue controls; supported Unix trigger socket; public config/history reads",
+    "provider": "Synthetic controlled HTTPS response after 50 ms",
+    "personalDataReadOrLogged": false,
+    "selection": "Owned external xclip X11 PRIMARY, synthetic only",
+    "inspectorDisconnectedBeforeQuit": true,
+    "homeException": "Explicitly authorized small owned native /tmp HOME because DrvFs cannot host AF_UNIX; real path/UID/0700/ownership marker/socket support verified, explicit regular JSON archive then exact-directory cleanup"
+  },
+  "limitations": [
+    "Extracted .deb layout launch; no system package installation, maintainer-script execution or uninstall",
+    "Root --no-sandbox, WSLg X11 and software rendering",
+    "No native Wayland portal or GNOME/KDE desktop verification",
+    "Tray creation and shortcut registration observed; no native tray click or global-key input",
+    "Single synthetic runtime provider; no real external translation service or key",
+    "No native drag, audible speech or Linux race UI exercised in this subset",
+    "Windows focus/clipboard/performance are separate acceptance evidence",
+    "Visible BrowserWindow capture is not photometric latency evidence"
+  ],
+  "scripts": [
+    "scripts/testing/linux-build-validation.sh",
+    "scripts/testing/linux-run-packaged.sh",
+    "scripts/testing/linux-packaged-validation.cjs",
+    "scripts/testing/linux-packaged-probe.cjs"
+  ],
+  "productionMutation": {
+    "dailyInstallation": false,
+    "systemPackageInstall": false,
+    "versionBump": false,
+    "mainMerge": false,
+    "tag": false,
+    "release": false,
+    "remoteMutationByWorker": false
+  }
+}
