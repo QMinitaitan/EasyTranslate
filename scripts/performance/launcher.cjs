@@ -11,6 +11,10 @@ const stamp = (event, extra = {}) => fs.appendFileSync(output, JSON.stringify({ 
 function currentTrial() {
   try { trial = JSON.parse(fs.readFileSync(path.join(run, 'trial.json'), 'utf8')).id } catch (_) {}
 }
+function expectedSource() {
+  const index = /^cold-[1-9]\d*-invoke-([1-9]\d*)$/.exec(trial || '')?.[1]
+  return index ? 'Hello baseline world ' + Number(index) + '.' : null
+}
 stamp('launcher', { pid: process.pid, electron: process.versions.electron, node: process.versions.node })
 electron.app.setPath('userData', path.join(run, 'userData'))
 const originalClipboard = { text: 'BENCH_CLIPBOARD', html: '<b>BENCH_CLIPBOARD</b>', rtf: '{\\rtf1 BENCH_CLIPBOARD}' }
@@ -34,6 +38,11 @@ require('node:https').request = (url, options, callback) => {
   request.write = (data) => { body += data }
   request.end = () => {
     const source = JSON.parse(body).messages?.find(m => m.role === 'user')?.content || ''
+    if (source !== expectedSource()) {
+      stamp('harness-failure', { stage: 'transport', reason: 'unexpected-source-fixture' })
+      request.emit('error', new Error('Benchmark transport rejected a source outside its synthetic fixture'))
+      return
+    }
     stamp('transport-start', { source })
     setTimeout(() => {
       const response = new PassThrough()
@@ -51,7 +60,11 @@ const selection = require(path.join(root, 'electron/selection.cjs'))
 const nativeGetSelection = selection.getSelection
 selection.getSelection = async (...args) => {
   stamp('selection-start')
-  const result = await nativeGetSelection(...args)
+  let result = await nativeGetSelection(...args)
+  if (result.text && result.text !== expectedSource()) {
+    stamp('harness-failure', { stage: 'capture', reason: 'unexpected-selection-fixture' })
+    result = { ...result, text: '', source: 'empty', reason: 'benchmark-fixture-rejected' }
+  }
   stamp('selection-end', {
     source: result.source, reason: result.reason, text: result.text,
     clipboardRestored: electron.clipboard.readText() === originalClipboard.text,

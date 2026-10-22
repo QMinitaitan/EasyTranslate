@@ -91,6 +91,7 @@ function collectEvidence(folder) {
       quitObserved: !!quit,
       naturallyExited: !!quit && exit?.exitCode === 0,
       stderrEmpty: fs.readFileSync(path.join(run, 'stderr.txt'), 'utf8').trim().length === 0,
+      harnessFailures: [...events.filter(event => event.event === 'harness-failure'), ...driver.filter(event => event.event === 'precondition-failed')],
       attempts,
       history: { count: history.length, expectedCount: expectedHistory.length, matchesLatestSuccessfulCaptures: historyMatches, rows: history.map(({ id, src, dst, favorite }) => ({ id, src, dst, favorite })) },
       windows: { created: created.length, maxLive: Math.max(0, ...health.map(event => event.windows)), ids: created.map(({ kind, id }) => ({ kind, id })) },
@@ -125,6 +126,7 @@ function buildReport(folder, baseline, manifest) {
   const checks = []
   const check = (name, pass, observed, limit) => checks.push({ name, pass: !!pass, observed, limit })
   check('Frozen cohort is complete', runs.length === 7 && runs.every(run => run.complete) && first.length === 7 && warm.length === 30 && empty.length === 1 && longRun?.idleDurationMs.before >= 27000 && longRun?.idleDurationMs.after >= 27000, { runs: runs.length, first: first.length, warm: warm.length, empty: empty.length, retainedIdleMs: longRun?.idleDurationMs }, '7 fresh processes/profiles, 30 warm, 1 empty, two 30-second intervals excluding first 2 seconds')
+  check('No harness precondition violation', runs.length === 7 && runs.every(run => run.harnessFailures?.length === 0), runs.flatMap(run => run.harnessFailures || []), 'exact owned source HWND before Alt+Q and exact synthetic source before capture/transport logging')
   for (const [field, label] of [['showMs', 'show'], ['domResultMs', 'DOM']]) {
     const value = measurements.summary.firstSuccessful[field].p50
     const reference = baseline.summary.firstSuccessful[field].p50
