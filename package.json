@@ -24,7 +24,7 @@
     "build:electron": "node scripts/build-electron.cjs",
     "build": "npm run build:electron && vite build",
     "typecheck": "tsc -p tsconfig.electron.json --noEmit && vue-tsc --noEmit -p tsconfig.json",
-    "test": "npm run build:electron && node --test tests/*.test.cjs",
+    "test": "npm run build:electron && node scripts/testing/run-offline-tests.cjs",
     "check": "npm run typecheck && npm test && npm run build",
     "dist:linux": "npm run build && electron-builder --linux deb --x64",
     "dist:win": "npm run build && electron-builder --win nsis --x64",

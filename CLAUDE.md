@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Before development, testing or API work, read the credential and paid API rules in `AGENTS.md`.
+
 ## 项目定位
 
 EasyTranslate 是一个跨平台划词翻译桌面应用：Electron 主进程 + Vue 3 渲染进程。用户选中任意应用的文字后按全局快捷键，悬浮窗就近弹出并翻译；支持多引擎并发竞速、翻译历史、收藏与中英文设置。发布物有 Windows NSIS 与 Debian `.deb` 两种，通过 GitHub Releases 分发。

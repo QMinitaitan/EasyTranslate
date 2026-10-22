@@ -13,7 +13,7 @@ export const PROVIDERS: ProviderMetadata[] = [
     apiKey: '',
     endpoint: 'https://api.deepseek.com',
     model: 'deepseek-v4-flash',
-    models: ['deepseek-v4-pro', 'deepseek-v4-flash'],
+    models: ['deepseek-v4-flash'],
     prompt: '请将以下{{src}}文本翻译为{{target}},仅输出译文,不要添加任何解释或注释',
     hasEndpoint: true,
     hasModel: true,
