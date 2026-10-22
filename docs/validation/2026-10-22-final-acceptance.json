@@ -1,5 +1,41 @@
 {
   "issue": "https://github.com/QMinitaitan/EasyTranslate/issues/11",
+  "scopeNotice": "Existing source/fullCheck/performance fields below retain the historical 2e97ef0 artifact. latestReview describes the current reviewed renderer; latest performance is incomplete and the old 22-gate pass must not be promoted to it.",
+  "latestReview": {
+    "sourceCommit": "15c32a52148399d6ff383d80874f60931954ee77",
+    "equivalentRootCommit": "bdbdc3c687146aab30439e1c81fd6a4fd7ae62e8",
+    "productionAsarSha256": "f0d9e094fcb66a662f7120420cc31d0263c5e594204d82d23554e2ed70bd03ce",
+    "windowsReport": "2026-10-23-windows-review-15c32a5.md",
+    "windowsJson": "2026-10-23-windows-review-15c32a5.json",
+    "functionalNamedChecks": 63,
+    "originalChecks": 30,
+    "providerRefreshChecks": 33,
+    "configOnlyPhasesWithZeroRequestsAndUnchangedHistory": 7,
+    "actualAdditionalInMemoryRequestsFromExplicitUiActions": 6,
+    "naturalExitCode": 0,
+    "outerClipboardFormatsRestored": 7,
+    "rootFullCheck": {
+      "commit": "d761d487463eca55d8dd740aefc2f957b55cc2aa",
+      "command": "npm run check",
+      "strictElectronAndVueTypes": "passed",
+      "tests": 132,
+      "passed": 132,
+      "failed": 0,
+      "productionBuild": "passed",
+      "log": "E:/EasyTranslate-implementation-notes-20261020/final-review-fixes/11-integrated-check.log",
+      "logSha256": "14ed3901a417a9a8d15ee8d58e1045c2540496a118f624a2aec4f6b73a773008",
+      "scope": "Product inputs match source15c; existing authoritative root check, not rerun for this docs-only curation"
+    },
+    "performance": {
+      "status": "INCOMPLETE",
+      "raw": "E:/EasyTranslate-implementation-notes-20261020/benchmark/runs-final-review-15c32a5-20261022-1",
+      "shortcutsEmitted": 0,
+      "sourceReadyAcknowledgement": "absent",
+      "scope": "Initial source precondition failed before first Alt+Q; no latest artifact formal performance pass or accepted latency/resource values"
+    },
+    "priorPlatformScope": "NSIS and Linux retain their original pre-review artifact/source identities; neither was rerun for the current frontend fix",
+    "nextStage": "Latest artifact performance remains unresolved; root owns further coordination and remote publication"
+  },
   "applicationSourceCommit": "2e97ef06d5b91de1ba929ad87425a083006039ce",
   "validationBranchAtFullCheck": "397dd65c2320cec098853439fb855d7c6ed0588e",
   "linuxAux": "f0f614ab8d2d2913464a16ea6aad2be184d84f8a",
