@@ -25,7 +25,7 @@ cd "$source_dir"
   printf 'npm='; command -v npm
   printf 'HOME=%s\nTMPDIR=%s\nELECTRON_BUILDER_CACHE=%s\n' "$HOME" "$TMPDIR" "$ELECTRON_BUILDER_CACHE"
 } > "$output/logs/environment.txt"
-npm ci --prefer-offline --no-audit --no-fund > "$output/logs/npm-ci.log" 2>&1
+npm ci --offline --no-audit --no-fund > "$output/logs/npm-ci.log" 2>&1
 npm run check > "$output/logs/check.log" 2>&1
 # Reuse the checksum-verified native Linux Electron, rather than re-downloading it.
 ./node_modules/.bin/electron-builder --linux deb --x64 --publish never \

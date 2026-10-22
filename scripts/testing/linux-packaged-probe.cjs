@@ -6,7 +6,7 @@
   const assert = require('node:assert/strict')
   const { EventEmitter } = require('node:events')
   const { PassThrough } = require('node:stream')
-  const { app, BrowserWindow, globalShortcut } = require('electron')
+  const { app, BrowserWindow, globalShortcut, net: electronNet } = require('electron')
   const run = process.env.EASY_LINUX_RUN
   const stage = process.env.EASY_LINUX_STAGE
   if (!run || !['edit', 'verify'].includes(stage) || app.isReady()) throw new Error('An isolated pre-ready Linux probe is required')
@@ -64,11 +64,15 @@
   require('node:dgram').Socket.prototype.send = blocked
   globalThis.fetch = async () => blocked()
   if (globalThis.WebSocket) globalThis.WebSocket = class { constructor() { blocked() } }
+  electronNet.request = blocked
+  electronNet.fetch = async () => blocked()
   app.on('session-created', session => {
+    session.fetch = async () => blocked()
     session.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*'] }, (_details, callback) => callback({ cancel: true }))
   })
   require('node:https').request = (url, _options, callback) => {
     assert.equal(url.hostname, 'linux-fixture.invalid', 'No real provider/network request is allowed')
+    assert.ok(_options?.headers?.Authorization === 'Bearer synthetic-linux-fixture-key', 'Only synthetic authorization reaches the controlled transport')
     const request = new EventEmitter()
     let body = ''
     request.write = chunk => { body += chunk; return true }
@@ -90,7 +94,8 @@
   require('node:module').syncBuiltinESMExports()
   assert.throws(() => new net.Socket().connect({ host: 'offline.invalid', port: 443 }), /blocks external network/)
   assert.throws(() => require('node:https').request(new URL('https://offline.invalid')), /No real provider\/network request/)
-  const preflight = { passed: true, productImportsBeforeGuard: importedProductModules.length, isolatedHome: true, syntheticCredentialsOnly: true, model: fixture.providers.deepseek.model, endpoint: fixture.providers.deepseek.endpoint, controlledHttpsBeforeProductImports: true, nodeExternalNetworkBlocked: true, chromiumHttpBlocked: true }
+  assert.throws(() => electronNet.request('https://offline.invalid'), /blocks external network/)
+  const preflight = { passed: true, productImportsBeforeGuard: importedProductModules.length, isolatedHome: true, syntheticCredentialsOnly: true, model: fixture.providers.deepseek.model, endpoint: fixture.providers.deepseek.endpoint, controlledHttpsBeforeProductImports: true, nodeExternalNetworkBlocked: true, electronNetBlocked: true, chromiumHttpBlocked: true }
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
   async function wait(check, label) {
     const start = Date.now()
