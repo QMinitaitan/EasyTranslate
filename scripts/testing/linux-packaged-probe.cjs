@@ -1,0 +1,170 @@
+// Evaluated on the real packaged main-entry call frame by linux-packaged-validation.cjs.
+// All instrumentation lives in this test program; the packaged product is unmodified.
+(() => {
+  const fs = require('node:fs')
+  const path = require('node:path')
+  const assert = require('node:assert/strict')
+  const { EventEmitter } = require('node:events')
+  const { PassThrough } = require('node:stream')
+  const { app, BrowserWindow, globalShortcut } = require('electron')
+  const run = process.env.EASY_LINUX_RUN
+  const stage = process.env.EASY_LINUX_STAGE
+  if (!run || !['edit', 'verify'].includes(stage) || app.isReady()) throw new Error('An isolated pre-ready Linux probe is required')
+  assert.equal(app.isPackaged, true, 'Only the real packaged product is accepted')
+  const write = (name, value) => fs.writeFileSync(path.join(run, `${stage}-${name}.json`), JSON.stringify(value, null, 2))
+  for (const name of ['appData', 'userData', 'sessionData', 'crashDumps']) app.setPath(name, path.join(run, name))
+  app.setAppLogsPath(path.join(run, 'logs'))
+  app.disableHardwareAcceleration()
+  const requests = []
+  const errors = []
+  const rendererErrors = []
+  let checkpoint = 'before ready'
+  app.on('browser-window-created', (_event, window) => {
+    window.webContents.on('preload-error', (_event, file, error) => errors.push({ file, error: error.message }))
+    window.webContents.on('console-message', (_event, details) => {
+      if (details.level === 'error') rendererErrors.push(details.message)
+    })
+  })
+  app.on('will-quit', () => write('will-quit', { naturalLifecycle: true, preloadErrors: errors, requests }))
+  require('node:https').request = (url, _options, callback) => {
+    assert.equal(url.hostname, 'linux-fixture.invalid', 'No real provider/network request is allowed')
+    const request = new EventEmitter()
+    let body = ''
+    request.write = chunk => { body += chunk; return true }
+    request.end = () => {
+      const text = JSON.parse(body).messages.find(message => message.role === 'user').content
+      requests.push(text)
+      setTimeout(() => {
+        const response = new PassThrough()
+        response.statusCode = 200
+        callback(response)
+        response.end(JSON.stringify({ choices: [{ message: { content: `LINUX RESULT ${text}` } }] }))
+      }, 50)
+    }
+    request.destroy = () => request
+    return request
+  }
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+  async function wait(check, label) {
+    const start = Date.now()
+    while (Date.now() - start < 15000) {
+      try { const value = await check(); if (value) return value } catch {}
+      await delay(25)
+    }
+    throw new Error(`Timed out: ${label}`)
+  }
+  async function quitAfterInspectorDisconnect(beforeQuit) {
+    await wait(() => fs.existsSync(path.join(run, `${stage}-quit-requested.json`)), 'controller inspector disconnect')
+    assert.equal(JSON.parse(fs.readFileSync(path.join(run, `${stage}-quit-requested.json`))).inspectorDisconnected, true)
+    if (beforeQuit) await beforeQuit()
+    app.quit()
+  }
+  app.whenReady().then(async () => {
+    try {
+      const main = await wait(() => BrowserWindow.getAllWindows().find(window => !window.webContents.getURL().includes('/popup')), 'main window')
+      const evaluate = expression => main.webContents.executeJavaScript(expression)
+      await wait(() => evaluate('!!window.api && !!document.querySelector(".page")'), 'packaged frontend and preload')
+      assert.equal(await evaluate('window.api.platform'), 'linux')
+      const config = await evaluate('window.api.loadConfig()')
+      const result = {
+        stage, isPackaged: app.isPackaged, executable: app.getPath('exe'), appPath: app.getAppPath(),
+        versions: { electron: process.versions.electron, node: process.versions.node },
+        paths: Object.fromEntries(['appData', 'userData', 'sessionData', 'crashDumps', 'logs'].map(name => [name, app.getPath(name)])),
+        preloadErrors: errors, initialMainVisible: main.isVisible(),
+        display: { DISPLAY: process.env.DISPLAY, WAYLAND_DISPLAY: process.env.WAYLAND_DISPLAY || '', XDG_SESSION_TYPE: process.env.XDG_SESSION_TYPE },
+        shortcutsRegistered: { translate: globalShortcut.isRegistered('Alt+Q'), show: globalShortcut.isRegistered('Alt+E') }
+      }
+      if (stage === 'verify') {
+        checkpoint = 'verify durable public reads'
+        const history = await evaluate('window.api.loadHistory()')
+        assert.equal(config.launchToTray, true, 'Vue pending setting must survive native quit')
+        assert.deepEqual(history.map(item => item.src), ['LINUX EDIT', 'LINUX PRIMARY'])
+        assert.equal(history[0].favorite, true, 'UI favorite must survive relaunch')
+        result.persisted = { launchToTray: config.launchToTray, history: history.map(({ src, favorite }) => ({ src, favorite })) }
+        result.pass = true
+        write('result', result)
+        await quitAfterInspectorDisconnect()
+        return
+      }
+      assert.equal(config.launchToTray, false)
+      checkpoint = 'provider and prewarm'
+      const capabilities = await evaluate('window.api.providerCapabilities()')
+      assert.equal(capabilities.find(item => item.id === 'deepseek').available, true)
+      result.providerReady = true
+      const popup = await wait(() => BrowserWindow.getAllWindows().find(window => window.webContents.getURL().includes('/popup')), 'one prewarmed popup')
+      const popupEvaluate = expression => popup.webContents.executeJavaScript(expression)
+      await wait(() => popupEvaluate('!!window.api && !!document.querySelector(".popup-body")'), 'prewarmed actual Vue')
+      result.prewarm = { visible: popup.isVisible(), windows: BrowserWindow.getAllWindows().length }
+      assert.equal(result.prewarm.visible, false)
+      assert.equal(result.prewarm.windows, 2)
+      // The external xclip process owns X11 PRIMARY. This supported socket is the
+      // same Linux trigger boundary as electron/trigger.sh, without global input.
+      const primary = require('electron').clipboard.readText('selection')
+      assert.equal(primary, 'LINUX PRIMARY')
+      await wait(() => fs.existsSync(path.join(process.env.HOME, '.translate-app.sock')), 'product native Unix trigger socket')
+      checkpoint = 'native PRIMARY socket trigger'
+      await new Promise((resolve, reject) => {
+        const socket = require('node:net').connect(path.join(process.env.HOME, '.translate-app.sock'))
+        socket.once('connect', () => socket.end('trigger'))
+        socket.once('error', reject)
+        socket.once('close', resolve)
+      })
+      await wait(() => popupEvaluate('document.querySelector(".dst-text")?.textContent === "LINUX RESULT LINUX PRIMARY"'), 'Linux PRIMARY through native trigger/provider/session/preload/Vue')
+      assert.equal(popup.isVisible(), true)
+      result.selection = { owner: 'external xclip X11 PRIMARY', source: primary, visibleResult: await popupEvaluate('document.querySelector(".dst-text").textContent'), socketTrigger: true }
+      checkpoint = 'source edit and second-view history'
+      await popupEvaluate(`(() => {
+        const source = document.querySelector('.src-text')
+        source.textContent = 'LINUX EDIT'
+        source.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+      })()`)
+      await wait(() => popupEvaluate('document.querySelector(".dst-text")?.textContent === "LINUX RESULT LINUX EDIT"'), 'source edit translates')
+      await wait(() => evaluate('document.querySelector(".h-src")?.textContent === "LINUX EDIT"'), 'history notification in second real view')
+      await evaluate('document.querySelector(".h-actions button").click()')
+      await wait(async () => (await evaluate('window.api.loadHistory()'))[0]?.favorite, 'favorite durable public read')
+      checkpoint = 'popup pin control'
+      await popupEvaluate('document.querySelector(".popup-actions button").click()')
+      await wait(() => popupEvaluate('document.querySelector(".popup-actions button").classList.contains("active")'), 'popup pin state')
+      result.popup = { visible: popup.isVisible(), bounds: popup.getBounds(), alwaysOnTop: popup.isAlwaysOnTop(), nativeHandle: popup.getNativeWindowHandle().toString('hex') }
+      assert.equal(result.popup.alwaysOnTop, true)
+      const image = await popup.webContents.capturePage()
+      assert.equal(image.isEmpty(), false)
+      fs.writeFileSync(path.join(run, 'popup.png'), image.toPNG())
+      result.capture = { ...image.getSize(), visibleAtCapture: popup.isVisible() }
+      result.history = (await evaluate('window.api.loadHistory()')).map(({ src, favorite }) => ({ src, favorite }))
+      assert.deepEqual(result.history, [{ src: 'LINUX EDIT', favorite: true }, { src: 'LINUX PRIMARY', favorite: false }])
+      checkpoint = 'pending General edit and immediate native quit'
+      await evaluate('window.location.hash = "#/settings/general"')
+      await wait(() => evaluate('[...document.querySelectorAll(".setting-row")].some(row => row.textContent.includes("Launch to Tray"))'), 'General settings actual Vue')
+      await delay(100)
+      const editStartedAt = Date.now()
+      const edit = await evaluate(`(async () => {
+        const row = [...document.querySelectorAll('.setting-row')].find(row => row.textContent.includes('Launch to Tray'))
+        const checkbox = row.querySelector('input')
+        checkbox.checked = true
+        const at = performance.now()
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }))
+        const before = await window.api.loadConfig()
+        return { requested: checkbox.checked, before: before.launchToTray, elapsedMs: performance.now() - at }
+      })()`)
+      assert.equal(edit.requested, true)
+      assert.equal(edit.before, false, 'quit must be requested while the real debounce is still pending')
+      assert.ok(edit.elapsedMs < 120)
+      result.immediateQuitEdit = edit
+      result.requests = requests
+      assert.deepEqual(errors, [])
+      result.pass = true
+      write('result', result)
+      await quitAfterInspectorDisconnect(async () => {
+        const beforeQuit = await evaluate('window.api.loadConfig()')
+        const boundary = { elapsedSinceEditMs: Date.now() - editStartedAt, launchToTrayBeforeQuit: beforeQuit.launchToTray, inspectorDisconnected: true }
+        write('quit-boundary', boundary)
+        assert.equal(beforeQuit.launchToTray, false, 'Native quit must begin before the Vue debounce commits')
+      })
+    } catch (error) {
+      write('failure', { pass: false, checkpoint, error: error.stack, requests, preloadErrors: errors, rendererErrors })
+      app.exit(1)
+    }
+  })
+  return { injectedBeforeReady: true, stage }
+})()
