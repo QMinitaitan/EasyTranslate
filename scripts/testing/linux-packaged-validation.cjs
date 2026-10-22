@@ -9,7 +9,7 @@ if (process.platform !== 'linux' || !binaryArg || !outputArg || extra.length) th
 const binary = fs.realpathSync(binaryArg)
 const output = path.resolve(outputArg)
 assert.equal(fs.existsSync(output), false, 'Keep observations; choose a fresh output directory')
-for (const name of ['home', 'appData', 'userData', 'sessionData', 'crashDumps', 'logs', 'tmp']) fs.mkdirSync(path.join(output, name), { recursive: true })
+for (const name of ['home', 'appData', 'localAppData', 'userData', 'sessionData', 'crashDumps', 'logs', 'tmp']) fs.mkdirSync(path.join(output, name), { recursive: true })
 // DrvFs supports our large artifacts, but not AF_UNIX. Create only the small
 // synthetic config/history/socket HOME on the native Linux filesystem.
 const home = fs.mkdtempSync('/tmp/easytranslate-pr12-')
@@ -30,7 +30,7 @@ assertOwnedHome()
 assert.ok(Buffer.byteLength(path.join(home, '.translate-app.sock')) < 108, 'Use a short owned HOME alias for Unix sockets')
 const fixture = {
   launchToTray: false, closeAction: 'quit', uiLanguage: 'en', raceMode: false,
-  providers: Object.fromEntries(['deepseek', 'openai', 'bing', 'google', 'deepl', 'youdao', 'tencent', 'caiyun', 'baidu'].map(id => [id, { enabled: id === 'deepseek', apiKey: id === 'deepseek' ? 'synthetic-linux-fixture-key' : '', endpoint: 'https://linux-fixture.invalid', model: 'fixture-model' }]))
+  providers: Object.fromEntries(['deepseek', 'openai', 'bing', 'google', 'deepl', 'youdao', 'tencent', 'caiyun', 'baidu'].map(id => [id, { enabled: id === 'deepseek', apiKey: id === 'deepseek' ? 'synthetic-linux-fixture-key' : '', endpoint: 'https://linux-fixture.invalid', model: id === 'deepseek' ? 'deepseek-v4-flash' : 'fixture-model' }]))
 }
 fs.writeFileSync(path.join(home, '.translate-app.config.json'), JSON.stringify(fixture), { mode: 0o600, flag: 'wx' })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -57,7 +57,8 @@ async function runStage(stage) {
   }
   const args = ['--inspect-brk=127.0.0.1:0', '--no-sandbox', '--ozone-platform=x11', '--disable-gpu']
   assertOwnedHome()
-  const env = { ...process.env, HOME: home, XDG_CONFIG_HOME: path.join(output, 'appData'), XDG_CACHE_HOME: path.join(output, 'cache'), XDG_DATA_HOME: path.join(output, 'data'), TMPDIR: path.join(output, 'tmp'), TMP: path.join(output, 'tmp'), TEMP: path.join(output, 'tmp'), EASY_LINUX_RUN: output, EASY_LINUX_STAGE: stage, XDG_SESSION_TYPE: 'x11', WAYLAND_DISPLAY: '' }
+  const environment = Object.fromEntries(Object.entries(process.env).filter(([name]) => !/key|token|secret|password|credential|authorization/i.test(name)))
+  const env = { ...environment, HOME: home, USERPROFILE: home, APPDATA: path.join(output, 'appData'), LOCALAPPDATA: path.join(output, 'localAppData'), XDG_CONFIG_HOME: path.join(output, 'appData'), XDG_CACHE_HOME: path.join(output, 'cache'), XDG_DATA_HOME: path.join(output, 'data'), TMPDIR: path.join(output, 'tmp'), TMP: path.join(output, 'tmp'), TEMP: path.join(output, 'tmp'), EASY_LINUX_RUN: output, EASY_LINUX_STAGE: stage, XDG_SESSION_TYPE: 'x11', WAYLAND_DISPLAY: '' }
   for (const key of ['NODE_OPTIONS', 'NODE_PATH', 'ELECTRON_RUN_AS_NODE', 'VITE_DEV_SERVER_URL']) delete env[key]
   let timer
   try {
@@ -98,6 +99,8 @@ async function runStage(stage) {
     const injection = await send('Debugger.evaluateOnCallFrame', { callFrameId: entry(pause).callFrameId, expression: `eval(${JSON.stringify(program)})`, returnByValue: true })
     assert.equal(injection.exceptionDetails, undefined, JSON.stringify(injection.exceptionDetails))
     assert.equal(injection.result.value.injectedBeforeReady, true)
+    assert.equal(injection.result.value.preflight.passed, true)
+    fs.writeFileSync(path.join(output, `${stage}-preflight.json`), JSON.stringify(injection.result.value.preflight, null, 2))
     await send('Debugger.resume')
     await wait(() => fs.existsSync(path.join(output, `${stage}-result.json`)) || fs.existsSync(path.join(output, `${stage}-failure.json`)), 'public UI / persistence checks')
     assert.equal(fs.existsSync(path.join(output, `${stage}-failure.json`)), false, fs.existsSync(path.join(output, `${stage}-failure.json`)) ? fs.readFileSync(path.join(output, `${stage}-failure.json`), 'utf8') : '')

@@ -11,10 +11,28 @@
   const stage = process.env.EASY_LINUX_STAGE
   if (!run || !['edit', 'verify'].includes(stage) || app.isReady()) throw new Error('An isolated pre-ready Linux probe is required')
   assert.equal(app.isPackaged, true, 'Only the real packaged product is accepted')
+  const importedProductModules = Object.keys(require.cache).filter(file => /[/\\]dist-electron[/\\]/.test(file) && !/[/\\]main\.cjs$/.test(file))
+  assert.deepEqual(importedProductModules, [], 'Install the guard before any product module import')
+  const home = process.env.HOME
+  assert.match(home, /^\/tmp\/easytranslate-pr12-[A-Za-z0-9]+$/)
+  assert.equal(require('node:os').homedir(), home)
+  assert.equal(process.env.USERPROFILE, home)
+  const fixture = JSON.parse(fs.readFileSync(path.join(home, '.translate-app.config.json'), 'utf8'))
+  assert.ok(fixture.providers.deepseek.apiKey === 'synthetic-linux-fixture-key', 'Synthetic credential required')
+  assert.equal(fixture.providers.deepseek.model, 'deepseek-v4-flash')
+  for (const [id, provider] of Object.entries(fixture.providers)) {
+    assert.equal(provider.endpoint, 'https://linux-fixture.invalid')
+    assert.equal(provider.enabled, id === 'deepseek')
+    if (id !== 'deepseek') assert.ok(provider.apiKey === '', 'Disabled fixture provider has no credential')
+  }
   const write = (name, value) => fs.writeFileSync(path.join(run, `${stage}-${name}.json`), JSON.stringify(value, null, 2))
   for (const name of ['appData', 'userData', 'sessionData', 'crashDumps']) app.setPath(name, path.join(run, name))
   app.setAppLogsPath(path.join(run, 'logs'))
   app.disableHardwareAcceleration()
+  for (const name of ['appData', 'userData', 'sessionData', 'crashDumps', 'logs']) assert.equal(app.getPath(name), path.join(run, name))
+  for (const name of ['APPDATA', 'LOCALAPPDATA', 'XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR', 'TMP', 'TEMP']) {
+    assert.ok(process.env[name]?.startsWith(run + path.sep), `Isolate ${name}`)
+  }
   const requests = []
   const errors = []
   const rendererErrors = []
@@ -26,13 +44,38 @@
     })
   })
   app.on('will-quit', () => write('will-quit', { naturalLifecycle: true, preloadErrors: errors, requests }))
+  // Native Electron is outside npm-test's Node guard. Deny all other Node
+  // network routes here and allow only the product's exact owned Unix socket.
+  const blocked = () => { throw new Error('Linux validation blocks external network access') }
+  const net = require('node:net')
+  const connect = net.Socket.prototype.connect
+  const productSocket = path.join(home, '.translate-app.sock')
+  net.Socket.prototype.connect = function (...args) {
+    const first = Array.isArray(args[0]) ? args[0][0] : args[0]
+    const target = typeof first === 'string' ? first : first?.path
+    if (target !== productSocket) blocked()
+    return connect.apply(this, args)
+  }
+  require('node:tls').connect = blocked
+  require('node:http').request = blocked
+  require('node:http').get = blocked
+  require('node:https').get = blocked
+  require('node:http2').connect = blocked
+  require('node:dgram').Socket.prototype.send = blocked
+  globalThis.fetch = async () => blocked()
+  if (globalThis.WebSocket) globalThis.WebSocket = class { constructor() { blocked() } }
+  app.on('session-created', session => {
+    session.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*'] }, (_details, callback) => callback({ cancel: true }))
+  })
   require('node:https').request = (url, _options, callback) => {
     assert.equal(url.hostname, 'linux-fixture.invalid', 'No real provider/network request is allowed')
     const request = new EventEmitter()
     let body = ''
     request.write = chunk => { body += chunk; return true }
     request.end = () => {
-      const text = JSON.parse(body).messages.find(message => message.role === 'user').content
+      const parsed = JSON.parse(body)
+      assert.equal(parsed.model, 'deepseek-v4-flash', 'Only flash reaches the controlled transport')
+      const text = parsed.messages.find(message => message.role === 'user').content
       requests.push(text)
       setTimeout(() => {
         const response = new PassThrough()
@@ -44,6 +87,10 @@
     request.destroy = () => request
     return request
   }
+  require('node:module').syncBuiltinESMExports()
+  assert.throws(() => new net.Socket().connect({ host: 'offline.invalid', port: 443 }), /blocks external network/)
+  assert.throws(() => require('node:https').request(new URL('https://offline.invalid')), /No real provider\/network request/)
+  const preflight = { passed: true, productImportsBeforeGuard: importedProductModules.length, isolatedHome: true, syntheticCredentialsOnly: true, model: fixture.providers.deepseek.model, endpoint: fixture.providers.deepseek.endpoint, controlledHttpsBeforeProductImports: true, nodeExternalNetworkBlocked: true, chromiumHttpBlocked: true }
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
   async function wait(check, label) {
     const start = Date.now()
@@ -166,5 +213,5 @@
       app.exit(1)
     }
   })
-  return { injectedBeforeReady: true, stage }
+  return { injectedBeforeReady: true, stage, preflight }
 })()
