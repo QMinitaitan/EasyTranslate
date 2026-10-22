@@ -1,0 +1,357 @@
+{
+  "curatedOn": "2026-10-23",
+  "status": "Latest actual Windows executable functionality passed; latest artifact performance remains incomplete",
+  "sourceCommit": "15c32a52148399d6ff383d80874f60931954ee77",
+  "equivalentRootCommit": "bdbdc3c687146aab30439e1c81fd6a4fd7ae62e8",
+  "sourceEquivalence": {
+    "productInputGitDiff": [],
+    "verifiedBy": "git diff 15c32a5 bdbdc3c -- electron src assets/icon-v3 package.json package-lock.json electron-builder.yml tsconfig.json tsconfig.electron.json vite.config.js",
+    "scope": "Product build inputs only; documentation differs"
+  },
+  "artifact": {
+    "exe": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\production-review-15c32a5\\win-unpacked\\EasyTranslate.exe",
+    "exeSha256": "56049a52bb4e226b034f9c5ef6f50af3369b763e16584c3f15e6bdee729f5922",
+    "asar": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\production-review-15c32a5\\win-unpacked\\resources\\app.asar",
+    "asarSha256": "f0d9e094fcb66a662f7120420cc31d0263c5e594204d82d23554e2ed70bd03ce",
+    "packagedMain": "dist-electron/main.cjs",
+    "preloadSha256": "51f4d3d50d132301bf1a225f6e8e5fea62656ba096cd03209d82791df86bf342",
+    "independentSourceMatches": {
+      "dist-electron/main.cjs": true,
+      "dist-electron/preload.cjs": true,
+      "dist-electron/provider-service.cjs": true,
+      "dist-electron/providers.cjs": true,
+      "dist/index.html": true,
+      "electron/selection.cjs": true
+    },
+    "compiledIdentity": {
+      "asar": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\production-review-15c32a5\\win-unpacked\\resources\\app.asar",
+      "source": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\source-review-15c32a5",
+      "asarSha256": "f0d9e094fcb66a662f7120420cc31d0263c5e594204d82d23554e2ed70bd03ce",
+      "files": [
+        {
+          "name": "dist-electron/main.cjs",
+          "sha256": "ef3b16952663ef7b0f774c06e99c44e55e6963b38c5bd60e690b6c08f6150bb6",
+          "matchesIndependentSource": true,
+          "unchangedFromPrior": true
+        },
+        {
+          "name": "dist-electron/preload.cjs",
+          "sha256": "51f4d3d50d132301bf1a225f6e8e5fea62656ba096cd03209d82791df86bf342",
+          "matchesIndependentSource": true,
+          "unchangedFromPrior": true
+        },
+        {
+          "name": "dist-electron/desktop-runtime.cjs",
+          "sha256": "c61ca3ed2349acca91ffd55816e9996fb73896ee1e04c6d127b2647412a94ef3",
+          "matchesIndependentSource": true,
+          "unchangedFromPrior": true
+        },
+        {
+          "name": "dist-electron/provider-service.cjs",
+          "sha256": "8575c5f418792ef23a5d00ba49b220af1f1f2e99c1b584871cbc63a17f042baf",
+          "matchesIndependentSource": true,
+          "unchangedFromPrior": true
+        },
+        {
+          "name": "dist-electron/providers.cjs",
+          "sha256": "5afe7b156797b14314f4bcb2076660ae84f02ff84a4e86db349dbd4f04fdfe3f",
+          "matchesIndependentSource": true,
+          "unchangedFromPrior": true
+        },
+        {
+          "name": "dist/index.html",
+          "sha256": "03df6dba921f7c1f92696929743552390c09dd7349d82ef3a0beaa84bf343136",
+          "matchesIndependentSource": true,
+          "unchangedFromPrior": false
+        },
+        {
+          "name": "electron/selection.cjs",
+          "sha256": "c6589542c5282d090d6f411c807301a179c21158eca877a0d114979944bebd7b",
+          "matchesIndependentSource": true,
+          "unchangedFromPrior": true
+        }
+      ]
+    }
+  },
+  "build": {
+    "npmBuildRuns": 1,
+    "productionDirectoryPackageRuns": 1,
+    "exitCode": 0,
+    "dependencyRebuild": "Skipped npmRebuild=false; source-local reference to existing E-owned private dependencies, no dependency installation or original Electron mutation",
+    "electronDistSha256": "8593db40c0c6e5e3c4b6b0a225b1dc9a549ecdf10f6cf2010cf5b6ce869ce07f",
+    "logs": [
+      "build-review-15c32a5.txt",
+      "package-review-15c32a5.txt"
+    ]
+  },
+  "rootFullCheck": {
+    "commit": "d761d487463eca55d8dd740aefc2f957b55cc2aa",
+    "productInputsEquivalentToSource": true,
+    "command": "npm run check",
+    "tests": 132,
+    "passed": 132,
+    "failed": 0,
+    "electronTypes": "passed",
+    "vueTypes": "passed",
+    "productionBuild": "passed",
+    "log": "E:/EasyTranslate-implementation-notes-20261020/final-review-fixes/11-integrated-check.log",
+    "logSha256": "14ed3901a417a9a8d15ee8d58e1045c2540496a118f624a2aec4f6b73a773008",
+    "scope": "Existing authoritative root check; not rerun by this validator"
+  },
+  "functional": {
+    "status": "passed",
+    "startedUtc": "2026-10-22T15:04:09.312Z",
+    "completedUtc": "2026-10-22T15:04:20.385Z",
+    "elapsedMs": 11073,
+    "originalNamedChecks": {
+      "defaults and legacy config": true,
+      "legacy history retained": true,
+      "first success before slow and persistence": true,
+      "edit survives later result": true,
+      "one auto history and selected edit survive completion": true,
+      "late uncancellable race cannot overwrite single or history": true,
+      "late uncancellable single cannot overwrite race and completed history remains": true,
+      "cancellation attempted while physical responses still arrive": true,
+      "partial failure retains success": true,
+      "all fail has no history": true,
+      "empty translation has no history": true,
+      "edited translation copies through actual clipboard": true,
+      "speech invoked with edited content": true,
+      "theme UI and local storage": true,
+      "translation direction toggle": true,
+      "language option exposed": true,
+      "application language through actual settings": true,
+      "failed settings save leaves durable value": true,
+      "history failure leaves successful translation and no invented history": true,
+      "favorites broadcast to second subscribed view": true,
+      "history favorite unfavorite delete clear notifications": true,
+      "favorites plus twenty recent retained": true,
+      "partial saves preserve synthetic provider config": true,
+      "pinned popup survives native blur": true,
+      "unpin and native blur hide": true,
+      "native resize strategy": true,
+      "close and hide reuse one popup": true,
+      "main close to tray": true,
+      "tray menu open callback": true,
+      "immediate quit draft prepared": true
+    },
+    "originalCount": 30,
+    "newNamedChecks": {
+      "disable selected provider: zero provider requests": true,
+      "disable selected provider: no new history": true,
+      "disable selected provider: edits and actual result provenance preserved": true,
+      "disable selected provider: same visible pinned renderer": true,
+      "single result survives race setting: zero provider requests": true,
+      "single result survives race setting: no new history": true,
+      "single result survives race setting: edits and actual result provenance preserved": true,
+      "single result survives race setting: same visible pinned renderer": true,
+      "all providers disabled: zero provider requests": true,
+      "all providers disabled: no new history": true,
+      "all providers disabled: edits and actual result provenance preserved": true,
+      "all providers disabled: same visible pinned renderer": true,
+      "enable from none state: zero provider requests": true,
+      "enable from none state: no new history": true,
+      "enable from none state: edits and actual result provenance preserved": true,
+      "enable from none state: same visible pinned renderer": true,
+      "explicit single uses fallback provider": true,
+      "explicit single rendered controlled result": true,
+      "enable and race setting: zero provider requests": true,
+      "enable and race setting: no new history": true,
+      "enable and race setting: edits and actual result provenance preserved": true,
+      "enable and race setting: same visible pinned renderer": true,
+      "explicit race requests two synthetic providers": true,
+      "completed edited race survives single setting: zero provider requests": true,
+      "completed edited race survives single setting: no new history": true,
+      "completed edited race survives single setting: edits and actual result provenance preserved": true,
+      "completed edited race survives single setting: same visible pinned renderer": true,
+      "reenable preserves current and previous race provenance: zero provider requests": true,
+      "reenable preserves current and previous race provenance: no new history": true,
+      "reenable preserves current and previous race provenance: edits and actual result provenance preserved": true,
+      "reenable preserves current and previous race provenance: same visible pinned renderer": true,
+      "explicit new selection uses flash fixture": true,
+      "explicit flash result rendered": true
+    },
+    "newCount": 33,
+    "totalNamedChecks": 63,
+    "configOnly": [
+      {
+        "name": "disable selected provider",
+        "addedRequests": 0,
+        "unchangedHistory": true,
+        "unchangedEditedResultAndEngine": true
+      },
+      {
+        "name": "single result survives race setting",
+        "addedRequests": 0,
+        "unchangedHistory": true,
+        "unchangedEditedResultAndEngine": true
+      },
+      {
+        "name": "all providers disabled",
+        "addedRequests": 0,
+        "unchangedHistory": true,
+        "unchangedEditedResultAndEngine": true
+      },
+      {
+        "name": "enable from none state",
+        "addedRequests": 0,
+        "unchangedHistory": true,
+        "unchangedEditedResultAndEngine": true
+      },
+      {
+        "name": "enable and race setting",
+        "addedRequests": 0,
+        "unchangedHistory": true,
+        "unchangedEditedResultAndEngine": true
+      },
+      {
+        "name": "completed edited race survives single setting",
+        "addedRequests": 0,
+        "unchangedHistory": true,
+        "unchangedEditedResultAndEngine": true
+      },
+      {
+        "name": "reenable preserves current and previous race provenance",
+        "addedRequests": 0,
+        "unchangedHistory": true,
+        "unchangedEditedResultAndEngine": true
+      }
+    ],
+    "requestsBeforeNewScenario": 50,
+    "actualAddedInMemoryRequests": 6,
+    "requestCountExplanation": "Six follow explicit UI actions: selecting OpenAI retranslates FINAL_VISIBLE, then explicit UI_EDIT; race trigger requests fast+slow; selecting DeepSeek retranslates UI_EDIT, then explicit UI_EDIT again. Each of seven config-only phases added zero.",
+    "actualScenarioRequests": [
+      {
+        "source": "FINAL_VISIBLE",
+        "engine": "slow",
+        "replied": true,
+        "abortAttempts": 1
+      },
+      {
+        "source": "UI_EDIT",
+        "engine": "slow",
+        "replied": true,
+        "abortAttempts": 0
+      },
+      {
+        "source": "UI_EDIT",
+        "engine": "fast",
+        "replied": true,
+        "abortAttempts": 0
+      },
+      {
+        "source": "UI_EDIT",
+        "engine": "slow",
+        "replied": true,
+        "abortAttempts": 0
+      },
+      {
+        "source": "UI_EDIT",
+        "engine": "fast",
+        "replied": true,
+        "abortAttempts": 1
+      },
+      {
+        "source": "UI_EDIT",
+        "engine": "fast",
+        "replied": true,
+        "abortAttempts": 0
+      }
+    ],
+    "exit": {
+      "code": 0,
+      "signal": null,
+      "t": 1792681460382
+    },
+    "disconnectedBeforeQuit": true,
+    "ownCandidateProcessesAfterExit": 0,
+    "cleanupVerification": "Observed immediately after release with scoped Win32_Process metadata; no new process launch for curation"
+  },
+  "safety": {
+    "realPaidApiBudget": 0,
+    "realProviderRequests": 0,
+    "basis": "Exact synthetic fixture/.invalid in-memory transport plus pre-import default-deny native harness; not provider billing verification",
+    "preflight": {
+      "pass": true,
+      "isolatedProfile": true,
+      "syntheticProviders": true,
+      "socketAndTransportDenied": true,
+      "productNotImported": true
+    },
+    "appReadyAtInjection": false,
+    "isPackaged": true,
+    "deniedOperationSelfTests": 12,
+    "inMemoryRequestCount": 56,
+    "unexpectedSelectionAbortEvents": 0,
+    "nativeCopyHelpers": 0,
+    "isolatedElectronPaths": {
+      "appData": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\functional-review-15c32a5-1\\appData",
+      "userData": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\functional-review-15c32a5-1\\userData",
+      "sessionData": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\functional-review-15c32a5-1\\sessionData",
+      "logs": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\functional-review-15c32a5-1\\logs",
+      "crashDumps": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\functional-review-15c32a5-1\\crashDumps"
+    },
+    "inheritedEnvironment": "Controller allowlists only OS/runtime essentials and sets synthetic HOME/USERPROFILE/APPDATA/LOCALAPPDATA/TEMP/TMP",
+    "approvedNativeGuard": "Node/Electron/session/renderer alternatives denied; Node child API guard admits only exact production copy helper. Not an OS firewall or a guarantee for arbitrary native process networking.",
+    "unitGuardScope": "npm test blocks network in guarded Node processes and inheriting Node children; it does not intercept child_process or block native child launches",
+    "clipboard": {
+      "savedInMemory": true,
+      "restored": true,
+      "formatCount": 7
+    },
+    "personalCredentialConfigHistoryRead": false,
+    "physicalMouseOrKeyboardInjected": false,
+    "scheduledContinuation": "remains disabled"
+  },
+  "reproducibility": {
+    "run": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\functional-review-15c32a5-1",
+    "preparedRunner": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\review-guarded-runner-15c32a5-1",
+    "scripts": {
+      "installed-product-injection.cjs": "95262b9b2c91331528a0ea4e0884d0792e2cbc4d834b61283cd7ebb539808a73",
+      "installed-product-suite.cjs": "557ac76b96542484811dd4d9eadc9b874a27abdc75af7ccdf6f1ebe0ffe012c5",
+      "installed-product.cjs": "dd9860005fdc55089c5ed689e80a2500aed1f7ee54284ff9d0f3c9f97e0f1e36",
+      "run-installed-product.ps1": "6330fe16fa28a6112c8cfd4ea593479f80da3b18d2ff8e6ddddfc4c173a59dcb"
+    },
+    "frozenPreparationScope": "Prepared manifest remains unchanged. Its PREPARED ONLY status and four-request estimate describe the pre-run plan; actual summary records execution and six requests.",
+    "preparedManifestSha256": "a629d513df7532a25abc3323ecdd2858eda832fa7be408009dfe6d0ae9db51c1",
+    "rawSummarySha256": "581f4eb8799f2b165c7fc3a07f34b6f973e3ca46505198752ad24fb2b7b19a6f",
+    "rawEventsSha256": "f8cc86d013f46b35de9ce68c95d50d2c57cbd5e23889a9be6bb4ef8b923209a0"
+  },
+  "screenshot": {
+    "file": "2026-10-23-windows-review-15c32a5.png",
+    "source": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\functional-review-15c32a5-1\\review-config-refresh.png",
+    "sha256": "21104dc5492c5e12ed1e1804fdbe64b5470ac653441128a6701efa825d98ce90",
+    "caption": "Owned pinned popup. OpenAI selected for next request; DeepSeek and OpenAI choices refreshed; CONFIG EDITED RACE and DeepSeek result footer retain prior result provenance. Red config-save-failure notification is retained feedback from an earlier intentional synthetic write-failure test, not a clean/no-error UI claim. Dropdown covers part of source text; source-draft preservation is independently checked through DOM assertions.",
+    "inspected": true
+  },
+  "performance": {
+    "latestArtifact": "F0D9E094FCB66A662F7120420CC31D0263C5E594204D82D23554E2ED70BD03CE",
+    "status": "INCOMPLETE",
+    "latestAttempt": "First source foreground/selection precondition failed before first Alt+Q; source-ready acknowledgement absent; no latest formal performance pass",
+    "latestRaw": "E:/EasyTranslate-implementation-notes-20261020/benchmark/runs-final-review-15c32a5-20261022-1",
+    "latestAttemptShortcuts": 0,
+    "latestAttemptSelectionOrTransportOrHistory": 0,
+    "latestCohortComplete": false,
+    "latestDerivedEvidence": "E:/EasyTranslate-implementation-notes-20261020/benchmark/final-review-15c32a5-20261022/incomplete-postprocessed.json",
+    "priorArtifact": "52059FFAB86FB8EC1900FDCC30E720ED481798E10F9957D63FB14D75BEE618E0",
+    "prior22GatePassScope": "Historical 2e97ef0 artifact only; must not be promoted to the new renderer payload"
+  },
+  "priorPlatformEvidence": {
+    "windowsInstaller": "2e97ef0/52059FFA isolated NSIS lifecycle; packaging and compiled main/preload/desktop/provider/selection unchanged. Latest F0D9 frontend was not installed or re-tested through NSIS.",
+    "linux": "Prior Linux report source64a9727 includes2e97ef0, before Popup.vue review fix. No latest15c Linux native/package run claimed.",
+    "unchangedReports": [
+      "2026-10-22-windows-packaged.md",
+      "2026-10-22-windows-packaged.json",
+      "2026-10-22-linux-packaged.md",
+      "../performance/2026-10-22-final-production.md"
+    ]
+  },
+  "retainedLimits": [
+    "Prior ordinary foreground record false188/81 retained; no new ordinary startup/foreground claim",
+    "Prior packaged same-clipboard diagnostic invalidated by foreign focus; no new native-selection cohort here",
+    "Tray registration/menu callback only; no physical tray icon click; speech invocation only, no audible-voice claim",
+    "Earlier functional1-8 overwrote original clipboard before an outer guard existed; original cannot be restored and clipboard history was not inspected. This later restored guard does not repair it.",
+    "Earlier billing source unresolved; zero controlled provider requests is not a provider billing audit"
+  ],
+  "curationActions": "Documentation/JSON/owned PNG only; no new application, build, installer, keyboard/mouse/clipboard operation, real API request, remote action, main merge or release"
+}
