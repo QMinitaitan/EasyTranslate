@@ -156,9 +156,26 @@ function buildReport(folder, baseline, manifest) {
   check('Two created/live windows per run', runs.length === 7 && runs.every(run => run.windows?.created === 2 && run.windows.maxLive === 2), runs.map(run => ({ run: run.run, ...run.windows })), 2)
   check('No retained process growth after 30 warm invocations', longRun?.retained?.beforeProcesses.p50 === 5 && longRun.retained.afterProcesses.p50 === 5 && longRun.retained.afterProcesses.p95 === 5 && longRun.retained.finalIdleCount === 5, longRun?.retained, 'prewarm P50 and after-idle P50/P95/final count = 5; helper transient peak is observation')
   check('Every run exits naturally with code zero', runs.length === 7 && runs.every(run => run.naturallyExited), runs.map(run => ({ run: run.run, exitCode: run.exitCode, quitObserved: run.quitObserved })), 'quit observed and native process exit0 for all seven runs')
+  const cohortComplete = checks[0].pass
+  for (const item of checks) {
+    item.observedComparisonPass = item.pass
+    item.status = item.pass ? 'pass' : 'fail'
+    if (!cohortComplete) {
+      item.pass = false
+      item.status = 'unavailable-incomplete-cohort'
+    }
+  }
+  if (!cohortComplete) {
+    checks[0].status = 'fail'
+    if (runs.some(run => run.harnessFailures?.length)) checks.find(item => item.name === 'No harness precondition violation').status = 'fail'
+    if (coldTimeouts.length > 1) checks.find(item => item.name === 'No additional cold capture timeout count').status = 'fail'
+    if (warmTimeouts.length > 2) checks.find(item => item.name === 'No additional warm capture timeout count').status = 'fail'
+  }
   return {
     manifest,
     protocol: { baselineSource: '6c85be6 (same application code as 75516d6)', cold: 7, warm: 30, empty: 1, idleSeconds: 30, controlledTransportMs: 50, sampler: 'causal-creation-v2', quantiles: 'nearest-rank; 7 first samples have coarse maximum-like P95', resultTiming: 'visible DOM mutation availability, not physical pixel presentation', launch: 'stock Electron loads unchanged production ASAR; frozen Chromium remote-debugging-port=9333, no Node inspector or debugger attachment' },
+    cohortComplete,
+    acceptanceScope: cohortComplete ? 'complete frozen cohort' : 'incomplete cohort: observed comparisons are retained, but cannot pass frozen acceptance gates',
     allPassed: checks.every(item => item.pass),
     checks,
     failures: attempts.filter(attempt => attempt.group !== 'empty' && !attempt.nonemptyCapture),
