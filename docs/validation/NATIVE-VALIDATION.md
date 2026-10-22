@@ -26,8 +26,11 @@ assertions were insufficient containment. Historical failure artifacts are not
 rewritten as successful current runs.
 
 Use `npm test` for current offline compatibility and behavior regressions. It
-isolates HOME/USERPROFILE and app data and blocks sockets, HTTP(S), fetch and
-unapproved children. `tests/historical-native.test.cjs` evaluates every disabled
+isolates HOME/USERPROFILE and app data and blocks sockets, HTTP(S) and fetch in
+guarded Node processes, including Node children that inherit the guard through
+NODE_OPTIONS. It does not intercept child_process or block native child launches;
+native validation requires its separate pre-import controls below.
+`tests/historical-native.test.cjs` evaluates every disabled
 JS entry in a VM with all imports/environment/log/input boundaries forbidden and
 checks each PowerShell first executable statement. It never launches Electron
 or PowerShell. `tests/session-fixture.test.cjs` exercises the real provider and
