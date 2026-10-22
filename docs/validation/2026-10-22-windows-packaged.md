@@ -4,6 +4,8 @@ The production Windows payload built from **`2e97ef06d5b91de1ba929ad87425a083006
 
 Machine evidence: [2026-10-22-windows-packaged.json](2026-10-22-windows-packaged.json). The [native popup capture](2026-10-22-windows-packaged.png) was visually inspected: the pinned popup displays synthetic `NATIVE_DRAG` / `NATIVE_DRAG fast` clearly after actual resize, with unclipped controls. Bulky packages, logs, isolated profiles and all failed attempts remain outside Git at `E:/EasyTranslate-implementation-notes-20261020/windows-final-validation`.
 
+The final merged validation branch subsequently passed strict types, **104/104 offline tests** and production build. This adds the performance harness/reporting regressions to the packaged-source 97-test result. [Final acceptance and check identity](2026-10-22-final-acceptance.md) records the exact checked commit and log.
+
 ## Artifact and build identity
 
 | Artifact | SHA256 |
@@ -54,6 +56,12 @@ Prior-source bare `EasyTranslate.exe` runs `unpaused-show-1` and `unpaused-hidde
 `installer-build-2-2e97ef0` copies all 74 production package files, verifies their hashes and renames only the copied executable. The validation installer uses distinct `com.easytranslate.validation.pr12` appId/GUID, product/display names and `EasyTranslateValidationPR12.exe` basename. This also avoids the NSIS basename-wide process-kill fallback touching the daily app. It creates no desktop/start-menu shortcut, does not run after install, is current-user, permits no elevation and never publishes.
 
 `installer-lifecycle-2-2e97ef0` passed on the first attempt: silent install **0** → actual installed validation executable under the guarded isolated profile, natural exit **0** → its exact registered uninstaller **0**. Installed EXE and ASAR match production bytes. Daily `D:/EasyTranslate` program hashes, existing registration and shortcuts remain unchanged. Validation registration was removed and the verified owned install directory was removed. This verifies application payload plus distinct validation metadata, not an installation of the production NSIS registration/shortcuts. Version, `main`, release/tag and autostart were unchanged.
+
+## Final performance result
+
+The [final frozen performance cohort](../performance/2026-10-22-final-production.md) completed with **22/22 unchanged gates passing** after the user explicitly left the desktop idle. It uses this final ASAR with the same timed harness and controlled 50 ms transport: 7 first invocations, 30 warm invocations and 1 empty-selection attempt; 37 exact successes, zero timeouts, 7 natural exits and all clipboard restores. After-idle private memory P50 was 246.3203125 MiB against the frozen 315.7828125 MiB limit. First show/DOM P50 were 859/932 ms; warm show P50/P95 969/1051 ms and warm DOM 1046/1117 ms.
+
+The earlier [incomplete cohort](../performance/2026-10-22-final-production-incomplete.md) remains failed: 9 emitted invocations, 5 successes, 4 copy timeouts and a prevented 10th key due to foreground mismatch. The successful control changed desktop availability after an explicit user confirmation, not product code, transport cadence, timed harness or gates. The old failure does not prove which application caused each focus loss. The performance launcher exercises the final ASAR under its documented Electron launcher; the separate functional/NSIS/mouse checks above exercise the actual product executable. Passing this cohort does not relabel the earlier packaged same-clipboard diagnostic or ordinary foreground record as passing.
 
 ## Retained failures and clipboard incident
 
