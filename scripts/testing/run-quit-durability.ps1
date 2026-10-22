@@ -1,4 +1,5 @@
 param([string]$Repo = '', [string]$ElectronPath = '', [string]$OutputRoot = '', [ValidateSet('app', 'close')][string]$Mode = 'app', [ValidateSet('general', 'api', 'shortcut', 'capture', 'startup')][string]$Setting = 'general', [ValidateSet('none', 'disk', 'timeout')][string]$Fault = 'none')
+throw 'Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md'
 $ErrorActionPreference = 'Stop'
 if (!$Repo) { $Repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot) }
 if (!$ElectronPath) { $ElectronPath = Join-Path $Repo 'node_modules\electron\dist\electron.exe' }

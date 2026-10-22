@@ -10,4 +10,4 @@ Read `CLAUDE.md` for the repository architecture and development commands.
 - Keep keys in the user's existing credential storage or process memory. Reports, tool output, test fixtures, commits, issues and PRs may contain only synthetic values. Inspect safe model/endpoint metadata when diagnosing usage; never print credentials, authorization headers, prompts or personal translation content.
 - Usage and credential incidents take priority over feature work. Stop the affected job, disable its automatic continuation and report verified scope and remaining uncertainty before resuming.
 
-The user resumed implementation after API containment on 2026-10-22. Continue under the zero-paid-API rules above and leave scheduled continuation disabled. Preserve the existing work and draft PR; do not merge or release.
+Continue under the zero-paid-API rules above and leave scheduled continuation disabled. Preserve existing work; do not merge the PR or release.

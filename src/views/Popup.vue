@@ -68,7 +68,7 @@
             :class="{ 'is-swapping': raceSwapping }"
           >
             <div class="box-label">
-              <span>译文 · {{ raceMode ? engineDisplayName(raceActive.engine) : engineLabel }}</span>
+              <span>译文 · {{ sessionRaceMode ? engineDisplayName(raceActive.engine) : engineLabel }}</span>
               <PenLine :size="11" :stroke-width="1.5" class="edit-hint" />
             </div>
             <div
@@ -84,7 +84,7 @@
               @blur="onDstEdit"
             >{{ activeTranslation }}</div>
           </div>
-          <div v-if="state !== 'error' && raceMode && raceErrors.length" class="race-errors" aria-label="失败的翻译引擎">
+          <div v-if="state !== 'error' && sessionRaceMode && raceErrors.length" class="race-errors" aria-label="失败的翻译引擎">
             <span v-for="result in raceErrors" :key="result.engine" class="race-error">
               {{ engineDisplayName(result.engine) }} 失败
             </span>
@@ -120,7 +120,7 @@
             </svg>
             <Moon v-else :size="13" :stroke-width="1.5" />
           </button>
-          <template v-if="raceMode && raceOk.length">
+          <template v-if="sessionRaceMode && raceOk.length">
             <button
               class="race-cycle no-drag"
               :class="{ 'is-swapping': raceSwapping }"
@@ -187,18 +187,34 @@ const themeTitle = computed(() => {
     : `点击切换为${next}`
 })
 
-// Provider metadata loaded once from backend — name, color, id for display
+// Provider metadata and current capabilities share the backend availability decision.
 const providerMeta = ref<ProviderMetadata[]>([])
 const engines = ref<EngineOption[]>([])
+let engineRefreshSequence = 0
+let configRefreshQueued = false
+
+function queueEngineRefresh() {
+  // Geometry and preferences share config:updated. Coalesce a synchronous burst
+  // and invalidate an earlier refresh as soon as a newer notification arrives.
+  ++engineRefreshSequence
+  if (configRefreshQueued) return
+  configRefreshQueued = true
+  void Promise.resolve().then(() => {
+    configRefreshQueued = false
+    if (popupMounted) void loadEngines()
+  })
+}
 
 async function loadEngines() {
   if (!api) return
+  const refresh = ++engineRefreshSequence
   try {
     const [cfg, meta, capabilities] = await Promise.all([
       api.loadConfig(),
       api.listProviders(),
       api.providerCapabilities()
     ])
+    if (!popupMounted || refresh !== engineRefreshSequence) return
     providerMeta.value = meta
     raceMode.value = cfg.raceMode !== false
     const providers = cfg.providers || {}
@@ -216,10 +232,13 @@ async function loadEngines() {
     if (!list.find(e => e.name === current.value)) {
       current.value = list[0].name
       const e = list[0]
-      setBrand(e.color)
-      engineLabel.value = e.name
+      if (!src.value) {
+        setBrand(e.color)
+        engineLabel.value = e.name
+      }
     }
   } catch (_) {
+    if (!popupMounted || refresh !== engineRefreshSequence) return
     engines.value = [{ name: '无法读取可用引擎', color: 'var(--brand)', id: '__none__' }]
   }
 }
@@ -236,6 +255,8 @@ const currentEngineId = computed(() => {
 
 const current = ref('')
 const raceMode = ref(true)
+// Settings choose the next request. Existing results retain their session mode.
+const sessionRaceMode = ref(false)
 const pinned = ref(false)
 const copied = ref(false)
 const pinNotice = ref('')
@@ -291,10 +312,10 @@ function cycleRace() {
 }
 
 const activeTranslationKey = computed(() =>
-  raceMode.value ? `race:${raceActive.value.engine || 'pending'}` : 'single'
+  sessionRaceMode.value ? `race:${raceActive.value.engine || 'pending'}` : 'single'
 )
 const baseTranslation = computed(() =>
-  raceMode.value ? (raceActive.value.text || '') : dst.value
+  sessionRaceMode.value ? (raceActive.value.text || '') : dst.value
 )
 const activeTranslation = computed(() => {
   const key = activeTranslationKey.value
@@ -382,6 +403,7 @@ function setFontScale(value: number) {
 }
 
 let offTrigger: Unsubscribe | null = null
+let offConfigUpdate: Unsubscribe | null = null
 let raceOffProgress: Unsubscribe | null = null
 let raceOffDone: Unsubscribe | null = null
 let singleOffProgress: Unsubscribe | null = null
@@ -422,6 +444,7 @@ async function doTranslate(text: string) {
   raceOffProgress = null
   raceOffDone = null
   activeRaceRequestId = null
+  sessionRaceMode.value = raceMode.value
   src.value = text
   dst.value = ''
   translationEdits.value = {}
@@ -548,6 +571,7 @@ async function copyDst() {
 }
 onMounted(async () => {
   popupMounted = true
+  offConfigUpdate = api?.onConfigUpdate(queueEngineRefresh) || null
   await loadEngines()
   if (!popupMounted) return
   document.addEventListener('wheel', onWheel, { passive: false, capture: true })
@@ -569,6 +593,7 @@ onMounted(async () => {
 })
 onUnmounted(() => {
   popupMounted = false
+  ++engineRefreshSequence
   if (isWindow.value) api?.popupNotReady?.()
   ++translationSequence
   ++triggerSequence
@@ -580,6 +605,7 @@ onUnmounted(() => {
   clearTimeout(raceSwapTimer)
   clearTimeout(copiedTimer)
   offTrigger?.()
+  offConfigUpdate?.()
   singleOffProgress?.()
   raceOffProgress?.()
   raceOffDone?.()

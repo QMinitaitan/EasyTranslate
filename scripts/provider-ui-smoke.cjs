@@ -1,3 +1,4 @@
+throw new Error('Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md')
 // Real Electron/Vue/IPC smoke with synthetic isolated storage and a controlled network boundary.
 const fs = require('node:fs')
 const path = require('node:path')

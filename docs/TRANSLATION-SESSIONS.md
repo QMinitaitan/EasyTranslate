@@ -1,5 +1,13 @@
 # Translation sessions
 
+Current reproduction policy: all historical native session launchers (single,
+race, history and flow) are disabled before any operation. Their observations
+below describe the original dated runs. Use `npm test` for current offline
+provider/session/fixture and popup configuration regressions; do not remove the
+entry refusal to reproduce an old smoke. See
+[native validation policy](validation/NATIVE-VALIDATION.md) for the nine disabled
+entries and the separately guarded production validators and preconditions.
+
 `electron/translation-session.cts` owns current-session identity and automatic history eligibility for both modes. Its public `start({ text, target, engine, requestId })` starts a single engine; `start({ text, target, mode: 'race', engines, requestId })` starts a race through the same ownership, cancellation and history rules. Both return a generated `sessionId` and a `done` promise. `subscribe((snapshot, progress) => ...)` observes current loading/success/error/empty snapshots and each newly completed engine result; `current` returns a copy with mode, pending count and bounded results; `cancel` and `dispose` end ownership and attempt cancellation. Replacement settles the old caller immediately as `superseded`, even if an injected transport ignores its AbortSignal and never settles promptly. A late success or failure cannot publish a snapshot or acquire automatic history eligibility.
 
 The service injects execution, history persistence and time at the seams agreed in specification #1. Each engine publishes progress independently; the first nonempty success is available before other engines or persistence finish. Current remaining engines continue for comparison; failure or empty output cannot win or invalidate an existing success. Only the first success requests automatic history. `done` waits for all current engine work and that history result, and distinguishes translation success from `historyError` without manufacturing an identifier on a rejected or missing save. A queued storage adapter receives `isCurrent()` so it can recheck eligibility before admitting an automatic write. The legacy history implementation remains synchronous in this migration stage; #7 supplies durable asynchronous storage and uniform history notifications.
@@ -14,20 +22,20 @@ Controlled Electron renderer smoke (2026-10-20) used production-built Vue/preloa
 
 The smoke also delayed an old trigger's configuration refresh, then edited a newer source before that refresh returned. It initially failed with `TRANSLATED QUEUED_OLD` replacing `TRANSLATED NEWER`. Invalidating queued trigger refreshes on every newer translation intent fixed it: only `NEWER` was translated and saved.
 
-This verifies renderer/IPC behavior; the shortcut action and selection were injected, transport was synthetic, and no native shortcut/clipboard performance or paid API behavior is claimed by this smoke. Original real Windows shortcut/clipboard evidence remains in `docs/performance/`; full installed-product verification is #11. The deterministic smoke result is `docs/validation/2026-10-20-single-session.json`. Reproduce on Windows with PowerShell 7.4+ after `npm run build` and provisioning the Electron binary:
+This verifies the original renderer/IPC behavior; the shortcut action and selection were injected, transport was synthetic, and no native shortcut/clipboard performance or paid API behavior is claimed by this smoke. Original real Windows shortcut/clipboard evidence remains in `docs/performance/`; full installed-product verification is #11. The deterministic smoke result is `docs/validation/2026-10-20-single-session.json`. Current non-native compatibility reproduction:
 
 ```powershell
-pwsh -File scripts/testing/run-session-ui-smoke.ps1
+npm test
 ```
 
-The runner uses a fresh `.runtime/session-ui-*` fixture directory and restores no personal data because it never reads or writes personal config/history or the system clipboard. It emits logs, a result JSON and a screenshot of only the synthetic popup. Optional `-Repo`, `-ElectronPath` and `-OutputRoot` arguments support alternate checkouts/binaries; an existing nonempty output directory is rejected. Every managed app self-exits with a 20-second maximum deadline. No external provider request is possible through this controlled transport.
+The historical runner used a fresh `.runtime/session-ui-*` fixture directory and emitted logs, a result JSON and a synthetic popup screenshot. Its partial profile/HTTPS isolation is insufficient under the current policy, so it is disabled. The new shared fixture uses `deepseek-v4-flash`; presentation and delay roles remain independent fast/slow labels. Offline tests exercise all four scenario configurations against the real provider policy and session service without launching an app.
 
 ## Controlled race DOM/IPC verification, 2026-10-21
 
 `docs/validation/2026-10-21-race-session.json` records the real production Vue/preload/IPC test with synthetic HTTP transport and a controlled history adapter. All BrowserWindows remained hidden; test-only `show`/`focus` suppression and disabled renderer background throttling prevented competition with foreground native measurements. The screenshot uses `capturePage(..., { stayHidden: true })`. This is controlled DOM/IPC evidence, not physical display latency, native shortcut/focus/clipboard or installed-product verification.
 
-The first race text was present while the slow engine had not replied and history was still held at zero records. The slow result then became available for cycling; the chosen slow result and its contenteditable edit stayed selected after history was released and the final sorted completion arrived. Exactly one record saved the first successful engine. Real dropdown mode changes and source editing then verified both cross-mode replacement directions; late synthetic successes/failures left current text/history unchanged. Six transport destruction attempts were observed even though the synthetic requests deliberately ignored destruction. Two total windows remained. Reproduce with:
+The first race text was present while the slow engine had not replied and history was still held at zero records. The slow result then became available for cycling; the chosen slow result and its contenteditable edit stayed selected after history was released and the final sorted completion arrived. Exactly one record saved the first successful engine. Real dropdown mode changes and source editing then verified both cross-mode replacement directions; late synthetic successes/failures left current text/history unchanged. Six transport destruction attempts were observed even though the synthetic requests deliberately ignored destruction. Two total windows remained. Current non-native compatibility reproduction:
 
 ```powershell
-pwsh -File scripts/testing/run-session-ui-smoke.ps1 -Scenario race
+npm test
 ```

@@ -1,8 +1,10 @@
+throw new Error('Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md')
 const fs = require('node:fs')
 const path = require('node:path')
 const assert = require('node:assert/strict')
 const { EventEmitter } = require('node:events')
 const { PassThrough } = require('node:stream')
+const { roleForModel } = require('./session-fixture.cjs')
 const root = process.env.EASY_SESSION_TEST_ROOT || path.resolve(__dirname, '../..')
 const output = process.env.EASY_SESSION_TEST_OUTPUT
 const fullFlow = process.env.EASY_SESSION_TEST_SCENARIO === 'flow'
@@ -55,13 +57,14 @@ require('node:https').request = (_url, _options, callback) => {
   request.destroy = () => request
   request.end = () => {
     const data = JSON.parse(body)
+    const role = roleForModel(data.model)
     setTimeout(() => {
     const input = data.messages[1].content
     const response = new PassThrough()
     response.statusCode = 200
     callback(response)
-    response.end(JSON.stringify({ choices: [{ message: { content: input === 'FLOW_RACE' ? `${input} ${data.model}` : `${input} translated` } }] }))
-  }, data.model === 'slow' ? 100 : 20)
+    response.end(JSON.stringify({ choices: [{ message: { content: input === 'FLOW_RACE' ? `${input} ${role}` : `${input} translated` } }] }))
+  }, role === 'slow' ? 100 : 20)
   }
   return request
 }
