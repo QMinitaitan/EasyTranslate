@@ -3,13 +3,14 @@
   "status": "passed",
   "dateLabel": "2026-10-22",
   "testedSource": {
-    "commit": "dd7a27427d96ce5c348c5af80f80c4d0a46c2a95",
-    "tree": "de8780e4ce609b9fad9e5da0285245338772abb2",
-    "productChangesForValidation": false
+    "commit": "64a97273aba387fe2287958d6b8b73c87fe277d5",
+    "tree": "1e787640ba484664f62719408cda2d653bfa282c",
+    "includesApiContainmentCommit": "2e97ef06d5b91de1ba929ad87425a083006039ce",
+    "productChangesByLinuxValidationWorker": false
   },
   "rawEvidence": {
-    "windows": "E:/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1",
-    "linux": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1"
+    "windows": "E:/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final",
+    "linux": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final"
   },
   "environment": {
     "distribution": "Ubuntu 22.04.3 LTS / WSL2 x86_64",
@@ -22,13 +23,14 @@
     "dependencies": "Downloaded/extracted isolated rootfs; no system package install"
   },
   "build": {
-    "nativeNpmCi": "passed",
+    "nativeNpmCi": "passed (--offline)",
     "strictElectronTypecheck": "passed",
     "strictVueTypecheck": "passed",
     "tests": {
-      "total": 95,
-      "passed": 95,
-      "failed": 0
+      "total": 97,
+      "passed": 97,
+      "failed": 0,
+      "isolation": "npm test: synthetic isolated profile and inherited Node network blocking"
     },
     "productionBuild": "passed",
     "linuxDeb": "passed",
@@ -41,22 +43,31 @@
       "logs/deb-info.txt",
       "logs/deb-control.txt",
       "logs/deb-contents.txt",
-      "logs/artifact-sha256.txt"
-    ]
+      "logs/artifact-sha256.txt",
+      "logs/packaged-entry.json"
+    ],
+    "packagedEntryInspection": {
+      "packageMain": "dist-electron/main.cjs",
+      "productionEntriesMatchFreshBuild": true,
+      "flashRequestGuardPresent": true,
+      "installedAsarMatchesUnpacked": true,
+      "asarSha256": "33b6d5bc2e1f5b9ed1ec1aa66bd1ff3f595a09e463f7b929774e7cd84a0e456b",
+      "executableSha256": "84e1078c8f38659f3785fec90b68ff47dcb7b5ed94e97e4e4cc6dd3290758991"
+    }
   },
   "artifacts": {
     "deb": {
       "file": "package/EasyTranslate-0.0.2-amd64.deb",
-      "bytes": 99286860,
-      "sha256": "ef87ac34207c4b335b224996022d62df90afd9ef4e077530939b3f4beaeeebef"
+      "bytes": 99287172,
+      "sha256": "51692959eb6495f4990a3899f94a8eaf5df12e1dc00f32c5739d8ee834f5ccbf"
     },
     "installedAsar": {
       "file": "installed/opt/EasyTranslate/resources/app.asar",
-      "sha256": "2b1cfb6e99d3a6cb58b7828d53c2c882ce00543eac47b4079cdb92fe29940fa2"
+      "sha256": "33b6d5bc2e1f5b9ed1ec1aa66bd1ff3f595a09e463f7b929774e7cd84a0e456b"
     },
     "unpackedAsar": {
       "file": "package/linux-unpacked/resources/app.asar",
-      "sha256": "2b1cfb6e99d3a6cb58b7828d53c2c882ce00543eac47b4079cdb92fe29940fa2"
+      "sha256": "33b6d5bc2e1f5b9ed1ec1aa66bd1ff3f595a09e463f7b929774e7cd84a0e456b"
     },
     "desktopEntry": {
       "file": "installed/usr/share/applications/easytranslate.desktop",
@@ -64,28 +75,32 @@
       "actualMenuInvocationTested": false
     },
     "visiblePopup": {
-      "file": "runtime-fourth/popup.png",
+      "file": "runtime-guarded-final/popup.png",
       "committedCopy": "docs/validation/2026-10-22-linux-packaged.png",
       "width": 380,
       "height": 500,
-      "sha256": "489d4b021d7d74db72048c82c73e7f7bbaf6f4608bb8f34d8024e0fe3eb057fd",
+      "sha256": "bc4e9cc6a0685ff79dd5d2d1d7766cd1190fd0e029c91f15c0a495e082e81350",
       "visuallyInspected": true
+    },
+    "executable": {
+      "file": "installed/opt/EasyTranslate/easytranslate",
+      "sha256": "84e1078c8f38659f3785fec90b68ff47dcb7b5ed94e97e4e4cc6dd3290758991"
     }
   },
   "runtime": {
-    "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
-    "output": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth",
+    "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/installed/opt/EasyTranslate/easytranslate",
+    "output": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final",
     "nativeHome": {
-      "path": "/tmp/easytranslate-pr12-daoOrP",
+      "path": "/tmp/easytranslate-pr12-k8ojUJ",
       "mode": "0700",
       "uid": 0,
-      "archive": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/home",
+      "archive": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/home",
       "socketSupported": true,
       "entries": [
         {
           "name": ".translate-app.config.json",
           "type": "file",
-          "bytes": 2035
+          "bytes": 2039
         },
         {
           "name": ".translate-app.history.json",
@@ -95,7 +110,7 @@
         {
           "name": ".validation-owner.json",
           "type": "file",
-          "bytes": 171
+          "bytes": 182
         }
       ],
       "removed": true
@@ -104,18 +119,18 @@
       {
         "stage": "edit",
         "isPackaged": true,
-        "executable": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
-        "appPath": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/resources/app.asar",
+        "executable": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/installed/opt/EasyTranslate/easytranslate",
+        "appPath": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/installed/opt/EasyTranslate/resources/app.asar",
         "versions": {
           "electron": "43.2.0",
           "node": "24.18.0"
         },
         "paths": {
-          "appData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/appData",
-          "userData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/userData",
-          "sessionData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/sessionData",
-          "crashDumps": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/crashDumps",
-          "logs": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/logs"
+          "appData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/appData",
+          "userData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/userData",
+          "sessionData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/sessionData",
+          "crashDumps": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/crashDumps",
+          "logs": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/logs"
         },
         "preloadErrors": [],
         "initialMainVisible": true,
@@ -168,7 +183,7 @@
         "immediateQuitEdit": {
           "requested": true,
           "before": false,
-          "elapsedMs": 1
+          "elapsedMs": 0.9000000000232831
         },
         "requests": [
           "LINUX PRIMARY",
@@ -176,7 +191,7 @@
         ],
         "pass": true,
         "quitBoundary": {
-          "elapsedSinceEditMs": 39,
+          "elapsedSinceEditMs": 35,
           "launchToTrayBeforeQuit": false,
           "inspectorDisconnected": true
         },
@@ -187,7 +202,7 @@
         "inspectorDisconnectedBeforeQuit": true,
         "socketRemovedAfterExit": true,
         "command": {
-          "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
+          "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/installed/opt/EasyTranslate/easytranslate",
           "args": [
             "--inspect-brk=127.0.0.1:0",
             "--no-sandbox",
@@ -199,18 +214,18 @@
       {
         "stage": "verify",
         "isPackaged": true,
-        "executable": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
-        "appPath": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/resources/app.asar",
+        "executable": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/installed/opt/EasyTranslate/easytranslate",
+        "appPath": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/installed/opt/EasyTranslate/resources/app.asar",
         "versions": {
           "electron": "43.2.0",
           "node": "24.18.0"
         },
         "paths": {
-          "appData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/appData",
-          "userData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/userData",
-          "sessionData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/sessionData",
-          "crashDumps": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/crashDumps",
-          "logs": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/runtime-fourth/logs"
+          "appData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/appData",
+          "userData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/userData",
+          "sessionData": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/sessionData",
+          "crashDumps": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/crashDumps",
+          "logs": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/runtime-guarded-final/logs"
         },
         "preloadErrors": [],
         "initialMainVisible": false,
@@ -244,7 +259,7 @@
         "inspectorDisconnectedBeforeQuit": true,
         "socketRemovedAfterExit": true,
         "command": {
-          "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1/installed/opt/EasyTranslate/easytranslate",
+          "binary": "/mnt/e/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-64a9727-final/installed/opt/EasyTranslate/easytranslate",
           "args": [
             "--inspect-brk=127.0.0.1:0",
             "--no-sandbox",
@@ -257,7 +272,7 @@
     "transport": "50 ms in-process controlled HTTPS boundary; no external provider network",
     "status": "passed",
     "primaryOwner": {
-      "pid": 528,
+      "pid": 522,
       "selection": "X11 PRIMARY",
       "contents": "synthetic only",
       "exit": {
@@ -272,61 +287,25 @@
     "primaryOwnerExitObserved": {
       "code": null,
       "signal": "SIGTERM"
-    }
+    },
+    "bothStagesNaturalZero": true
   },
   "retainedAttempts": [
     {
-      "label": "first",
-      "status": "failed-environment",
-      "evidence": [
-        "logs/runtime-first.log",
-        "runtime-first/edit-stderr.txt"
-      ],
-      "reason": "Long DrvFs HOME socket listen EINVAL; Unix socket path limit exceeded"
-    },
-    {
-      "label": "second",
-      "status": "failed-environment",
-      "evidence": [
-        "logs/runtime-second.log",
-        "runtime-second/edit-stderr.txt"
-      ],
-      "reason": "Short DrvFs HOME alias socket listen ENOTSUP"
-    },
-    {
-      "label": "third",
-      "status": "failed-harness",
-      "evidence": [
-        "logs/runtime-third.log",
-        "runtime-third/edit-failure.json",
-        "runtime-third/edit-stdout.txt",
-        "runtime-third/edit-stderr.txt",
-        "runtime-third/home-recovery.json"
-      ],
-      "reason": "Nested quoted pin selector generated invalid JavaScript after successful PRIMARY/source edit/favorite; recursive socket copy then masked summary",
-      "recovery": {
-        "path": "/tmp/easytranslate-pr12-7Rebb3",
-        "alreadyAbsentAtRecovery": true,
-        "archivedFiles": [
-          ".translate-app.history.json",
-          ".validation-owner.json"
-        ],
-        "note": "No removal attempted. Previous runtime had ended; native temporary directory was absent at subsequent recovery command. Original pin selector and cpSync errors remain preserved."
-      }
-    },
-    {
-      "label": "fourth",
+      "label": "guarded-final",
       "status": "passed",
       "evidence": [
-        "logs/runtime-fourth.log",
-        "runtime-fourth/summary.json",
-        "runtime-fourth/edit-result.json",
-        "runtime-fourth/verify-result.json",
-        "runtime-fourth/edit-quit-boundary.json",
-        "runtime-fourth/edit-will-quit.json",
-        "runtime-fourth/verify-will-quit.json",
-        "runtime-fourth/post-run-cleanup.json",
-        "runtime-fourth/popup.png"
+        "logs/runtime-guarded-final.log",
+        "runtime-guarded-final/summary.json",
+        "runtime-guarded-final/edit-preflight.json",
+        "runtime-guarded-final/verify-preflight.json",
+        "runtime-guarded-final/edit-result.json",
+        "runtime-guarded-final/verify-result.json",
+        "runtime-guarded-final/edit-quit-boundary.json",
+        "runtime-guarded-final/edit-will-quit.json",
+        "runtime-guarded-final/verify-will-quit.json",
+        "runtime-guarded-final/post-run-cleanup.json",
+        "runtime-guarded-final/popup.png"
       ]
     }
   ],
@@ -343,7 +322,11 @@
     "personalDataReadOrLogged": false,
     "selection": "Owned external xclip X11 PRIMARY, synthetic only",
     "inspectorDisconnectedBeforeQuit": true,
-    "homeException": "Explicitly authorized small owned native /tmp HOME because DrvFs cannot host AF_UNIX; real path/UID/0700/ownership marker/socket support verified, explicit regular JSON archive then exact-directory cleanup"
+    "homeException": "Explicitly authorized small owned native /tmp HOME because DrvFs cannot host AF_UNIX; real path/UID/0700/ownership marker/socket support verified, explicit regular JSON archive then exact-directory cleanup",
+    "networkPolicy": "Before product imports: controlled HTTPS fixture only; Node internet routes blocked except exact owned Unix socket; Electron net blocked; Chromium HTTP(S) and session.fetch blocked",
+    "privacyPolicy": "Actual getSelection return must equal LINUX PRIMARY before desktop delivery; HTTPS inputs exactly LINUX PRIMARY or LINUX EDIT before logging; unexpected text rejected with static redacted errors",
+    "realPaidApiRequests": 0,
+    "outerDeadlineSeconds": 115
   },
   "limitations": [
     "Extracted .deb layout launch; no system package installation, maintainer-script execution or uninstall",
@@ -353,7 +336,8 @@
     "Single synthetic runtime provider; no real external translation service or key",
     "No native drag, audible speech or Linux race UI exercised in this subset",
     "Windows focus/clipboard/performance are separate acceptance evidence",
-    "Visible BrowserWindow capture is not photometric latency evidence"
+    "Visible BrowserWindow capture is not photometric latency evidence",
+    "Native startup was inspector-paused to establish safety before imports; this Linux subset makes no unpaused focus claim"
   ],
   "scripts": [
     "scripts/testing/linux-build-validation.sh",
@@ -369,5 +353,43 @@
     "tag": false,
     "release": false,
     "remoteMutationByWorker": false
+  },
+  "harnessCommit": "92567a92cbbd93159a6a673c5068a1b78b23e93f",
+  "nativePreflights": {
+    "edit": {
+      "passed": true,
+      "productImportsBeforeGuard": 0,
+      "isolatedHome": true,
+      "syntheticCredentialsOnly": true,
+      "model": "deepseek-v4-flash",
+      "endpoint": "https://linux-fixture.invalid",
+      "controlledHttpsBeforeProductImports": true,
+      "nodeExternalNetworkBlocked": true,
+      "electronNetBlocked": true,
+      "chromiumHttpBlocked": true,
+      "selectionBoundaryGuardArmed": true,
+      "exactSyntheticInputBeforeLogging": true
+    },
+    "verify": {
+      "passed": true,
+      "productImportsBeforeGuard": 0,
+      "isolatedHome": true,
+      "syntheticCredentialsOnly": true,
+      "model": "deepseek-v4-flash",
+      "endpoint": "https://linux-fixture.invalid",
+      "controlledHttpsBeforeProductImports": true,
+      "nodeExternalNetworkBlocked": true,
+      "electronNetBlocked": true,
+      "chromiumHttpBlocked": true,
+      "selectionBoundaryGuardArmed": true,
+      "exactSyntheticInputBeforeLogging": true
+    }
+  },
+  "priorSourceEvidence": {
+    "commit": "dd7a27427d96ce5c348c5af80f80c4d0a46c2a95",
+    "manifest": "docs/validation/2026-10-22-linux-packaged-dd7a274.json",
+    "rawRoot": "E:/EasyTranslate-implementation-notes-20261020/linux-validation-20261022-dd7a274-1",
+    "retainedAttempts": "first, second, third failures and fourth passing run preserved unchanged",
+    "finalCandidate": false
   }
 }
