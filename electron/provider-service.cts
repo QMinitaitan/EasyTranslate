@@ -28,6 +28,14 @@ export function createProviderService({ request = https.request, timeoutMs = 200
         reason = 'Endpoint 必须是无内嵌凭据、查询或片段的 HTTPS 地址'
       }
     }
+    if (configured && meta?.adapter === 'openai-compat') {
+      const model = config.model || meta.model || ''
+      const hostname = new URL(config.endpoint?.trim() || meta.endpoint || 'https://api.openai.com').hostname
+      if ((id === 'deepseek' || /deepseek/i.test(model) || hostname === 'api.deepseek.com') && model !== 'deepseek-v4-flash') {
+        configured = false
+        reason = '费用策略仅允许 deepseek-v4-flash；请修改模型配置后重试'
+      }
+    }
     const enabled = config.enabled === true
     const status = !supported ? 'unsupported' : !configured ? 'missing-configuration' : !enabled ? 'disabled' : 'ready'
     return { id, supported, configured, enabled, available: status === 'ready', status, reason: reason || (!enabled ? '引擎未启用' : '配置可用'), protocol }
