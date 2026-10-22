@@ -1,0 +1,432 @@
+{
+  "sourceCommit": "2e97ef06d5b91de1ba929ad87425a083006039ce",
+  "rawRoot": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation",
+  "status": "Packaged functionality, installer and native mouse verified; packaged same-clipboard capture remains environment-limited",
+  "identity": {
+    "asar": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\production-2e97ef0\\win-unpacked\\resources\\app.asar",
+    "source": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\source-2e97ef0",
+    "asarSha256": "52059ffab86fb8ec1900fdcc30e720ed481798e10f9957d63fb14d75bee618e0",
+    "files": [
+      {
+        "name": "dist-electron/main.cjs",
+        "sha256": "ef3b16952663ef7b0f774c06e99c44e55e6963b38c5bd60e690b6c08f6150bb6",
+        "matchesIndependentSource": true,
+        "unchangedFromPrior": true
+      },
+      {
+        "name": "dist-electron/preload.cjs",
+        "sha256": "51f4d3d50d132301bf1a225f6e8e5fea62656ba096cd03209d82791df86bf342",
+        "matchesIndependentSource": true,
+        "unchangedFromPrior": true
+      },
+      {
+        "name": "dist-electron/desktop-runtime.cjs",
+        "sha256": "c61ca3ed2349acca91ffd55816e9996fb73896ee1e04c6d127b2647412a94ef3",
+        "matchesIndependentSource": true,
+        "unchangedFromPrior": true
+      },
+      {
+        "name": "dist-electron/provider-service.cjs",
+        "sha256": "8575c5f418792ef23a5d00ba49b220af1f1f2e99c1b584871cbc63a17f042baf",
+        "matchesIndependentSource": true,
+        "unchangedFromPrior": false
+      },
+      {
+        "name": "dist-electron/providers.cjs",
+        "sha256": "5afe7b156797b14314f4bcb2076660ae84f02ff84a4e86db349dbd4f04fdfe3f",
+        "matchesIndependentSource": true,
+        "unchangedFromPrior": false
+      },
+      {
+        "name": "dist/index.html",
+        "sha256": "94438fd43140ddc79396c7a2c1841221eda470202850225bf726d761acd2a94d",
+        "matchesIndependentSource": true,
+        "unchangedFromPrior": true
+      },
+      {
+        "name": "electron/selection.cjs",
+        "sha256": "c6589542c5282d090d6f411c807301a179c21158eca877a0d114979944bebd7b",
+        "matchesIndependentSource": true,
+        "unchangedFromPrior": true
+      }
+    ]
+  },
+  "build": {
+    "offlineRegressionTests": 97,
+    "failedTests": 0,
+    "strictElectronAndVueTypes": "passed",
+    "productionBuild": "passed",
+    "productionWinUnpacked": "passed",
+    "dependencies": "Fresh git archive reuses private dependency tree from prior isolated npm ci; package-lock unchanged",
+    "buildLog": "build-2e97ef0-2.txt",
+    "earlierBuildFailure": "build-2e97ef0.txt: CLI config-option quoting, retained"
+  },
+  "safety": {
+    "realProviderRequestsAuthorized": 0,
+    "realProviderRequestsIssuedByControlledApplication": 0,
+    "basis": "Pre-import synthetic-only controlled transport plus default-deny Node/Electron network guard; not a provider billing audit",
+    "deniedOperationSelfTestsPerSuccessfulPreflight": 12,
+    "transports": [
+      {
+        "run": "functional-11-2e97ef0-guarded",
+        "preflightPassed": true,
+        "inMemoryRequests": 50,
+        "unexpectedCaptureAborts": 0
+      },
+      {
+        "run": "native-6-2e97ef0-guarded",
+        "preflightPassed": true,
+        "inMemoryRequests": 0,
+        "unexpectedCaptureAborts": 0
+      },
+      {
+        "run": "native-7-2e97ef0-diagnostic",
+        "preflightPassed": true,
+        "inMemoryRequests": 0,
+        "unexpectedCaptureAborts": 0
+      },
+      {
+        "run": "native-8-2e97ef0-diagnostic",
+        "preflightPassed": true,
+        "inMemoryRequests": 0,
+        "unexpectedCaptureAborts": 0
+      },
+      {
+        "run": "native-post-startup-1-2e97ef0",
+        "preflightPassed": true,
+        "inMemoryRequests": 1,
+        "unexpectedCaptureAborts": 0
+      },
+      {
+        "run": "mouse-1-2e97ef0",
+        "preflightPassed": true,
+        "inMemoryRequests": 1,
+        "unexpectedCaptureAborts": 0
+      },
+      {
+        "run": "mouse-2-2e97ef0-pinned",
+        "preflightPassed": true,
+        "inMemoryRequests": 1,
+        "unexpectedCaptureAborts": 0
+      },
+      {
+        "run": "installer-lifecycle-2-2e97ef0/installed-startup",
+        "preflightPassed": true,
+        "inMemoryRequests": 0,
+        "unexpectedCaptureAborts": 0
+      }
+    ],
+    "inMemoryRequestsTotal": 53,
+    "currentGuardSha256": "95262b9b2c91331528a0ea4e0884d0792e2cbc4d834b61283cd7ebb539808a73",
+    "currentControllerSha256": "dd9860005fdc55089c5ed689e80a2500aed1f7ee54284ff9d0f3c9f97e0f1e36",
+    "scriptIdentityScope": "Current audited script hashes; late helper-PID logging and path/source-match safety assertions were added after native runs and did not change the transport block",
+    "personalProfilesRead": false,
+    "scheduledContinuation": "remains disabled; not changed by this worker"
+  },
+  "functional": {
+    "status": "passed",
+    "namedCheckCount": 30,
+    "checks": {
+      "defaults and legacy config": true,
+      "legacy history retained": true,
+      "first success before slow and persistence": true,
+      "edit survives later result": true,
+      "one auto history and selected edit survive completion": true,
+      "late uncancellable race cannot overwrite single or history": true,
+      "late uncancellable single cannot overwrite race and completed history remains": true,
+      "cancellation attempted while physical responses still arrive": true,
+      "partial failure retains success": true,
+      "all fail has no history": true,
+      "empty translation has no history": true,
+      "edited translation copies through actual clipboard": true,
+      "speech invoked with edited content": true,
+      "theme UI and local storage": true,
+      "translation direction toggle": true,
+      "language option exposed": true,
+      "application language through actual settings": true,
+      "failed settings save leaves durable value": true,
+      "history failure leaves successful translation and no invented history": true,
+      "favorites broadcast to second subscribed view": true,
+      "history favorite unfavorite delete clear notifications": true,
+      "favorites plus twenty recent retained": true,
+      "partial saves preserve synthetic provider config": true,
+      "pinned popup survives native blur": true,
+      "unpin and native blur hide": true,
+      "native resize strategy": true,
+      "close and hide reuse one popup": true,
+      "main close to tray": true,
+      "tray menu open callback": true,
+      "immediate quit draft prepared": true
+    },
+    "preflight": {
+      "pass": true,
+      "isolatedProfile": true,
+      "syntheticProviders": true,
+      "socketAndTransportDenied": true,
+      "productNotImported": true
+    },
+    "naturalExit": {
+      "code": 0,
+      "signal": null,
+      "t": 1792653180737
+    },
+    "outerClipboard": {
+      "savedInMemory": true,
+      "restored": true,
+      "formatCount": 7
+    },
+    "screenshot": "functional-11-2e97ef0-guarded/final-visible.png"
+  },
+  "nativeCapture": {
+    "overallPass": false,
+    "scope": "Post-startup native capture; source created after product ready. Initial startup/selection failures remain separate",
+    "trials": [
+      {
+        "id": "selected",
+        "assertionPassed": true,
+        "acceptance": "passed",
+        "reason": null,
+        "fourFormatRestored": true,
+        "exactTextBoxFocusBeforeAltQ": true,
+        "modifiersReleasedBeforeAltQ": true
+      },
+      {
+        "id": "same",
+        "assertionPassed": false,
+        "acceptance": "INVALID: foreground and native keyboard focus lost during copy",
+        "reason": "copy-timeout",
+        "fourFormatRestored": true,
+        "exactTextBoxFocusBeforeAltQ": true,
+        "modifiersReleasedBeforeAltQ": true
+      },
+      {
+        "id": "empty",
+        "assertionPassed": true,
+        "acceptance": "passed",
+        "reason": "copy-timeout",
+        "fourFormatRestored": true,
+        "exactTextBoxFocusBeforeAltQ": true,
+        "modifiersReleasedBeforeAltQ": true
+      },
+      {
+        "id": "failure",
+        "assertionPassed": true,
+        "acceptance": "passed",
+        "reason": "copy-command-failed",
+        "fourFormatRestored": true,
+        "exactTextBoxFocusBeforeAltQ": true,
+        "modifiersReleasedBeforeAltQ": true
+      }
+    ],
+    "sameClipboardFocus": {
+      "samples": 53,
+      "foregroundLost": 43,
+      "nativeKeyboardFocusLost": 43,
+      "unexpectedSelection": 0
+    },
+    "outerClipboardRestored": true,
+    "priorComponentEvidence": "Issue #9 same selection helper native 48/48 plus retained unit tests; does not replace a final packaged same-clipboard native pass"
+  },
+  "mouse": {
+    "pass": true,
+    "scope": "Independent actual native mouse drag and resize; capture cases not attempted",
+    "attempt": {
+      "scale": 2.0631578947368423,
+      "hwnd": "19859090",
+      "foreground": 19859090,
+      "electronBounds": {
+        "x": 610,
+        "y": 226,
+        "width": 380,
+        "height": 500
+      },
+      "targetHit": 7869698,
+      "scope": "Pinned visible focused popup; header point derived from DOM and native physical scale",
+      "header": {
+        "y": 492,
+        "x": 1600
+      },
+      "physicalBounds": {
+        "left": 1208,
+        "top": 452,
+        "right": 1992,
+        "bottom": 1464
+      }
+    },
+    "drag": {
+      "input": "actual user32 mouse events",
+      "before": {
+        "x": 610,
+        "y": 226,
+        "width": 380,
+        "height": 500
+      },
+      "after": {
+        "x": 663,
+        "y": 268,
+        "width": 381,
+        "height": 500
+      }
+    },
+    "resize": {
+      "input": "actual user32 mouse events",
+      "before": {
+        "x": 663,
+        "y": 268,
+        "width": 381,
+        "height": 500
+      },
+      "after": {
+        "x": 663,
+        "y": 268,
+        "width": 428,
+        "height": 538
+      }
+    },
+    "naturalExit": {
+      "code": 0,
+      "signal": null,
+      "t": 1792654514557
+    },
+    "outerClipboardRestored": true,
+    "screenshot": "mouse-2-2e97ef0-pinned/native-visible.png"
+  },
+  "installer": {
+    "pass": true,
+    "scope": "Distinct validation installer metadata with byte-identical application payload; no production registration replacement",
+    "installExit": 0,
+    "startupExit": {
+      "code": 0,
+      "signal": null,
+      "t": 1792654349330
+    },
+    "uninstallExit": 0,
+    "payloadSha256": {
+      "asar": "52059FFAB86FB8EC1900FDCC30E720ED481798E10F9957D63FB14D75BEE618E0",
+      "exe": "8608EE5ECCBA07F3B3163712694C0E6161EF347512B3648D6152FB1020EDE465"
+    },
+    "validationRegistrationKey": "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\a9d8f113-07b1-5a2c-944e-10c71d4d0607",
+    "dailyProgramPayloadUnchanged": true,
+    "registryAndShortcutsRestored": true,
+    "ownedInstallRemoved": true
+  },
+  "ordinaryStartup": {
+    "scope": "Prior dd7a274 bare production executable; final startup components byte-identical, verified in identity table",
+    "hiddenApplication": {
+      "pass": true,
+      "nativeVisibleWindows": 0,
+      "exit": {
+        "code": 0,
+        "signal": null,
+        "t": 1792634589906
+      }
+    },
+    "ordinaryForeground": {
+      "pass": false,
+      "scope": "Actual production EXE unpaused hidden, renderer CDP only",
+      "samples": 188,
+      "badSamples": 81,
+      "focusAndSelectionStable": false,
+      "applicationExit": {
+        "code": 0,
+        "signal": null,
+        "t": 1792634589906
+      },
+      "visibleWindows": 0,
+      "observation": {
+        "start": 1792634583236,
+        "end": 1792634589128
+      },
+      "failedForegroundHandles": [
+        8389666
+      ]
+    },
+    "shownApplication": {
+      "pass": true,
+      "exit": {
+        "code": 0,
+        "signal": null,
+        "t": 1792634455556
+      }
+    },
+    "freshUnpausedFinalPayload": "Not run: historical unguarded runners are now disabled. Inspector-paused functional startup is not ordinary launch latency"
+  },
+  "retainedAttempts": [
+    {
+      "labels": "functional-1 through functional-8",
+      "result": "Earlier harness/functional failures retained. Missing outer clipboard guard caused irreversible clipboard incident below"
+    },
+    {
+      "label": "functional-9-guarded",
+      "result": "Prior dd7a274 guarded functional pass; superseded by final functional-11"
+    },
+    {
+      "label": "functional-10-2e97ef0-guarded",
+      "result": "Guard self-test failed before product resume: arrow deny was not constructable; corrected with ordinary function and local assertion"
+    },
+    {
+      "labels": "native-1 through native-5-physical-hwnd",
+      "result": "Earlier source/foreground/selection setup failures retained; no complete native-pass claim"
+    },
+    {
+      "label": "native-6-2e97ef0-guarded",
+      "result": "33 prewarm foreground/selection samples stable; first capture copy-timeout; four-format and outer restore true"
+    },
+    {
+      "label": "native-7-2e97ef0-diagnostic",
+      "result": "33 prewarm samples stable; owned command-file read/write sharing race before any AltQ; fixed and independently checked"
+    },
+    {
+      "label": "native-8-2e97ef0-diagnostic",
+      "result": "Selection disappeared while own foreground and native TextBox focus remained, before product resume; safety precondition aborted. Cause unresolved"
+    },
+    {
+      "label": "native-post-startup-1-2e97ef0",
+      "result": "Source created after app ready: selected/empty/helper-failure pass; same-clipboard invalid after foreground loss; overall false"
+    },
+    {
+      "label": "copy-control-1",
+      "result": "Standalone exact helper direct and after consumed AltQ+120ms both pass; no Electron/product; clipboard restored"
+    },
+    {
+      "label": "file-protocol-check-1",
+      "result": "Local protocol test failed due PowerShell null-string overload binding; retained. Corrected held-reader replacement100/100 + STOP pass in check-2"
+    },
+    {
+      "label": "mouse-1-2e97ef0",
+      "result": "Native ownership guard refused first mouse target; no mouse button issued"
+    },
+    {
+      "label": "mouse-2-2e97ef0-pinned",
+      "result": "Pinned/visible/focused popup, DOM/native-scale point: actual header drag and edge resize pass"
+    },
+    {
+      "label": "installer-lifecycle-1",
+      "result": "Prior candidate initial uninstaller-availability harness failure then explicit resume pass, both retained"
+    },
+    {
+      "label": "unpaused-hidden-focus-1",
+      "result": "Fixture hit-test refusal before product launch"
+    },
+    {
+      "label": "unpaused-hidden-focus-2",
+      "result": "Application startup/hidden/natural exit pass; foreground postprocessing false188/81 bad. Original UTF8 parse error also retained"
+    }
+  ],
+  "clipboardIncident": {
+    "affectedRuns": "functional-1 through functional-8",
+    "verifiedEffect": "Deliberate Copy probes replaced the original system clipboard with synthetic EDITED COPY AND SPEECH before an outer DataObject guard existed",
+    "originalClipboardRestored": false,
+    "recovery": "Original clipboard content cannot be recovered from these fixtures; clipboard history was not inspected",
+    "subsequentProtection": "From functional-9 onward outer STA memory-only DataObject snapshots restore in finally; every final applicable run reported restoration true; restoration failure makes driver fail"
+  },
+  "limits": [
+    "Final packaged same-clipboard native case is invalid, not a semantic pass and not a confirmed product defect",
+    "Ordinary bare-executable foreground stability was not proved; old hidden focus record false188/81 is retained",
+    "Tray object/menu and actual menu callback exercised; no physical system-tray icon click claim",
+    "Speech invocation uses edited synthetic text; no audible system voice claim",
+    "Inspector-paused functional timing is not ordinary startup latency",
+    "Production app payload is unchanged in distinct validation installer; production installer metadata/registration were not installed",
+    "No main merge, release, version/tag change, autostart change or daily-install replacement"
+  ]
+}
