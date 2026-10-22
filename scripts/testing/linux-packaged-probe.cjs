@@ -80,6 +80,7 @@
       const parsed = JSON.parse(body)
       assert.equal(parsed.model, 'deepseek-v4-flash', 'Only flash reaches the controlled transport')
       const text = parsed.messages.find(message => message.role === 'user').content
+      assert.ok(['LINUX PRIMARY', 'LINUX EDIT'].includes(text), 'Unexpected translation input was redacted and rejected')
       requests.push(text)
       setTimeout(() => {
         const response = new PassThrough()
@@ -95,7 +96,30 @@
   assert.throws(() => new net.Socket().connect({ host: 'offline.invalid', port: 443 }), /blocks external network/)
   assert.throws(() => require('node:https').request(new URL('https://offline.invalid')), /No real provider\/network request/)
   assert.throws(() => electronNet.request('https://offline.invalid'), /blocks external network/)
-  const preflight = { passed: true, productImportsBeforeGuard: importedProductModules.length, isolatedHome: true, syntheticCredentialsOnly: true, model: fixture.providers.deepseek.model, endpoint: fixture.providers.deepseek.endpoint, controlledHttpsBeforeProductImports: true, nodeExternalNetworkBlocked: true, electronNetBlocked: true, chromiumHttpBlocked: true }
+  // WSLg may bridge PRIMARY from another desktop. Validate actual selection at
+  // its public return boundary before main can deliver it to desktop/session.
+  const Module = require('node:module')
+  const load = Module._load
+  let selectionGuardInstalled = false
+  Module._load = function (request, parent, isMain) {
+    const exports = load.apply(this, arguments)
+    const resolved = Module._resolveFilename(request, parent)
+    if (resolved === path.join(app.getAppPath(), 'electron', 'selection.cjs') && !selectionGuardInstalled) {
+      const capture = exports.getSelection
+      exports.getSelection = async (...args) => {
+        const selection = await capture(...args)
+        if (selection?.text !== 'LINUX PRIMARY') {
+          write('privacy-failure', { code: 'unexpected-primary', redacted: true, deliveryPrevented: true })
+          app.exit(1)
+          throw new Error('Unexpected PRIMARY selection was redacted and rejected before delivery')
+        }
+        return selection
+      }
+      selectionGuardInstalled = true
+    }
+    return exports
+  }
+  const preflight = { passed: true, productImportsBeforeGuard: importedProductModules.length, isolatedHome: true, syntheticCredentialsOnly: true, model: fixture.providers.deepseek.model, endpoint: fixture.providers.deepseek.endpoint, controlledHttpsBeforeProductImports: true, nodeExternalNetworkBlocked: true, electronNetBlocked: true, chromiumHttpBlocked: true, selectionBoundaryGuardArmed: true, exactSyntheticInputBeforeLogging: true }
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
   async function wait(check, label) {
     const start = Date.now()
@@ -152,7 +176,8 @@
       // The external xclip process owns X11 PRIMARY. This supported socket is the
       // same Linux trigger boundary as electron/trigger.sh, without global input.
       const primary = require('electron').clipboard.readText('selection')
-      assert.equal(primary, 'LINUX PRIMARY')
+      assert.ok(primary === 'LINUX PRIMARY', 'Unexpected PRIMARY selection was redacted')
+      assert.equal(selectionGuardInstalled, true, 'The real product selection boundary must be guarded')
       await wait(() => fs.existsSync(path.join(process.env.HOME, '.translate-app.sock')), 'product native Unix trigger socket')
       checkpoint = 'native PRIMARY socket trigger'
       await new Promise((resolve, reject) => {
