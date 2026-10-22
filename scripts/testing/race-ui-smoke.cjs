@@ -1,8 +1,10 @@
+throw new Error('Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md')
 const fs = require('node:fs')
 const path = require('node:path')
 const assert = require('node:assert/strict')
 const { EventEmitter } = require('node:events')
 const { PassThrough } = require('node:stream')
+const { roleForModel } = require('./session-fixture.cjs')
 const root = process.env.EASY_SESSION_TEST_ROOT || path.resolve(__dirname, '../..')
 const output = process.env.EASY_SESSION_TEST_OUTPUT
 if (!output) throw new Error('EASY_SESSION_TEST_OUTPUT requires an isolated fixture directory')
@@ -36,7 +38,7 @@ require('node:https').request = (_url, _options, callback) => {
   request.destroy = () => { abortAttempts++; return request }
   request.end = () => {
     const data = JSON.parse(body)
-    const record = { source: data.messages[1].content, engine: data.model, replied: false }
+    const record = { source: data.messages[1].content, engine: roleForModel(data.model), replied: false }
     record.reply = failed => {
       if (record.replied) return
       record.replied = true

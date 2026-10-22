@@ -1,3 +1,4 @@
+throw new Error('Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md')
 const fs = require('node:fs')
 const path = require('node:path')
 const assert = require('node:assert/strict')

@@ -1,4 +1,5 @@
 param([int]$Rounds=20,[int]$IdleSeconds=30,[string]$Label='paired',[string]$Repo='',[string]$ElectronPath='',[string]$OutputRoot='')
+throw 'Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md'
 $ErrorActionPreference='Stop'
 $bench=Split-Path -Parent $MyInvocation.MyCommand.Path
 if(!$Repo) {$Repo=Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $bench))}

@@ -15,7 +15,7 @@ npm run dev          # 编译 Electron TypeScript，再启动 Vite (:5173)、类
 npm run dev:web      # 仅浏览器预览 UI（无 Electron）
 npm run build        # Electron TypeScript → dist-electron/，Vite → dist/
 npm run typecheck    # 严格检查 Electron TypeScript 和 Vue SFC（vue-tsc）
-npm test             # node --test tests/*.test.cjs
+npm test             # 编译 Electron 后在隔离配置与禁止网络的守卫下运行 tests/*.test.cjs
 npm run check        # 类型检查、回归测试与生产构建
 npm run dist:linux   # vite build + electron-builder 打包 .deb
 npm run dist:win     # vite build + electron-builder 打包 Windows NSIS
@@ -31,8 +31,7 @@ npm run trigger      # bash electron/trigger.sh，通过本地 socket 触发现�
 单测在 `tests/*.test.cjs`，直接 `require` Electron 模块并注入 mock 依赖，因此大部分可以脱离 Electron 运行：
 
 ```bash
-node --test tests/race.test.cjs        # 单个文件
-npm test
+npm test             # 必须经过隔离配置与禁止网络的入口，勿直接 node --test
 ```
 
 ### 发布

@@ -1,4 +1,5 @@
 param([ValidateSet('focus','queue')][string]$Mode='focus',[string]$Repo='', [string]$OutputRoot='')
+throw 'Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md'
 $ErrorActionPreference='Stop'
 if (!$Repo) {$Repo=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)}
 if (!$OutputRoot) {$OutputRoot=Join-Path $Repo '.runtime'}

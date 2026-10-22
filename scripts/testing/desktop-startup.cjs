@@ -1,3 +1,4 @@
+throw new Error('Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md')
 // Real startup policy regression: isolated profile, no clipboard or provider calls.
 const fs = require('node:fs')
 const path = require('node:path')

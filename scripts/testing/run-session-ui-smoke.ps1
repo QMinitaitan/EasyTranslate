@@ -1,4 +1,5 @@
 param([string]$Repo = '', [string]$ElectronPath = '', [string]$OutputRoot = '', [ValidateSet('single', 'race', 'history', 'flow')][string]$Scenario = 'single')
+throw 'Historical native validation is disabled; see docs/validation/NATIVE-VALIDATION.md'
 $ErrorActionPreference = 'Stop'
 $t2Project = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if (!$Repo) { $Repo = $t2Project }
@@ -9,17 +10,9 @@ if ((Test-Path -LiteralPath $t2Output) -and (Get-ChildItem -LiteralPath $t2Outpu
   throw 'Choose an empty output directory to preserve previous smoke evidence.'
 }
 New-Item -ItemType Directory -Force -Path $t2Output | Out-Null
-$t2Config = @{
-  providers = @{
-    deepseek = @{ enabled = $true; apiKey = 'synthetic-test-only'; endpoint = 'https://controlled.invalid'; model = 'fast' }
-    bing = @{ enabled = $false }
-    openai = @{ enabled = $Scenario -eq 'race'; apiKey = 'synthetic-test-only'; endpoint = 'https://controlled.invalid'; model = 'slow' }
-  }
-  raceMode = $Scenario -eq 'race'
-  launchToTray = $true
-  closeAction = 'tray'
-  shortcuts = @{ translate = 'Alt+Q'; show = '' }
-}
+$t2Config = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'session-fixture.json') -Raw | ConvertFrom-Json -AsHashtable
+$t2Config.raceMode = $Scenario -eq 'race'
+$t2Config.providers.openai.enabled = $t2Config.raceMode
 [IO.File]::WriteAllText((Join-Path $t2Output '.translate-app.config.json'), ($t2Config | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
 $t2Environment = @{
   HOME = $t2Output
