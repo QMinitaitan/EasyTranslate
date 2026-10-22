@@ -3,7 +3,8 @@
 The independent Standards and Spec reviews were pinned to
 `5c5fd98e2bb761809a7440ab64393eb913ff0652`, against base
 `75516d68fe745dfdb8d90fb29a8976e758fbb033`. They reported **2 Standards findings
-(P1, P2)** and **1 Spec finding (P2)**. All three are addressed by implementation
+(P1 hard violation, P2 judgement call: possible Shotgun Surgery)** and **1 Spec
+finding (P2)**. All three original findings are addressed by implementation
 commit `793e3d9bce7c85665ced9e9fc7cc46ab3976e7c1`; this report is documentation only.
 The original read-only reports remain outside Git in
 `E:/EasyTranslate-implementation-notes-20261020/final-standards-review.md`,
@@ -11,7 +12,7 @@ The original read-only reports remain outside Git in
 
 ## Standards
 
-1. **Original P1: incomplete pre-import containment in nine retained native
+1. **Original P1, hard violation: incomplete pre-import containment in nine retained native
    entrypaths, including unchecked selected text before logging/delivery.**
    Resolved by disabling all nine JavaScript entries before their first import
    or side effect and all six mapped PowerShell launchers immediately after
@@ -24,7 +25,7 @@ The original read-only reports remain outside Git in
    safe offline reproduction and separate current production validators are in
    [native validation policy](NATIVE-VALIDATION.md).
 
-2. **Original P2: the session fixture used model `fast`, which current provider
+2. **Original P2, judgement call: possible Shotgun Surgery: the session fixture used model `fast`, which current provider
    policy rejects, and race/history presentation coupled labels to models.**
    Resolved by the shared synthetic `session-fixture.json` with
    `deepseek-v4-flash` and the independent fast/slow role mapper. The retained
@@ -35,7 +36,15 @@ The original read-only reports remain outside Git in
    controlled transport boundary and verify independent role labels and delays.
    Historical native launchers stay disabled despite corrected compatibility.
 
-**Standards: 2 original findings; 2 addressed.** No new native run is claimed.
+3. **Resolution-review P3: documentation overstated child-process blocking.**
+   The unit-test guard patches networking in guarded Node processes and Node
+   children that inherit it through NODE_OPTIONS. It neither intercepts
+   child_process nor blocks native children. `AGENTS.md` and
+   `NATIVE-VALIDATION.md` now state that scope and retain the separate native
+   pre-import containment requirement. This is a documentation-only correction.
+
+**Standards: 2 original findings resolved, plus 1 new documentation finding
+addressed; 3 total addressed, 0 unresolved.** No new native run is claimed.
 
 ## Spec
 
@@ -54,6 +63,22 @@ The original read-only reports remain outside Git in
 
 **Spec: 1 original finding; 1 addressed.** These are renderer behavior tests,
 not a native or packaged validation claim.
+
+## Independent resolution review
+
+Independent Standards and Spec resolution reviews inspected fixes through
+`15c32a52148399d6ff383d80874f60931954ee77`; integration commit
+`d761d487463eca55d8dd740aefc2f957b55cc2aa` has the identical tree. Standards
+confirmed both original findings resolved, identified the P3 wording issue
+addressed above, and found no additional runtime finding. Spec confirmed its
+original finding resolved with no new actionable finding. These were read-only
+reviews, with no tests, builds, apps or requests. Their retained reports are
+`E:/EasyTranslate-implementation-notes-20261020/notes/final-standards-resolution-review.md`
+and `E:/EasyTranslate-implementation-notes-20261020/final-spec-resolution-review.md`.
+The subsequent P3 correction changes only this report, `AGENTS.md` and
+`NATIVE-VALIDATION.md`; runtime, harness, tests and dependencies remain identical
+to the reviewed tree. No test/build rerun is needed for that documentation-only
+change, and it does not alter the artifact identity being built from `15c32a5`.
 
 ## Validation and evidence boundaries
 
