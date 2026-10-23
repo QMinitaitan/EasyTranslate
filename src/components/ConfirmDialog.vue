@@ -20,7 +20,7 @@
   </Teleport>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { AlertTriangle } from 'lucide-vue-next'
 import { useLocale } from '../composables/useLocale'
 
@@ -33,7 +33,7 @@ defineProps({
   icon: { type: Boolean, default: true }
 })
 
-const emit = defineEmits(['confirm', 'cancel'])
+const emit = defineEmits<{ confirm: []; cancel: [] }>()
 
 function onConfirm() { emit('confirm') }
 function onCancel() { emit('cancel') }

@@ -1,0 +1,65 @@
+{
+  "pass": true,
+  "controlledHiddenDom": true,
+  "beforeSaveAndSlow": {
+    "text": "RACE fast",
+    "historyCount": 0,
+    "slowFinished": false
+  },
+  "chosenComparisonAfterDone": "EDITED SLOW",
+  "raceHistoryCount": 1,
+  "raceToSingleHistory": [
+    "SINGLE_CURRENT"
+  ],
+  "singleToRaceHistory": [
+    "RACE_CURRENT"
+  ],
+  "abortAttempts": 6,
+  "windows": 2,
+  "requests": [
+    {
+      "source": "RACE",
+      "engine": "fast"
+    },
+    {
+      "source": "RACE",
+      "engine": "slow"
+    },
+    {
+      "source": "OLD_RACE",
+      "engine": "fast"
+    },
+    {
+      "source": "OLD_RACE",
+      "engine": "slow"
+    },
+    {
+      "source": "OLD_RACE",
+      "engine": "fast"
+    },
+    {
+      "source": "SINGLE_CURRENT",
+      "engine": "fast"
+    },
+    {
+      "source": "OLD_SINGLE",
+      "engine": "fast"
+    },
+    {
+      "source": "OLD_SINGLE",
+      "engine": "fast"
+    },
+    {
+      "source": "OLD_SINGLE",
+      "engine": "slow"
+    },
+    {
+      "source": "RACE_CURRENT",
+      "engine": "fast"
+    },
+    {
+      "source": "RACE_CURRENT",
+      "engine": "slow"
+    }
+  ]
+}

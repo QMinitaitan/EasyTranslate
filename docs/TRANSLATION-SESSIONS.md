@@ -1,0 +1,41 @@
+# Translation sessions
+
+Current reproduction policy: all historical native session launchers (single,
+race, history and flow) are disabled before any operation. Their observations
+below describe the original dated runs. Use `npm test` for current offline
+provider/session/fixture and popup configuration regressions; do not remove the
+entry refusal to reproduce an old smoke. See
+[native validation policy](validation/NATIVE-VALIDATION.md) for the nine disabled
+entries and the separately guarded production validators and preconditions.
+
+`electron/translation-session.cts` owns current-session identity and automatic history eligibility for both modes. Its public `start({ text, target, engine, requestId })` starts a single engine; `start({ text, target, mode: 'race', engines, requestId })` starts a race through the same ownership, cancellation and history rules. Both return a generated `sessionId` and a `done` promise. `subscribe((snapshot, progress) => ...)` observes current loading/success/error/empty snapshots and each newly completed engine result; `current` returns a copy with mode, pending count and bounded results; `cancel` and `dispose` end ownership and attempt cancellation. Replacement settles the old caller immediately as `superseded`, even if an injected transport ignores its AbortSignal and never settles promptly. A late success or failure cannot publish a snapshot or acquire automatic history eligibility.
+
+The service injects execution, history persistence and time at the seams agreed in specification #1. Each engine publishes progress independently; the first nonempty success is available before other engines or persistence finish. Current remaining engines continue for comparison; failure or empty output cannot win or invalidate an existing success. Only the first success requests automatic history. `done` waits for all current engine work and that history result, and distinguishes translation success from `historyError` without manufacturing an identifier on a rejected or missing save. A queued storage adapter receives `isCurrent()` so it can recheck eligibility before admitting an automatic write. The legacy history implementation remains synchronous in this migration stage; #7 supplies durable asynchronous storage and uniform history notifications.
+
+`translate:do` validates the wire request, reads cached configuration once, selects the engine using the shared capability decision and delegates to this service. The same route receives shortcut-triggered translation, edited source and retry. `translate:race:start` is an IPC compatibility adapter to the same service: it selects available engines, forwards progress before history completion, scopes each subscription to the generated session identity and releases progress/destroyed subscriptions on completion or replacement. IPC results carry session and caller identities. Popup presentation also owns a local sequence: an older invoke completion or an older asynchronous engine refresh cannot change a newer view. Empty selection, either mode switch, a new accepted shortcut and renderer teardown cancel pending work. The actual network adapter receives the service's AbortSignal; cancellation support is independent of the correctness boundary.
+
+`electron/race.cts` retains the tested ranking policy and execution/time-injection compatibility precedent. Application races do not call its old compatibility runner; ownership and automatic history qualification live only in `translation-session`. The CJS entry and old helper runner remain temporary compatibility artifacts for #10 to contract after caller migration. Popup excludes failed/empty results from comparison, releases completed subscriptions and preserves the selected engine when final sorted results arrive, so completion cannot silently reset the user's comparison.
+
+Behavioral tests cover ignored cancellation, old success/failure after B, immediate supersession settlement, empty output/configuration, existing history retention, one automatic save, persistence rejection, admission of queued writes and subscription/disposal behavior. Race tests also cover first success while slow work and history are unresolved, later comparison results, partial failure, all failure, and single-to-race/race-to-single/race-to-race replacement with late progress/completion. The reentrant presentation case was observed red (`A,B` history instead of `B`) before adding the current-session recheck immediately before saving. Progress dispatch also rechecks ownership before each subscriber: if one subscriber accepts B, remaining subscribers cannot receive A's old progress; that case was verified red before the guard.
+
+Controlled Electron renderer smoke (2026-10-20) used production-built Vue/preload, real IPC, an in-process synthetic HTTPS response, isolated configuration/history/userData and a warmed popup. A delayed A was replaced by B through the source editor's Enter action: B remained visible after A returned and history contained only B. A current failure displayed its error and the actual retry button produced the expected result/history. Two BrowserWindows remained. The initial run used the legacy adapter; a repeated run after merging the tested #5 transport checkpoint `14ee48a` also recorded one real adapter-to-request `destroy()` cancellation attempt. The synthetic request deliberately ignored destruction, so ownership correctness did not rely on cancellation stopping its late callback. A behavioral test additionally runs the session and real provider service together against a controlled transport and observes request destruction, B's result and B-only history.
+
+The smoke also delayed an old trigger's configuration refresh, then edited a newer source before that refresh returned. It initially failed with `TRANSLATED QUEUED_OLD` replacing `TRANSLATED NEWER`. Invalidating queued trigger refreshes on every newer translation intent fixed it: only `NEWER` was translated and saved.
+
+This verifies the original renderer/IPC behavior; the shortcut action and selection were injected, transport was synthetic, and no native shortcut/clipboard performance or paid API behavior is claimed by this smoke. Original real Windows shortcut/clipboard evidence remains in `docs/performance/`; full installed-product verification is #11. The deterministic smoke result is `docs/validation/2026-10-20-single-session.json`. Current non-native compatibility reproduction:
+
+```powershell
+npm test
+```
+
+The historical runner used a fresh `.runtime/session-ui-*` fixture directory and emitted logs, a result JSON and a synthetic popup screenshot. Its partial profile/HTTPS isolation is insufficient under the current policy, so it is disabled. The new shared fixture uses `deepseek-v4-flash`; presentation and delay roles remain independent fast/slow labels. Offline tests exercise all four scenario configurations against the real provider policy and session service without launching an app.
+
+## Controlled race DOM/IPC verification, 2026-10-21
+
+`docs/validation/2026-10-21-race-session.json` records the real production Vue/preload/IPC test with synthetic HTTP transport and a controlled history adapter. All BrowserWindows remained hidden; test-only `show`/`focus` suppression and disabled renderer background throttling prevented competition with foreground native measurements. The screenshot uses `capturePage(..., { stayHidden: true })`. This is controlled DOM/IPC evidence, not physical display latency, native shortcut/focus/clipboard or installed-product verification.
+
+The first race text was present while the slow engine had not replied and history was still held at zero records. The slow result then became available for cycling; the chosen slow result and its contenteditable edit stayed selected after history was released and the final sorted completion arrived. Exactly one record saved the first successful engine. Real dropdown mode changes and source editing then verified both cross-mode replacement directions; late synthetic successes/failures left current text/history unchanged. Six transport destruction attempts were observed even though the synthetic requests deliberately ignored destruction. Two total windows remained. Current non-native compatibility reproduction:
+
+```powershell
+npm test
+```

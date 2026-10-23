@@ -119,6 +119,43 @@ test('copy command errors still restore the clipboard', async () => {
   assert.equal(clipboardApi.state.text, '保留内容')
 })
 
+test('a rejected copy operation returns an empty result and still restores supported clipboard data', async () => {
+  const image = { isEmpty: () => false, id: 'preserved-image' }
+  const clipboardApi = createClipboard({ text: '保留文本', html: '<b>保留文本</b>', rtf: '{\\rtf1 preserved}', image })
+  const result = await captureWithCopy({
+    platform: 'win32', clipboardApi, wait: noWait,
+    copyShortcut: async () => { throw new Error('native operation failed') }
+  })
+  assert.deepEqual(result, { text: '', source: 'empty', reason: 'copy-command-failed' })
+  assert.equal(clipboardApi.state.text, '保留文本')
+  assert.equal(clipboardApi.state.html, '<b>保留文本</b>')
+  assert.equal(clipboardApi.state.rtf, '{\\rtf1 preserved}')
+  assert.equal(clipboardApi.state.image, image)
+})
+
+test('a failed clipboard snapshot leaves its contents untouched and returns a controlled empty result', async () => {
+  const clipboardApi = createClipboard({ text: '不可破坏的剪贴板', html: '<b>original</b>' })
+  clipboardApi.readHTML = () => { throw new Error('clipboard busy') }
+  const result = await captureWithCopy({ platform: 'win32', clipboardApi, wait: noWait, copyShortcut: async () => ({ err: null }) })
+  assert.deepEqual(result, { text: '', source: 'empty', reason: 'clipboard-read-failed' })
+  assert.equal(clipboardApi.state.text, '不可破坏的剪贴板')
+  assert.equal(clipboardApi.state.html, '<b>original</b>')
+})
+
+test('a clipboard read failure during copy detection restores the snapshot without leaking a rejected capture', async () => {
+  const clipboardApi = createClipboard({ text: '原剪贴板', html: '<b>original</b>' })
+  const readText = clipboardApi.readText.bind(clipboardApi)
+  let copied = false
+  clipboardApi.readText = type => { if (copied) throw new Error('clipboard inaccessible'); return readText(type) }
+  const result = await captureWithCopy({
+    platform: 'win32', clipboardApi, wait: noWait,
+    copyShortcut: async () => { copied = true; return { err: null } }
+  })
+  assert.deepEqual(result, { text: '', source: 'empty', reason: 'clipboard-capture-failed' })
+  assert.equal(clipboardApi.state.text, '原剪贴板')
+  assert.equal(clipboardApi.state.html, '<b>original</b>')
+})
+
 test('Linux uses the primary selection and never the regular clipboard fallback', async () => {
   const direct = createClipboard({ text: '旧剪贴板', selection: '当前选区' })
   assert.deepEqual(

@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "observations": [
+    "Actual SettingsGeneral checkbox persisted through preload and main IPC; next config read saw false",
+    "Controlled atomic rename failure showed visible save error and retained last durable config",
+    "Only one hidden settings window; no foreground, clipboard, network, or autostart mutation"
+  ]
+}

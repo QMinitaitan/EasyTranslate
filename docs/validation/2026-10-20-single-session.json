@@ -1,0 +1,25 @@
+{
+  "pass": true,
+  "queuedTriggerHistory": [
+    "NEWER"
+  ],
+  "overlapVisible": "TRANSLATED B",
+  "overlapHistory": [
+    "B"
+  ],
+  "retryVisible": "TRANSLATED FAIL",
+  "finalHistory": [
+    "FAIL",
+    "B"
+  ],
+  "requests": [
+    "WARMUP",
+    "NEWER",
+    "A",
+    "B",
+    "FAIL",
+    "FAIL"
+  ],
+  "abortAttempts": 1,
+  "windows": 2
+}

@@ -1,0 +1,1476 @@
+{
+  "manifest": {
+    "analysis": {
+      "qualification": "reporting-only incomplete-cohort qualification; separately versioned from original manifest analysis hash",
+      "path": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\final-evidence.cjs",
+      "sha256": "AB2D256793B2584DB5B1A88A89C4AC963291B8DC45A9E4E9DAAD2167AEA903BB"
+    },
+    "sampler": "causal-creation-v2",
+    "plannedOutputRoot": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark",
+    "sourceCommit": "15c32a52148399d6ff383d80874f60931954ee77",
+    "componentSha256": {
+      "scripts/performance/process-sampler.cs": "899EE9392DC989B70F0A74D90FE7ABB6FE961BC32C23C162C0C129887608303B",
+      "scripts/performance/analyze.cjs": "1DC367B3961A5A01A9A7D42F72308FD4F8BFE9533511BA7422DCF5FF3AFD9842",
+      "scripts/performance/run.ps1": "5E9E545EB34CCB267643581B134A1D16C9495A3F8C7186F106FF2DD4D0D5DC7F",
+      "scripts/performance/launcher.cjs": "E6E78104DF5DF75897163BE620DE61051204247A8E7CB91E35EC9CF9BE7E5F61",
+      "scripts/performance/final-evidence.cjs": "6FF2B27E367E150A5C213964B8984F3F323231F6A69403C4B82ABDC11AF162B4",
+      "scripts/performance/source-form.ps1": "C086F62584A547227522EE911C72387179475458A961C86BC33B1350FB931794"
+    },
+    "gates": {
+      "coldCaptureTimeoutMax": 1,
+      "baseline": "docs/performance/2026-10-20-baseline.json",
+      "relaxed": false,
+      "steadyPrivateMiBLimit": 315.7828125,
+      "warmCaptureTimeoutMax": 2,
+      "formalCheckCount": 22
+    },
+    "curationBranchCommit": "e8de49e80bf38ede8e5a05296eb47b3cb22380ca",
+    "safety": {
+      "preservePrevious": "all prior successful and failed raw cohorts/reports remain unchanged",
+      "nativeGuardScope": "separate pre-import instrumented guard admits only exact production PowerShell copy helper; not OS firewall",
+      "transport": "exact synthetic HTTPS 50ms only; alternative Node/Electron transports denied",
+      "authorization": "requires a NEW user 5-minute idle interval and root exclusive physical/CPU grant after Windows functional validation release",
+      "priorIdleWindow": "expired and not reusable",
+      "nodeUnitGuardScope": "guarded Node network APIs and inheriting Node children only; does not block native child launches",
+      "scheduledContinuation": "disabled",
+      "chromiumDevTools": "frozen port 9333, no debugger attachment",
+      "unexpectedText": "redacted and rejected before delivery or raw logging",
+      "nativeInput": "exact owned HWND immediately before every Alt+Q; abort before key on mismatch",
+      "realApiBudget": 0,
+      "nodeInspector": "none",
+      "clipboard": "STA outer memory DataObject finally; metadata only",
+      "automaticRetries": false,
+      "profile": "isolated HOME/USERPROFILE/app data, synthetic config/history validated before app import",
+      "cohortStatus": "PREPARED ONLY - no app, input or cohort started"
+    },
+    "harnessCommit": "4f031292033b4abc6baacf353a833ccea00e5517",
+    "frozenTimedComponents": {
+      "scripts/performance/launcher.cjs": {
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\launcher.cjs",
+        "sha256": "E6E78104DF5DF75897163BE620DE61051204247A8E7CB91E35EC9CF9BE7E5F61",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261022\\frozen-components\\scripts\\performance\\launcher.cjs"
+      },
+      "scripts/performance/source-form.ps1": {
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\source-form.ps1",
+        "sha256": "C086F62584A547227522EE911C72387179475458A961C86BC33B1350FB931794",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261022\\frozen-components\\scripts\\performance\\source-form.ps1"
+      },
+      "scripts/performance/process-sampler.cs": {
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\process-sampler.cs",
+        "sha256": "899EE9392DC989B70F0A74D90FE7ABB6FE961BC32C23C162C0C129887608303B",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261022\\frozen-components\\scripts\\performance\\process-sampler.cs"
+      },
+      "scripts/performance/run.ps1": {
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\run.ps1",
+        "sha256": "5E9E545EB34CCB267643581B134A1D16C9495A3F8C7186F106FF2DD4D0D5DC7F",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261022\\frozen-components\\scripts\\performance\\run.ps1"
+      },
+      "scripts/performance/analyze.cjs": {
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\analyze.cjs",
+        "sha256": "1DC367B3961A5A01A9A7D42F72308FD4F8BFE9533511BA7422DCF5FF3AFD9842",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261022\\frozen-components\\scripts\\performance\\analyze.cjs"
+      }
+    },
+    "parameters": {
+      "cold": 7,
+      "controlledTransportMs": 50,
+      "empty": 1,
+      "idleSeconds": 30,
+      "warm": 30
+    },
+    "plannedRawRoot": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\runs-final-review-15c32a5-20261022-1",
+    "rootDocsTip": "bdbdc3c687146aab30439e1c81fd6a4fd7ae62e8",
+    "runtimeEquivalence": {
+      "provenance": "root coordination reports only 3 docs differ from sourceCommit",
+      "localVerification": "actual ASAR and EXE hashes independently checked without launch"
+    },
+    "productionAsar": {
+      "path": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\production-review-15c32a5\\win-unpacked\\resources\\app.asar",
+      "sha256": "F0D9E094FCB66A662F7120420CC31D0263C5E594204D82D23554E2ED70BD03CE"
+    },
+    "productionExe": {
+      "path": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\production-review-15c32a5\\win-unpacked\\EasyTranslate.exe",
+      "sha256": "56049A52BB4E226B034F9C5EF6F50AF3369B763E16584C3F15E6BDEE729F5922"
+    },
+    "stockElectron": {
+      "path": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\source-dd7a274\\node_modules\\electron\\dist\\electron.exe",
+      "version": "43.2.0",
+      "sha256": "8593DB40C0C6E5E3C4B6B0A225B1DC9A549ECDF10F6CF2010CF5B6CE869CE07F",
+      "reusedBytesMatchPrevious": true
+    },
+    "plannedLabel": "final-review-15c32a5-20261022-1"
+  },
+  "protocol": {
+    "baselineSource": "6c85be6 (same application code as 75516d6)",
+    "cold": 7,
+    "warm": 30,
+    "empty": 1,
+    "idleSeconds": 30,
+    "controlledTransportMs": 50,
+    "sampler": "causal-creation-v2",
+    "quantiles": "nearest-rank; 7 first samples have coarse maximum-like P95",
+    "resultTiming": "visible DOM mutation availability, not physical pixel presentation",
+    "launch": "stock Electron loads unchanged production ASAR; frozen Chromium remote-debugging-port=9333, no Node inspector or debugger attachment"
+  },
+  "cohortComplete": false,
+  "acceptanceScope": "incomplete cohort: observed comparisons are retained, but cannot pass frozen acceptance gates",
+  "allPassed": false,
+  "checks": [
+    {
+      "name": "Frozen cohort is complete",
+      "pass": false,
+      "observed": {
+        "runs": 1,
+        "first": 0,
+        "warm": 0,
+        "empty": 0,
+        "retainedIdleMs": {
+          "before": 27868,
+          "after": null
+        }
+      },
+      "limit": "7 fresh processes/profiles, 30 warm, 1 empty, two 30-second intervals excluding first 2 seconds",
+      "observedComparisonPass": false,
+      "status": "fail"
+    },
+    {
+      "name": "No harness precondition violation",
+      "pass": false,
+      "observed": [
+        {
+          "foreground": 12125828,
+          "trial": "cold-1-invoke-1",
+          "t": 1792681592516,
+          "sourceWindow": 4462316,
+          "event": "precondition-failed",
+          "stage": "foreground"
+        }
+      ],
+      "limit": "exact owned source HWND before Alt+Q and exact synthetic source before capture/transport logging",
+      "observedComparisonPass": false,
+      "status": "fail"
+    },
+    {
+      "name": "First successful show P50 improves",
+      "pass": false,
+      "limit": 923,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "First successful DOM P50 improves",
+      "pass": false,
+      "limit": 1120,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "warmSuccessful showMs p50",
+      "pass": false,
+      "limit": 1037.3,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "warmSuccessful showMs p95",
+      "pass": false,
+      "limit": 1191.4,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "warmSuccessful domResultMs p50",
+      "pass": false,
+      "limit": 1107.45,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "warmSuccessful domResultMs p95",
+      "pass": false,
+      "limit": 1269.6,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "warm showMs p50",
+      "pass": false,
+      "limit": 1038.45,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "warm showMs p95",
+      "pass": false,
+      "limit": 2040.1,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "No additional cold capture timeout count",
+      "pass": false,
+      "observed": [],
+      "limit": 1,
+      "observedComparisonPass": true,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "No additional warm capture timeout count",
+      "pass": false,
+      "observed": [],
+      "limit": 2,
+      "observedComparisonPass": true,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "Every nonempty capture reaches its visible result and one transport",
+      "pass": false,
+      "observed": 0,
+      "limit": "all nonempty captures, exact synthetic source/result, visible DOM, accepted history ID",
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "All empty captures skip transport, result and history",
+      "pass": false,
+      "observed": 0,
+      "limit": "no translation or history ID for deliberate empty or copy timeout",
+      "observedComparisonPass": true,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "Clipboard text/HTML/RTF restored",
+      "pass": false,
+      "observed": 0,
+      "limit": "all 38 captures",
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "Every shortcut and attempt observed",
+      "pass": false,
+      "observed": 0,
+      "limit": 38,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "Durable history is exactly latest successful captures",
+      "pass": false,
+      "observed": [
+        {
+          "run": "cold-1",
+          "count": 0,
+          "expectedCount": 0,
+          "matches": true
+        }
+      ],
+      "limit": "newest 20 successful captures per isolated run; no failed/empty capture history",
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "Idle normalized CPU",
+      "pass": false,
+      "observed": {
+        "before": 0.07358910757858476
+      },
+      "limit": 1,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "Steady private MiB",
+      "pass": false,
+      "limit": 315.7828125,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "Two created/live windows per run",
+      "pass": false,
+      "observed": [
+        {
+          "run": "cold-1",
+          "created": 2,
+          "maxLive": 2,
+          "ids": [
+            {
+              "kind": "main",
+              "id": 1
+            },
+            {
+              "kind": "popup",
+              "id": 2
+            }
+          ]
+        }
+      ],
+      "limit": 2,
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "No retained process growth after 30 warm invocations",
+      "pass": false,
+      "observed": {
+        "beforeProcesses": {
+          "n": 256,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "afterProcesses": {
+          "n": 0
+        },
+        "transientMaxProcesses": 5
+      },
+      "limit": "prewarm P50 and after-idle P50/P95/final count = 5; helper transient peak is observation",
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    },
+    {
+      "name": "Every run exits naturally with code zero",
+      "pass": false,
+      "observed": [
+        {
+          "run": "cold-1",
+          "quitObserved": false
+        }
+      ],
+      "limit": "quit observed and native process exit0 for all seven runs",
+      "observedComparisonPass": false,
+      "status": "unavailable-incomplete-cohort"
+    }
+  ],
+  "failures": [],
+  "runs": [
+    {
+      "run": "cold-1",
+      "complete": false,
+      "launch": {
+        "t": 1792681556809,
+        "event": "launcher",
+        "trial": null,
+        "pid": 8676,
+        "electron": "43.2.0",
+        "node": "24.18.0"
+      },
+      "popupAppReadyMs": 914,
+      "popupDocumentMs": 911,
+      "observerReadyMs": 920,
+      "quitObserved": false,
+      "naturallyExited": false,
+      "stderrEmpty": false,
+      "harnessFailures": [
+        {
+          "foreground": 12125828,
+          "trial": "cold-1-invoke-1",
+          "t": 1792681592516,
+          "sourceWindow": 4462316,
+          "event": "precondition-failed",
+          "stage": "foreground"
+        }
+      ],
+      "attempts": [],
+      "history": {
+        "count": 0,
+        "expectedCount": 0,
+        "matchesLatestSuccessfulCaptures": true,
+        "rows": []
+      },
+      "windows": {
+        "created": 2,
+        "maxLive": 2,
+        "ids": [
+          {
+            "kind": "main",
+            "id": 1
+          },
+          {
+            "kind": "popup",
+            "id": 2
+          }
+        ]
+      },
+      "cpu": {
+        "logicalProcessors": 16,
+        "observedCumulativeSeconds": 1.828125,
+        "intervalNormalizedPercent": {
+          "n": 328,
+          "min": 0,
+          "p50": 0,
+          "p95": 0.9042245370370371,
+          "max": 17.326108870967744
+        },
+        "interpretation": "Sample-to-sample full-tree CPU delta / wall time / logical CPUs; newly observed child lifetime CPU is charged on discovery, so short-interval maxima are noisy and not a hardware peak."
+      },
+      "retained": {
+        "beforeProcesses": {
+          "n": 256,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "afterProcesses": {
+          "n": 0
+        },
+        "transientMaxProcesses": 5
+      },
+      "idleDurationMs": {
+        "before": 27868,
+        "after": null
+      }
+    }
+  ],
+  "measurements": {
+    "folder": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\runs-final-review-15c32a5-20261022-1",
+    "logicalProcessors": 16,
+    "startup": [
+      {
+        "run": "cold-1",
+        "appReadyMs": 391,
+        "mainReadyMs": 698
+      }
+    ],
+    "first": [],
+    "warm": [],
+    "empty": [],
+    "idle": [
+      {
+        "run": "cold-1",
+        "phase": "before",
+        "durationMs": 27868,
+        "n": 256,
+        "normalizedCpuPercent": 0.07358910757858476,
+        "privateMiB": {
+          "n": 256,
+          "min": 150.40625,
+          "p50": 151.86328125,
+          "p95": 153.22265625,
+          "max": 153.234375
+        },
+        "workingSetMiB": {
+          "n": 256,
+          "min": 350.8828125,
+          "p50": 368.45703125,
+          "p95": 391.97265625,
+          "max": 392.0234375
+        },
+        "processCount": {
+          "n": 256,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "windows": {
+          "n": 55,
+          "min": 2,
+          "p50": 2,
+          "p95": 2,
+          "max": 2
+        },
+        "visibleWindows": {
+          "n": 55,
+          "min": 0,
+          "p50": 0,
+          "p95": 0,
+          "max": 0
+        }
+      }
+    ],
+    "restoration": [],
+    "history": [
+      null
+    ],
+    "resource": [
+      {
+        "run": "cold-1",
+        "attribution": "causal-creation-v2",
+        "peakPrivateMiB": 153.234375,
+        "peakWorkingSetMiB": 392.0234375,
+        "maxProcesses": 5,
+        "helperPidsSampled": 0,
+        "helpers": 0,
+        "samplingMs": {
+          "n": 329,
+          "min": 26,
+          "p50": 43,
+          "p95": 81,
+          "max": 97
+        },
+        "windowsCreated": 2,
+        "liveWindowsMax": 2
+      }
+    ],
+    "firstSuccessful": [],
+    "warmSuccessful": [],
+    "summary": {
+      "startup": {
+        "appReadyMs": {
+          "n": 1,
+          "min": 391,
+          "p50": 391,
+          "p95": 391,
+          "max": 391
+        },
+        "mainReadyMs": {
+          "n": 1,
+          "min": 698,
+          "p50": 698,
+          "p95": 698,
+          "max": 698
+        }
+      },
+      "first": {
+        "selectionMs": {
+          "n": 0
+        },
+        "helperMs": {
+          "n": 0
+        },
+        "showMs": {
+          "n": 0
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 0
+        },
+        "domResultMs": {
+          "n": 0
+        },
+        "captureToShowMs": {
+          "n": 0
+        },
+        "afterCaptureToDomMs": {
+          "n": 0
+        },
+        "successful": 0
+      },
+      "warm": {
+        "selectionMs": {
+          "n": 0
+        },
+        "helperMs": {
+          "n": 0
+        },
+        "showMs": {
+          "n": 0
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 0
+        },
+        "domResultMs": {
+          "n": 0
+        },
+        "captureToShowMs": {
+          "n": 0
+        },
+        "afterCaptureToDomMs": {
+          "n": 0
+        },
+        "successful": 0
+      },
+      "firstSuccessful": {
+        "selectionMs": {
+          "n": 0
+        },
+        "helperMs": {
+          "n": 0
+        },
+        "showMs": {
+          "n": 0
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 0
+        },
+        "domResultMs": {
+          "n": 0
+        },
+        "captureToShowMs": {
+          "n": 0
+        },
+        "afterCaptureToDomMs": {
+          "n": 0
+        },
+        "successful": 0
+      },
+      "warmSuccessful": {
+        "selectionMs": {
+          "n": 0
+        },
+        "helperMs": {
+          "n": 0
+        },
+        "showMs": {
+          "n": 0
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 0
+        },
+        "domResultMs": {
+          "n": 0
+        },
+        "captureToShowMs": {
+          "n": 0
+        },
+        "afterCaptureToDomMs": {
+          "n": 0
+        },
+        "successful": 0
+      },
+      "empty": {
+        "selectionMs": {
+          "n": 0
+        },
+        "helperMs": {
+          "n": 0
+        },
+        "showMs": {
+          "n": 0
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 0
+        },
+        "domResultMs": {
+          "n": 0
+        },
+        "captureToShowMs": {
+          "n": 0
+        },
+        "afterCaptureToDomMs": {
+          "n": 0
+        },
+        "successful": 0
+      }
+    }
+  },
+  "result": "INCOMPLETE: latest production artifact has no formal performance acceptance from this attempt",
+  "coverage": {
+    "launchedProcesses": 1,
+    "plannedFirst": 7,
+    "plannedWarm": 30,
+    "plannedEmpty": 1,
+    "emittedShortcuts": 0,
+    "selectionInvocations": 0,
+    "nativeCopyHelpers": 0,
+    "transportInvocations": 0,
+    "translationInvocations": 0,
+    "domResults": 0,
+    "historyWrites": 0,
+    "preventedTrial": "cold-1-invoke-1"
+  },
+  "abort": {
+    "epochMs": 1792681592516,
+    "utc": "2026-10-22T15:06:32.516Z",
+    "sourceHWND": 4462316,
+    "foregroundHWND": 12125828,
+    "sourcePID": 42652,
+    "productPID": 8676,
+    "noKeyIssued": true,
+    "sourceReadyFilePresent": false,
+    "sourceCommandStillPresent": true,
+    "sourceCommandMatchesSyntheticFixture": true,
+    "ownerAndCauseAtFailure": "unconfirmed"
+  },
+  "foregroundSegments": [
+    {
+      "hwnd": 4462316,
+      "firstEpochMs": 1792681556766,
+      "lastEpochMs": 1792681570412,
+      "samples": 126
+    },
+    {
+      "hwnd": 3411190,
+      "firstEpochMs": 1792681570519,
+      "lastEpochMs": 1792681572586,
+      "samples": 20
+    },
+    {
+      "hwnd": 14487152,
+      "firstEpochMs": 1792681572720,
+      "lastEpochMs": 1792681576534,
+      "samples": 36
+    },
+    {
+      "hwnd": 10688552,
+      "firstEpochMs": 1792681576661,
+      "lastEpochMs": 1792681579584,
+      "samples": 28
+    },
+    {
+      "hwnd": 264624,
+      "firstEpochMs": 1792681579695,
+      "lastEpochMs": 1792681580789,
+      "samples": 11
+    },
+    {
+      "hwnd": 1639252,
+      "firstEpochMs": 1792681580897,
+      "lastEpochMs": 1792681581129,
+      "samples": 3
+    },
+    {
+      "hwnd": 264624,
+      "firstEpochMs": 1792681581230,
+      "lastEpochMs": 1792681581358,
+      "samples": 2
+    },
+    {
+      "hwnd": 3146994,
+      "firstEpochMs": 1792681581463,
+      "lastEpochMs": 1792681583186,
+      "samples": 17
+    },
+    {
+      "hwnd": 10688552,
+      "firstEpochMs": 1792681583313,
+      "lastEpochMs": 1792681583740,
+      "samples": 5
+    },
+    {
+      "hwnd": 12125828,
+      "firstEpochMs": 1792681583852,
+      "lastEpochMs": 1792681592593,
+      "samples": 81
+    }
+  ],
+  "clipboardGuard": {
+    "savedFormatCount": 8,
+    "restoredFormatPresence": true,
+    "payloadLogged": false,
+    "verification": "memory DataObject snapshot; format presence after final restore, not byte equality for arbitrary opaque objects"
+  },
+  "cleanup": {
+    "rootOwnedProcessCheck": 0,
+    "naturalQuitObserved": false,
+    "naturalNativeExitZeroObserved": false,
+    "reason": "Precondition abort uses finally cleanup; no quit or run-end event."
+  },
+  "sideEffect": {
+    "archivedRelativePath": "runner-side-effects/Microsoft/Windows/PowerShell/ModuleAnalysisCache",
+    "sizeBytes": 8246,
+    "contentRead": false,
+    "source": "Owned source-form working directory",
+    "archiveVerified": "resolved absolute owned source/target and no reparse points; moved unchanged"
+  },
+  "protocolProbe": {
+    "ackMs": {
+      "p50": 58.4596,
+      "min": 43.0607,
+      "max": 261.2531,
+      "p95": 185.9575
+    },
+    "profile": "10 fresh isolated allowlisted PowerShell processes",
+    "firstReadAckMs": {
+      "p50": 185.9575,
+      "min": 169.76420000000002,
+      "max": 261.2531,
+      "p95": 261.2531,
+      "n": 10
+    },
+    "exchanges": 100,
+    "catchFailures": 0,
+    "allPassed": true,
+    "scope": "Actual frozen timer callback with fake Form/Box; no WinForms, GUI, OS activation, Electron, keyboard, clipboard or network; cannot prove GUI message-pump/focus behavior",
+    "reproducibility": {
+      "root": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261023\\file-ipc-probe-1",
+      "sourceCallbackSha256": "C086F62584A547227522EE911C72387179475458A961C86BC33B1350FB931794",
+      "senderPowerShell": "5.1.26100.9711",
+      "actualCallbackExtractedFrom": "scripts/performance/source-form.ps1 add_Tick ScriptBlock AST",
+      "fakeObjects": "In-memory ProbeForm/ProbeBox methods only, no WinForms assembly or OS activation",
+      "freshProfiles": 10,
+      "commandsPerProfile": 10,
+      "allReceiversNaturalExitZeroChecked": true,
+      "stopRule": "Stop on first caught callback operation error or missing acknowledgment within5seconds; no rerun for a favorable result",
+      "artifactSha256": {
+        "receiver.ps1": "b14ca4d7819907d77454b08e64fabb9c9009fd741436c3b5a9e693893a0668dd",
+        "run-probe.ps1": "a3215c9138d158aac9a8fc599056e8197d9dfd30d234947998b7ead49f08837d",
+        "observations/summary.json": "e4e72988445fbb97e4da48af828b0494423dd227ee03a7a1433df427a255c5ea",
+        "controller-stdout.txt": "c4b79bb9e350d51db137ec0d11510cf6c17ffa08c4dc3d3a7ad7ab35ca18e71c",
+        "controller-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "exchangeLedger": [
+      {
+        "ackMs": 261.2531,
+        "exactFixture": true,
+        "round": 1,
+        "index": 1
+      },
+      {
+        "ackMs": 43.060700000000004,
+        "exactFixture": true,
+        "round": 1,
+        "index": 2
+      },
+      {
+        "ackMs": 58.114700000000006,
+        "exactFixture": true,
+        "round": 1,
+        "index": 3
+      },
+      {
+        "ackMs": 58.792500000000004,
+        "exactFixture": true,
+        "round": 1,
+        "index": 4
+      },
+      {
+        "ackMs": 47.357800000000005,
+        "exactFixture": true,
+        "round": 1,
+        "index": 5
+      },
+      {
+        "ackMs": 59.529900000000005,
+        "exactFixture": true,
+        "round": 1,
+        "index": 6
+      },
+      {
+        "ackMs": 75.7855,
+        "exactFixture": true,
+        "round": 1,
+        "index": 7
+      },
+      {
+        "ackMs": 59.5005,
+        "exactFixture": true,
+        "round": 1,
+        "index": 8
+      },
+      {
+        "ackMs": 58.4228,
+        "exactFixture": true,
+        "round": 1,
+        "index": 9
+      },
+      {
+        "ackMs": 60.4957,
+        "exactFixture": true,
+        "round": 1,
+        "index": 10
+      },
+      {
+        "ackMs": 185.9575,
+        "exactFixture": true,
+        "round": 2,
+        "index": 1
+      },
+      {
+        "ackMs": 57.609,
+        "exactFixture": true,
+        "round": 2,
+        "index": 2
+      },
+      {
+        "ackMs": 59.1154,
+        "exactFixture": true,
+        "round": 2,
+        "index": 3
+      },
+      {
+        "ackMs": 58.9189,
+        "exactFixture": true,
+        "round": 2,
+        "index": 4
+      },
+      {
+        "ackMs": 58.232600000000005,
+        "exactFixture": true,
+        "round": 2,
+        "index": 5
+      },
+      {
+        "ackMs": 57.260600000000004,
+        "exactFixture": true,
+        "round": 2,
+        "index": 6
+      },
+      {
+        "ackMs": 57.623400000000004,
+        "exactFixture": true,
+        "round": 2,
+        "index": 7
+      },
+      {
+        "ackMs": 73.6734,
+        "exactFixture": true,
+        "round": 2,
+        "index": 8
+      },
+      {
+        "ackMs": 57.3517,
+        "exactFixture": true,
+        "round": 2,
+        "index": 9
+      },
+      {
+        "ackMs": 57.9981,
+        "exactFixture": true,
+        "round": 2,
+        "index": 10
+      },
+      {
+        "ackMs": 188.2607,
+        "exactFixture": true,
+        "round": 3,
+        "index": 1
+      },
+      {
+        "ackMs": 58.4575,
+        "exactFixture": true,
+        "round": 3,
+        "index": 2
+      },
+      {
+        "ackMs": 59.3765,
+        "exactFixture": true,
+        "round": 3,
+        "index": 3
+      },
+      {
+        "ackMs": 58.613,
+        "exactFixture": true,
+        "round": 3,
+        "index": 4
+      },
+      {
+        "ackMs": 58.082300000000004,
+        "exactFixture": true,
+        "round": 3,
+        "index": 5
+      },
+      {
+        "ackMs": 57.474900000000005,
+        "exactFixture": true,
+        "round": 3,
+        "index": 6
+      },
+      {
+        "ackMs": 58.5116,
+        "exactFixture": true,
+        "round": 3,
+        "index": 7
+      },
+      {
+        "ackMs": 59.7383,
+        "exactFixture": true,
+        "round": 3,
+        "index": 8
+      },
+      {
+        "ackMs": 58.5619,
+        "exactFixture": true,
+        "round": 3,
+        "index": 9
+      },
+      {
+        "ackMs": 57.5287,
+        "exactFixture": true,
+        "round": 3,
+        "index": 10
+      },
+      {
+        "ackMs": 189.4053,
+        "exactFixture": true,
+        "round": 4,
+        "index": 1
+      },
+      {
+        "ackMs": 58.3033,
+        "exactFixture": true,
+        "round": 4,
+        "index": 2
+      },
+      {
+        "ackMs": 61.9816,
+        "exactFixture": true,
+        "round": 4,
+        "index": 3
+      },
+      {
+        "ackMs": 56.2689,
+        "exactFixture": true,
+        "round": 4,
+        "index": 4
+      },
+      {
+        "ackMs": 58.361200000000004,
+        "exactFixture": true,
+        "round": 4,
+        "index": 5
+      },
+      {
+        "ackMs": 57.5531,
+        "exactFixture": true,
+        "round": 4,
+        "index": 6
+      },
+      {
+        "ackMs": 57.382600000000004,
+        "exactFixture": true,
+        "round": 4,
+        "index": 7
+      },
+      {
+        "ackMs": 72.9695,
+        "exactFixture": true,
+        "round": 4,
+        "index": 8
+      },
+      {
+        "ackMs": 58.2701,
+        "exactFixture": true,
+        "round": 4,
+        "index": 9
+      },
+      {
+        "ackMs": 56.016000000000005,
+        "exactFixture": true,
+        "round": 4,
+        "index": 10
+      },
+      {
+        "ackMs": 187.42870000000002,
+        "exactFixture": true,
+        "round": 5,
+        "index": 1
+      },
+      {
+        "ackMs": 57.8042,
+        "exactFixture": true,
+        "round": 5,
+        "index": 2
+      },
+      {
+        "ackMs": 59.0249,
+        "exactFixture": true,
+        "round": 5,
+        "index": 3
+      },
+      {
+        "ackMs": 56.8459,
+        "exactFixture": true,
+        "round": 5,
+        "index": 4
+      },
+      {
+        "ackMs": 58.911100000000005,
+        "exactFixture": true,
+        "round": 5,
+        "index": 5
+      },
+      {
+        "ackMs": 58.242900000000006,
+        "exactFixture": true,
+        "round": 5,
+        "index": 6
+      },
+      {
+        "ackMs": 57.778200000000005,
+        "exactFixture": true,
+        "round": 5,
+        "index": 7
+      },
+      {
+        "ackMs": 74.48530000000001,
+        "exactFixture": true,
+        "round": 5,
+        "index": 8
+      },
+      {
+        "ackMs": 58.4074,
+        "exactFixture": true,
+        "round": 5,
+        "index": 9
+      },
+      {
+        "ackMs": 58.539500000000004,
+        "exactFixture": true,
+        "round": 5,
+        "index": 10
+      },
+      {
+        "ackMs": 172.83360000000002,
+        "exactFixture": true,
+        "round": 6,
+        "index": 1
+      },
+      {
+        "ackMs": 58.650400000000005,
+        "exactFixture": true,
+        "round": 6,
+        "index": 2
+      },
+      {
+        "ackMs": 58.5531,
+        "exactFixture": true,
+        "round": 6,
+        "index": 3
+      },
+      {
+        "ackMs": 59.4044,
+        "exactFixture": true,
+        "round": 6,
+        "index": 4
+      },
+      {
+        "ackMs": 56.2695,
+        "exactFixture": true,
+        "round": 6,
+        "index": 5
+      },
+      {
+        "ackMs": 56.775000000000006,
+        "exactFixture": true,
+        "round": 6,
+        "index": 6
+      },
+      {
+        "ackMs": 57.869800000000005,
+        "exactFixture": true,
+        "round": 6,
+        "index": 7
+      },
+      {
+        "ackMs": 72.5721,
+        "exactFixture": true,
+        "round": 6,
+        "index": 8
+      },
+      {
+        "ackMs": 58.6007,
+        "exactFixture": true,
+        "round": 6,
+        "index": 9
+      },
+      {
+        "ackMs": 57.5037,
+        "exactFixture": true,
+        "round": 6,
+        "index": 10
+      },
+      {
+        "ackMs": 171.8744,
+        "exactFixture": true,
+        "round": 7,
+        "index": 1
+      },
+      {
+        "ackMs": 73.1233,
+        "exactFixture": true,
+        "round": 7,
+        "index": 2
+      },
+      {
+        "ackMs": 56.6237,
+        "exactFixture": true,
+        "round": 7,
+        "index": 3
+      },
+      {
+        "ackMs": 59.1398,
+        "exactFixture": true,
+        "round": 7,
+        "index": 4
+      },
+      {
+        "ackMs": 56.8019,
+        "exactFixture": true,
+        "round": 7,
+        "index": 5
+      },
+      {
+        "ackMs": 58.8457,
+        "exactFixture": true,
+        "round": 7,
+        "index": 6
+      },
+      {
+        "ackMs": 56.511500000000005,
+        "exactFixture": true,
+        "round": 7,
+        "index": 7
+      },
+      {
+        "ackMs": 73.9516,
+        "exactFixture": true,
+        "round": 7,
+        "index": 8
+      },
+      {
+        "ackMs": 57.746500000000005,
+        "exactFixture": true,
+        "round": 7,
+        "index": 9
+      },
+      {
+        "ackMs": 57.0933,
+        "exactFixture": true,
+        "round": 7,
+        "index": 10
+      },
+      {
+        "ackMs": 170.711,
+        "exactFixture": true,
+        "round": 8,
+        "index": 1
+      },
+      {
+        "ackMs": 57.384100000000004,
+        "exactFixture": true,
+        "round": 8,
+        "index": 2
+      },
+      {
+        "ackMs": 58.0337,
+        "exactFixture": true,
+        "round": 8,
+        "index": 3
+      },
+      {
+        "ackMs": 58.003600000000006,
+        "exactFixture": true,
+        "round": 8,
+        "index": 4
+      },
+      {
+        "ackMs": 58.4596,
+        "exactFixture": true,
+        "round": 8,
+        "index": 5
+      },
+      {
+        "ackMs": 58.346000000000004,
+        "exactFixture": true,
+        "round": 8,
+        "index": 6
+      },
+      {
+        "ackMs": 56.966100000000004,
+        "exactFixture": true,
+        "round": 8,
+        "index": 7
+      },
+      {
+        "ackMs": 73.0346,
+        "exactFixture": true,
+        "round": 8,
+        "index": 8
+      },
+      {
+        "ackMs": 60.181700000000006,
+        "exactFixture": true,
+        "round": 8,
+        "index": 9
+      },
+      {
+        "ackMs": 58.080400000000004,
+        "exactFixture": true,
+        "round": 8,
+        "index": 10
+      },
+      {
+        "ackMs": 187.6262,
+        "exactFixture": true,
+        "round": 9,
+        "index": 1
+      },
+      {
+        "ackMs": 74.1559,
+        "exactFixture": true,
+        "round": 9,
+        "index": 2
+      },
+      {
+        "ackMs": 57.834,
+        "exactFixture": true,
+        "round": 9,
+        "index": 3
+      },
+      {
+        "ackMs": 58.306200000000004,
+        "exactFixture": true,
+        "round": 9,
+        "index": 4
+      },
+      {
+        "ackMs": 59.8089,
+        "exactFixture": true,
+        "round": 9,
+        "index": 5
+      },
+      {
+        "ackMs": 59.0129,
+        "exactFixture": true,
+        "round": 9,
+        "index": 6
+      },
+      {
+        "ackMs": 57.673500000000004,
+        "exactFixture": true,
+        "round": 9,
+        "index": 7
+      },
+      {
+        "ackMs": 72.7102,
+        "exactFixture": true,
+        "round": 9,
+        "index": 8
+      },
+      {
+        "ackMs": 56.5863,
+        "exactFixture": true,
+        "round": 9,
+        "index": 9
+      },
+      {
+        "ackMs": 56.216300000000004,
+        "exactFixture": true,
+        "round": 9,
+        "index": 10
+      },
+      {
+        "ackMs": 169.76420000000002,
+        "exactFixture": true,
+        "round": 10,
+        "index": 1
+      },
+      {
+        "ackMs": 58.8701,
+        "exactFixture": true,
+        "round": 10,
+        "index": 2
+      },
+      {
+        "ackMs": 56.185100000000006,
+        "exactFixture": true,
+        "round": 10,
+        "index": 3
+      },
+      {
+        "ackMs": 59.5099,
+        "exactFixture": true,
+        "round": 10,
+        "index": 4
+      },
+      {
+        "ackMs": 58.905300000000004,
+        "exactFixture": true,
+        "round": 10,
+        "index": 5
+      },
+      {
+        "ackMs": 60.0608,
+        "exactFixture": true,
+        "round": 10,
+        "index": 6
+      },
+      {
+        "ackMs": 57.2046,
+        "exactFixture": true,
+        "round": 10,
+        "index": 7
+      },
+      {
+        "ackMs": 74.2206,
+        "exactFixture": true,
+        "round": 10,
+        "index": 8
+      },
+      {
+        "ackMs": 60.844300000000004,
+        "exactFixture": true,
+        "round": 10,
+        "index": 9
+      },
+      {
+        "ackMs": 56.1257,
+        "exactFixture": true,
+        "round": 10,
+        "index": 10
+      }
+    ]
+  },
+  "rankedHypotheses": [
+    {
+      "rank": 1,
+      "hypothesis": "GUI message-pump/source lifetime or availability, including an unprocessed timer event",
+      "basis": "source-command remained and source-ready never appeared; native source initially had foreground but later disappeared from foreground samples",
+      "proven": false
+    },
+    {
+      "rank": 2,
+      "hypothesis": "First file read, cmdlet/module autoload or sharing latency",
+      "basis": "Actual callback non-GUI probe did not reproduce this in 100 exchanges across10 fresh profiles; maximum ack261.2531ms",
+      "proven": false
+    },
+    {
+      "rank": 3,
+      "hypothesis": "Foreground-promotion grant alone",
+      "basis": "Does not explain the unacknowledged command by itself; fake Activate/Focus are intentionally outside the non-GUI proof",
+      "proven": false
+    },
+    {
+      "rank": 4,
+      "hypothesis": "Product translation/session regression",
+      "basis": "No selection, provider, transport or translation was invoked, so this attempt supplies no such failure evidence",
+      "proven": false
+    }
+  ],
+  "proposedControlledComparison": "Only after a fresh explicit root grant: same artifact and five frozen scripts/parameters/gates; user clicks the visible owned synthetic source window once before the first key and then leaves input idle. This changes the external activation condition, not timed code; stop on any precondition failure without retry.",
+  "raw": {
+    "root": "E:/EasyTranslate-implementation-notes-20261020/benchmark/runs-final-review-15c32a5-20261022-1",
+    "immutableObservationSha256": {
+      "cold-1/driver.jsonl": "558c8f78fbc16f7eac9784c28b64f5145f50456a5eed803a831536dd3c4d361a",
+      "cold-1/events.jsonl": "de252ef300680e763beb6827d334f34327afad32e11ca4c3f9855a80723807a2",
+      "cold-1/resources.csv": "3fbcd28d9d5418a8e76ae30eaed8d7b3144ab17dcd40942c4f4b125803c410c6",
+      "cold-1/source-command.json": "da4f0593e452e9268aa32597ad02c9f9bdf5e9481b9ca3f1778ec7ca7cddbdb5",
+      "cold-1/source-window.json": "39509bb5594083844534064206c33b72f6e6dcddcb391f53c24e9a94cbe27000",
+      "cold-1/stdout.txt": "8370a186ef9d8da3f23677bd6f925963b52dd563391d12787809f550b320ce4d",
+      "cold-1/stderr.txt": "c80e8cc5329161db9447060ad76a87ffa9ce0376e809751bcd5f8ce161a32e95",
+      "clipboard-guard.json": "cc615cbe06a4383554efb28df4f727a6196e43fa7f3bda2d2429f9a76f42ace6"
+    }
+  },
+  "previousEvidence": "Old2e97ef0/52059FFA22gatePASS remains prior-artifact evidence; all earlier successful and failed raw reports remain unchanged.",
+  "documentationCheckpoint": {
+    "baseCommit": "8df29a9537a33a345b2f84f23cd6e19f6f9e2df8",
+    "runtimeSource": "15c32a52148399d6ff383d80874f60931954ee77",
+    "verifiedBaseDiffScope": "AGENTS.md and docs/validation only; no runtime/build-input change",
+    "curation": "docs-only; no app, native input, clipboard, build, benchmark or model API invocation",
+    "acceptance": "Latest F0D9 production artifact remains incomplete; old52059 report belongs to prior source/ASAR",
+    "scheduledContinuation": {
+      "enabled": false,
+      "verificationProvenance": "Root task reports CodexContinueEasyTranslate verified Disabled/Enabled=false"
+    },
+    "availability": "The requested fresh three-minute user availability question is unanswered; all prior idle grants expired"
+  },
+  "preparedFutureComparison": {
+    "manifest": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261023\\frozen-manifest.json",
+    "manifestSha256": "59a8e5878f3a993eadf64dc2dfdea9c7200ec9ca157ad069bd67af2dfc5d95f8",
+    "label": "final-review-15c32a5-20261023-2",
+    "rawPath": "E:/EasyTranslate-implementation-notes-20261020/benchmark/runs-final-review-15c32a5-20261023-2",
+    "rawPathExists": false,
+    "authorized": false,
+    "requires": "Fresh explicit user availability plus root exclusive physical/CPU grant; no scheduled or automatic start"
+  }
+}

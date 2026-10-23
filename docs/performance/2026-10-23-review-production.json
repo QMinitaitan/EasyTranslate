@@ -1,0 +1,4521 @@
+{
+  "manifest": {
+    "analysis": {
+      "qualification": "reporting-only incomplete-cohort qualification; separately versioned from original manifest analysis hash",
+      "path": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\final-evidence.cjs",
+      "sha256": "AB2D256793B2584DB5B1A88A89C4AC963291B8DC45A9E4E9DAAD2167AEA903BB"
+    },
+    "sampler": "causal-creation-v2",
+    "plannedOutputRoot": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark",
+    "sourceCommit": "15c32a52148399d6ff383d80874f60931954ee77",
+    "componentSha256": {
+      "scripts/performance/process-sampler.cs": "899EE9392DC989B70F0A74D90FE7ABB6FE961BC32C23C162C0C129887608303B",
+      "scripts/performance/analyze.cjs": "1DC367B3961A5A01A9A7D42F72308FD4F8BFE9533511BA7422DCF5FF3AFD9842",
+      "scripts/performance/run.ps1": "5E9E545EB34CCB267643581B134A1D16C9495A3F8C7186F106FF2DD4D0D5DC7F",
+      "scripts/performance/launcher.cjs": "E6E78104DF5DF75897163BE620DE61051204247A8E7CB91E35EC9CF9BE7E5F61",
+      "scripts/performance/final-evidence.cjs": "6FF2B27E367E150A5C213964B8984F3F323231F6A69403C4B82ABDC11AF162B4",
+      "scripts/performance/source-form.ps1": "C086F62584A547227522EE911C72387179475458A961C86BC33B1350FB931794"
+    },
+    "gates": {
+      "coldCaptureTimeoutMax": 1,
+      "baseline": "docs/performance/2026-10-20-baseline.json",
+      "relaxed": false,
+      "steadyPrivateMiBLimit": 315.7828125,
+      "warmCaptureTimeoutMax": 2,
+      "formalCheckCount": 22
+    },
+    "curationBranchCommit": "e8de49e80bf38ede8e5a05296eb47b3cb22380ca",
+    "safety": {
+      "preservePrevious": "all prior successful and failed raw cohorts/reports remain unchanged",
+      "nativeGuardScope": "separate pre-import instrumented guard admits only exact production PowerShell copy helper; not OS firewall",
+      "transport": "exact synthetic HTTPS 50ms only; alternative Node/Electron transports denied",
+      "authorization": "Requires a new explicit user idle interval and root exclusive physical/CPU grant; first-command channel must remain valid, with proposed user click on owned synthetic source before the first key",
+      "priorIdleWindow": "Expired: 2026-10-22T15:03:33Z through 15:08:33Z; not reusable",
+      "nodeUnitGuardScope": "guarded Node network APIs and inheriting Node children only; does not block native child launches",
+      "scheduledContinuation": "disabled",
+      "chromiumDevTools": "frozen port 9333, no debugger attachment",
+      "unexpectedText": "redacted and rejected before delivery or raw logging",
+      "nativeInput": "exact owned HWND immediately before every Alt+Q; abort before key on mismatch",
+      "realApiBudget": 0,
+      "nodeInspector": "none",
+      "clipboard": "STA outer memory DataObject finally; metadata only",
+      "automaticRetries": false,
+      "profile": "isolated HOME/USERPROFILE/app data, synthetic config/history validated before app import",
+      "cohortStatus": "PREPARED ONLY - no cohort/app/input under this label"
+    },
+    "harnessCommit": "4f031292033b4abc6baacf353a833ccea00e5517",
+    "frozenTimedComponents": {
+      "scripts/performance/analyze.cjs": {
+        "sha256": "1DC367B3961A5A01A9A7D42F72308FD4F8BFE9533511BA7422DCF5FF3AFD9842",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261023\\frozen-components\\scripts\\performance\\analyze.cjs",
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\analyze.cjs"
+      },
+      "scripts/performance/launcher.cjs": {
+        "sha256": "E6E78104DF5DF75897163BE620DE61051204247A8E7CB91E35EC9CF9BE7E5F61",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261023\\frozen-components\\scripts\\performance\\launcher.cjs",
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\launcher.cjs"
+      },
+      "scripts/performance/run.ps1": {
+        "sha256": "5E9E545EB34CCB267643581B134A1D16C9495A3F8C7186F106FF2DD4D0D5DC7F",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261023\\frozen-components\\scripts\\performance\\run.ps1",
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\run.ps1"
+      },
+      "scripts/performance/source-form.ps1": {
+        "sha256": "C086F62584A547227522EE911C72387179475458A961C86BC33B1350FB931794",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261023\\frozen-components\\scripts\\performance\\source-form.ps1",
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\source-form.ps1"
+      },
+      "scripts/performance/process-sampler.cs": {
+        "sha256": "899EE9392DC989B70F0A74D90FE7ABB6FE961BC32C23C162C0C129887608303B",
+        "evidenceCopy": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\final-review-15c32a5-20261023\\frozen-components\\scripts\\performance\\process-sampler.cs",
+        "runtimePath": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate\\scripts\\performance\\process-sampler.cs"
+      }
+    },
+    "parameters": {
+      "cold": 7,
+      "controlledTransportMs": 50,
+      "empty": 1,
+      "idleSeconds": 30,
+      "warm": 30
+    },
+    "plannedRawRoot": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\runs-final-review-15c32a5-20261023-2",
+    "rootDocsTip": "bdbdc3c687146aab30439e1c81fd6a4fd7ae62e8",
+    "runtimeEquivalence": {
+      "provenance": "root coordination reports only 3 docs differ from sourceCommit",
+      "localVerification": "actual ASAR and EXE hashes independently checked without launch"
+    },
+    "productionAsar": {
+      "path": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\production-review-15c32a5\\win-unpacked\\resources\\app.asar",
+      "sha256": "F0D9E094FCB66A662F7120420CC31D0263C5E594204D82D23554E2ED70BD03CE"
+    },
+    "productionExe": {
+      "path": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\production-review-15c32a5\\win-unpacked\\EasyTranslate.exe",
+      "sha256": "56049A52BB4E226B034F9C5EF6F50AF3369B763E16584C3F15E6BDEE729F5922"
+    },
+    "stockElectron": {
+      "path": "E:\\EasyTranslate-implementation-notes-20261020\\windows-final-validation\\source-dd7a274\\node_modules\\electron\\dist\\electron.exe",
+      "version": "43.2.0",
+      "sha256": "8593DB40C0C6E5E3C4B6B0A225B1DC9A549ECDF10F6CF2010CF5B6CE869CE07F",
+      "reusedBytesMatchPrevious": true
+    },
+    "plannedLabel": "final-review-15c32a5-20261023-2",
+    "previousLatestArtifactAttempt": {
+      "sourceCommandAcknowledged": false,
+      "clipboardRestoredFormatPresence": true,
+      "rootOwnedProcessCheck": 0,
+      "clipboardSavedFormats": 8,
+      "raw": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\runs-final-review-15c32a5-20261022-1",
+      "status": "INCOMPLETE precondition failure before first Alt+Q",
+      "emittedShortcuts": 0
+    },
+    "nonGuiCommandProtocolProbe": {
+      "ackMs": {
+        "p50": 58.4596,
+        "min": 43.0607,
+        "max": 261.2531,
+        "p95": 185.9575
+      },
+      "profile": "10 fresh isolated allowlisted PowerShell processes",
+      "firstReadAckMs": {
+        "p50": 185.9575,
+        "min": 169.76420000000002,
+        "max": 261.2531,
+        "p95": 261.2531,
+        "n": 10
+      },
+      "exchanges": 100,
+      "catchFailures": 0,
+      "allPassed": true,
+      "scope": "Actual frozen timer callback with fake Form/Box; no WinForms, GUI, OS activation, Electron, keyboard, clipboard or network; cannot prove GUI message-pump/focus behavior"
+    },
+    "proposedControlledChange": "Human clicks the owned synthetic source window once before the first key, then leaves keyboard/mouse idle; external activation condition only, no timed-script/parameter/gate change; no automatic retry."
+  },
+  "protocol": {
+    "baselineSource": "6c85be6 (same application code as 75516d6)",
+    "cold": 7,
+    "warm": 30,
+    "empty": 1,
+    "idleSeconds": 30,
+    "controlledTransportMs": 50,
+    "sampler": "causal-creation-v2",
+    "quantiles": "nearest-rank; 7 first samples have coarse maximum-like P95",
+    "resultTiming": "visible DOM mutation availability, not physical pixel presentation",
+    "launch": "stock Electron loads unchanged production ASAR; frozen Chromium remote-debugging-port=9333, no Node inspector or debugger attachment"
+  },
+  "cohortComplete": true,
+  "acceptanceScope": "complete frozen cohort",
+  "allPassed": true,
+  "checks": [
+    {
+      "name": "Frozen cohort is complete",
+      "pass": true,
+      "observed": {
+        "runs": 7,
+        "first": 7,
+        "warm": 30,
+        "empty": 1,
+        "retainedIdleMs": {
+          "before": 27896,
+          "after": 27908
+        }
+      },
+      "limit": "7 fresh processes/profiles, 30 warm, 1 empty, two 30-second intervals excluding first 2 seconds",
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "No harness precondition violation",
+      "pass": true,
+      "observed": [],
+      "limit": "exact owned source HWND before Alt+Q and exact synthetic source before capture/transport logging",
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "First successful show P50 improves",
+      "pass": true,
+      "observed": 788,
+      "limit": 923,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "First successful DOM P50 improves",
+      "pass": true,
+      "observed": 857,
+      "limit": 1120,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "warmSuccessful showMs p50",
+      "pass": true,
+      "observed": 734,
+      "limit": 1037.3,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "warmSuccessful showMs p95",
+      "pass": true,
+      "observed": 754,
+      "limit": 1191.4,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "warmSuccessful domResultMs p50",
+      "pass": true,
+      "observed": 802,
+      "limit": 1107.45,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "warmSuccessful domResultMs p95",
+      "pass": true,
+      "observed": 820,
+      "limit": 1269.6,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "warm showMs p50",
+      "pass": true,
+      "observed": 734,
+      "limit": 1038.45,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "warm showMs p95",
+      "pass": true,
+      "observed": 754,
+      "limit": 2040.1,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "No additional cold capture timeout count",
+      "pass": true,
+      "observed": [],
+      "limit": 1,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "No additional warm capture timeout count",
+      "pass": true,
+      "observed": [],
+      "limit": 2,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "Every nonempty capture reaches its visible result and one transport",
+      "pass": true,
+      "observed": 37,
+      "limit": "all nonempty captures, exact synthetic source/result, visible DOM, accepted history ID",
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "All empty captures skip transport, result and history",
+      "pass": true,
+      "observed": 1,
+      "limit": "no translation or history ID for deliberate empty or copy timeout",
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "Clipboard text/HTML/RTF restored",
+      "pass": true,
+      "observed": 38,
+      "limit": "all 38 captures",
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "Every shortcut and attempt observed",
+      "pass": true,
+      "observed": 38,
+      "limit": 38,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "Durable history is exactly latest successful captures",
+      "pass": true,
+      "observed": [
+        {
+          "run": "cold-1",
+          "count": 20,
+          "expectedCount": 20,
+          "matches": true
+        },
+        {
+          "run": "cold-2",
+          "count": 1,
+          "expectedCount": 1,
+          "matches": true
+        },
+        {
+          "run": "cold-3",
+          "count": 1,
+          "expectedCount": 1,
+          "matches": true
+        },
+        {
+          "run": "cold-4",
+          "count": 1,
+          "expectedCount": 1,
+          "matches": true
+        },
+        {
+          "run": "cold-5",
+          "count": 1,
+          "expectedCount": 1,
+          "matches": true
+        },
+        {
+          "run": "cold-6",
+          "count": 1,
+          "expectedCount": 1,
+          "matches": true
+        },
+        {
+          "run": "cold-7",
+          "count": 1,
+          "expectedCount": 1,
+          "matches": true
+        }
+      ],
+      "limit": "newest 20 successful captures per isolated run; no failed/empty capture history",
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "Idle normalized CPU",
+      "pass": true,
+      "observed": {
+        "before": 0.024505081373673646,
+        "after": 0.013996882614304141
+      },
+      "limit": 1,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "Steady private MiB",
+      "pass": true,
+      "observed": 248.0859375,
+      "limit": 315.7828125,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "Two created/live windows per run",
+      "pass": true,
+      "observed": [
+        {
+          "run": "cold-1",
+          "created": 2,
+          "maxLive": 2,
+          "ids": [
+            {
+              "kind": "main",
+              "id": 1
+            },
+            {
+              "kind": "popup",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "run": "cold-2",
+          "created": 2,
+          "maxLive": 2,
+          "ids": [
+            {
+              "kind": "main",
+              "id": 1
+            },
+            {
+              "kind": "popup",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "run": "cold-3",
+          "created": 2,
+          "maxLive": 2,
+          "ids": [
+            {
+              "kind": "main",
+              "id": 1
+            },
+            {
+              "kind": "popup",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "run": "cold-4",
+          "created": 2,
+          "maxLive": 2,
+          "ids": [
+            {
+              "kind": "main",
+              "id": 1
+            },
+            {
+              "kind": "popup",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "run": "cold-5",
+          "created": 2,
+          "maxLive": 2,
+          "ids": [
+            {
+              "kind": "main",
+              "id": 1
+            },
+            {
+              "kind": "popup",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "run": "cold-6",
+          "created": 2,
+          "maxLive": 2,
+          "ids": [
+            {
+              "kind": "main",
+              "id": 1
+            },
+            {
+              "kind": "popup",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "run": "cold-7",
+          "created": 2,
+          "maxLive": 2,
+          "ids": [
+            {
+              "kind": "main",
+              "id": 1
+            },
+            {
+              "kind": "popup",
+              "id": 2
+            }
+          ]
+        }
+      ],
+      "limit": 2,
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "No retained process growth after 30 warm invocations",
+      "pass": true,
+      "observed": {
+        "beforeProcesses": {
+          "n": 257,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "afterProcesses": {
+          "n": 257,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "finalIdleCount": 5,
+        "finalIdleIdentities": "19888:22580:639283183621028307:0.265625:31555584:81649664;21428:22580:639283183625139029:0.90625:40636416:100597760;33736:22580:639283183619643675:0.078125:11870208:46252032;22580:30424:639283183615645391:3.0625:82292736:120131584;37192:22580:639283183619587296:1.6875:90841088:123785216",
+        "transientMaxProcesses": 7
+      },
+      "limit": "prewarm P50 and after-idle P50/P95/final count = 5; helper transient peak is observation",
+      "observedComparisonPass": true,
+      "status": "pass"
+    },
+    {
+      "name": "Every run exits naturally with code zero",
+      "pass": true,
+      "observed": [
+        {
+          "run": "cold-1",
+          "exitCode": 0,
+          "quitObserved": true
+        },
+        {
+          "run": "cold-2",
+          "exitCode": 0,
+          "quitObserved": true
+        },
+        {
+          "run": "cold-3",
+          "exitCode": 0,
+          "quitObserved": true
+        },
+        {
+          "run": "cold-4",
+          "exitCode": 0,
+          "quitObserved": true
+        },
+        {
+          "run": "cold-5",
+          "exitCode": 0,
+          "quitObserved": true
+        },
+        {
+          "run": "cold-6",
+          "exitCode": 0,
+          "quitObserved": true
+        },
+        {
+          "run": "cold-7",
+          "exitCode": 0,
+          "quitObserved": true
+        }
+      ],
+      "limit": "quit observed and native process exit0 for all seven runs",
+      "observedComparisonPass": true,
+      "status": "pass"
+    }
+  ],
+  "failures": [],
+  "runs": [
+    {
+      "run": "cold-1",
+      "complete": true,
+      "launch": {
+        "t": 1792721561840,
+        "event": "launcher",
+        "trial": null,
+        "pid": 22580,
+        "electron": "43.2.0",
+        "node": "24.18.0"
+      },
+      "popupAppReadyMs": 1186,
+      "popupDocumentMs": 1181,
+      "observerReadyMs": 1192,
+      "exitCode": 0,
+      "quitObserved": true,
+      "naturallyExited": true,
+      "stderrEmpty": false,
+      "harnessFailures": [],
+      "attempts": [
+        {
+          "trial": "cold-1-invoke-1",
+          "group": "first",
+          "expectedSource": "Hello baseline world 1.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 1.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721593675001,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 1.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-2",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 2.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 2.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721595324002,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 2.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-3",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 3.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 3.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721596948003,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 3.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-4",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 4.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 4.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721598572004,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 4.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-5",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 5.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 5.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721600224005,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 5.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-6",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 6.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 6.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721601851006,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 6.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-7",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 7.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 7.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721603502007,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 7.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-8",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 8.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 8.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721605205008,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 8.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-9",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 9.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 9.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721606859009,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 9.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-10",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 10.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 10.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721608483010,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 10.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-11",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 11.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 11.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721610233011,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 11.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-12",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 12.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 12.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721611847012,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 12.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-13",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 13.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 13.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721613560013,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 13.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-14",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 14.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 14.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721615229014,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 14.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-15",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 15.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 15.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721616845015,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 15.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-16",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 16.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 16.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721618418016,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 16.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-17",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 17.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 17.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721620127017,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 17.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-18",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 18.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 18.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721621813018,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 18.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-19",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 19.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 19.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721623386019,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 19.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-20",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 20.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 20.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721625006020,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 20.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-21",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 21.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 21.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721626644021,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 21.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-22",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 22.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 22.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721628282022,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 22.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-23",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 23.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 23.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721629954023,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 23.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-24",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 24.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 24.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721631622024,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 24.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-25",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 25.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 25.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721633365025,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 25.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-26",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 26.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 26.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721634950026,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 26.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-27",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 27.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 27.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721636528027,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 27.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-28",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 28.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 28.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721638162028,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 28.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-29",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 29.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 29.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721639739029,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 29.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-30",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 30.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 30.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721641433030,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 30.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-31",
+          "group": "warm",
+          "expectedSource": "Hello baseline world 31.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 31.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721643145031,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 31.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 6,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        },
+        {
+          "trial": "cold-1-invoke-32",
+          "group": "empty",
+          "expectedSource": "",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "",
+          "selectionSource": "empty",
+          "reason": "copy-timeout",
+          "nonemptyCapture": false,
+          "captureMatchesFixture": true,
+          "transportCount": 0,
+          "transportMatchesCapture": true,
+          "backendSuccess": false,
+          "domMatchesCapture": false,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 39520068,
+          "sourceWindow": 39520068,
+          "foregroundSamples": 14,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            39520068
+          ]
+        }
+      ],
+      "history": {
+        "count": 20,
+        "expectedCount": 20,
+        "matchesLatestSuccessfulCaptures": true,
+        "rows": [
+          {
+            "id": 1792721643145031,
+            "src": "Hello baseline world 31.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 31.",
+            "favorite": false
+          },
+          {
+            "id": 1792721641433030,
+            "src": "Hello baseline world 30.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 30.",
+            "favorite": false
+          },
+          {
+            "id": 1792721639739029,
+            "src": "Hello baseline world 29.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 29.",
+            "favorite": false
+          },
+          {
+            "id": 1792721638162028,
+            "src": "Hello baseline world 28.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 28.",
+            "favorite": false
+          },
+          {
+            "id": 1792721636528027,
+            "src": "Hello baseline world 27.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 27.",
+            "favorite": false
+          },
+          {
+            "id": 1792721634950026,
+            "src": "Hello baseline world 26.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 26.",
+            "favorite": false
+          },
+          {
+            "id": 1792721633365025,
+            "src": "Hello baseline world 25.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 25.",
+            "favorite": false
+          },
+          {
+            "id": 1792721631622024,
+            "src": "Hello baseline world 24.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 24.",
+            "favorite": false
+          },
+          {
+            "id": 1792721629954023,
+            "src": "Hello baseline world 23.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 23.",
+            "favorite": false
+          },
+          {
+            "id": 1792721628282022,
+            "src": "Hello baseline world 22.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 22.",
+            "favorite": false
+          },
+          {
+            "id": 1792721626644021,
+            "src": "Hello baseline world 21.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 21.",
+            "favorite": false
+          },
+          {
+            "id": 1792721625006020,
+            "src": "Hello baseline world 20.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 20.",
+            "favorite": false
+          },
+          {
+            "id": 1792721623386019,
+            "src": "Hello baseline world 19.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 19.",
+            "favorite": false
+          },
+          {
+            "id": 1792721621813018,
+            "src": "Hello baseline world 18.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 18.",
+            "favorite": false
+          },
+          {
+            "id": 1792721620127017,
+            "src": "Hello baseline world 17.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 17.",
+            "favorite": false
+          },
+          {
+            "id": 1792721618418016,
+            "src": "Hello baseline world 16.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 16.",
+            "favorite": false
+          },
+          {
+            "id": 1792721616845015,
+            "src": "Hello baseline world 15.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 15.",
+            "favorite": false
+          },
+          {
+            "id": 1792721615229014,
+            "src": "Hello baseline world 14.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 14.",
+            "favorite": false
+          },
+          {
+            "id": 1792721613560013,
+            "src": "Hello baseline world 13.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 13.",
+            "favorite": false
+          },
+          {
+            "id": 1792721611847012,
+            "src": "Hello baseline world 12.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 12.",
+            "favorite": false
+          }
+        ]
+      },
+      "windows": {
+        "created": 2,
+        "maxLive": 2,
+        "ids": [
+          {
+            "kind": "main",
+            "id": 1
+          },
+          {
+            "kind": "popup",
+            "id": 2
+          }
+        ]
+      },
+      "cpu": {
+        "logicalProcessors": 16,
+        "observedCumulativeSeconds": 23.0625,
+        "intervalNormalizedPercent": {
+          "n": 1056,
+          "min": 0,
+          "p50": 0,
+          "p95": 8.06336009174312,
+          "max": 18.04517663043478
+        },
+        "interpretation": "Sample-to-sample full-tree CPU delta / wall time / logical CPUs; newly observed child lifetime CPU is charged on discovery, so short-interval maxima are noisy and not a hardware peak."
+      },
+      "retained": {
+        "beforeProcesses": {
+          "n": 257,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "afterProcesses": {
+          "n": 257,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "finalIdleCount": 5,
+        "finalIdleIdentities": "19888:22580:639283183621028307:0.265625:31555584:81649664;21428:22580:639283183625139029:0.90625:40636416:100597760;33736:22580:639283183619643675:0.078125:11870208:46252032;22580:30424:639283183615645391:3.0625:82292736:120131584;37192:22580:639283183619587296:1.6875:90841088:123785216",
+        "transientMaxProcesses": 7
+      },
+      "idleDurationMs": {
+        "before": 27896,
+        "after": 27908
+      }
+    },
+    {
+      "run": "cold-2",
+      "complete": true,
+      "launch": {
+        "t": 1792721678031,
+        "event": "launcher",
+        "trial": null,
+        "pid": 33516,
+        "electron": "43.2.0",
+        "node": "24.18.0"
+      },
+      "popupAppReadyMs": 821,
+      "popupDocumentMs": 819,
+      "observerReadyMs": 826,
+      "exitCode": 0,
+      "quitObserved": true,
+      "naturallyExited": true,
+      "stderrEmpty": false,
+      "harnessFailures": [],
+      "attempts": [
+        {
+          "trial": "cold-2-invoke-1",
+          "group": "first",
+          "expectedSource": "Hello baseline world 1.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 1.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721679724001,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 1.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 9045576,
+          "sourceWindow": 9045576,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            9045576
+          ]
+        }
+      ],
+      "history": {
+        "count": 1,
+        "expectedCount": 1,
+        "matchesLatestSuccessfulCaptures": true,
+        "rows": [
+          {
+            "id": 1792721679724001,
+            "src": "Hello baseline world 1.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 1.",
+            "favorite": false
+          }
+        ]
+      },
+      "windows": {
+        "created": 2,
+        "maxLive": 2,
+        "ids": [
+          {
+            "kind": "main",
+            "id": 1
+          },
+          {
+            "kind": "popup",
+            "id": 2
+          }
+        ]
+      },
+      "cpu": {
+        "logicalProcessors": 16,
+        "observedCumulativeSeconds": 2.203125,
+        "intervalNormalizedPercent": {
+          "n": 25,
+          "min": 0,
+          "p50": 2.6877866972477062,
+          "p95": 13.950892857142858,
+          "max": 18.64346590909091
+        },
+        "interpretation": "Sample-to-sample full-tree CPU delta / wall time / logical CPUs; newly observed child lifetime CPU is charged on discovery, so short-interval maxima are noisy and not a hardware peak."
+      },
+      "retained": {
+        "beforeProcesses": {
+          "n": 0
+        },
+        "afterProcesses": {
+          "n": 0
+        },
+        "transientMaxProcesses": 7
+      },
+      "idleDurationMs": {
+        "before": null,
+        "after": null
+      }
+    },
+    {
+      "run": "cold-3",
+      "complete": true,
+      "launch": {
+        "t": 1792721681793,
+        "event": "launcher",
+        "trial": null,
+        "pid": 28804,
+        "electron": "43.2.0",
+        "node": "24.18.0"
+      },
+      "popupAppReadyMs": 712,
+      "popupDocumentMs": 709,
+      "observerReadyMs": 718,
+      "exitCode": 0,
+      "quitObserved": true,
+      "naturallyExited": true,
+      "stderrEmpty": false,
+      "harnessFailures": [],
+      "attempts": [
+        {
+          "trial": "cold-3-invoke-1",
+          "group": "first",
+          "expectedSource": "Hello baseline world 1.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 1.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721683507001,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 1.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 38343284,
+          "sourceWindow": 38343284,
+          "foregroundSamples": 9,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            38343284
+          ]
+        }
+      ],
+      "history": {
+        "count": 1,
+        "expectedCount": 1,
+        "matchesLatestSuccessfulCaptures": true,
+        "rows": [
+          {
+            "id": 1792721683507001,
+            "src": "Hello baseline world 1.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 1.",
+            "favorite": false
+          }
+        ]
+      },
+      "windows": {
+        "created": 2,
+        "maxLive": 2,
+        "ids": [
+          {
+            "kind": "main",
+            "id": 1
+          },
+          {
+            "kind": "popup",
+            "id": 2
+          }
+        ]
+      },
+      "cpu": {
+        "logicalProcessors": 16,
+        "observedCumulativeSeconds": 2.859375,
+        "intervalNormalizedPercent": {
+          "n": 25,
+          "min": 0,
+          "p50": 5.278716216216216,
+          "p95": 20.516018907563026,
+          "max": 23.29415137614679
+        },
+        "interpretation": "Sample-to-sample full-tree CPU delta / wall time / logical CPUs; newly observed child lifetime CPU is charged on discovery, so short-interval maxima are noisy and not a hardware peak."
+      },
+      "retained": {
+        "beforeProcesses": {
+          "n": 0
+        },
+        "afterProcesses": {
+          "n": 0
+        },
+        "transientMaxProcesses": 7
+      },
+      "idleDurationMs": {
+        "before": null,
+        "after": null
+      }
+    },
+    {
+      "run": "cold-4",
+      "complete": true,
+      "launch": {
+        "t": 1792721685738,
+        "event": "launcher",
+        "trial": null,
+        "pid": 44312,
+        "electron": "43.2.0",
+        "node": "24.18.0"
+      },
+      "popupAppReadyMs": 905,
+      "popupDocumentMs": 902,
+      "observerReadyMs": 911,
+      "exitCode": 0,
+      "quitObserved": true,
+      "naturallyExited": true,
+      "stderrEmpty": false,
+      "harnessFailures": [],
+      "attempts": [
+        {
+          "trial": "cold-4-invoke-1",
+          "group": "first",
+          "expectedSource": "Hello baseline world 1.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 1.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721687460001,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 1.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 6946904,
+          "sourceWindow": 6946904,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            6946904
+          ]
+        }
+      ],
+      "history": {
+        "count": 1,
+        "expectedCount": 1,
+        "matchesLatestSuccessfulCaptures": true,
+        "rows": [
+          {
+            "id": 1792721687460001,
+            "src": "Hello baseline world 1.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 1.",
+            "favorite": false
+          }
+        ]
+      },
+      "windows": {
+        "created": 2,
+        "maxLive": 2,
+        "ids": [
+          {
+            "kind": "main",
+            "id": 1
+          },
+          {
+            "kind": "popup",
+            "id": 2
+          }
+        ]
+      },
+      "cpu": {
+        "logicalProcessors": 16,
+        "observedCumulativeSeconds": 2.859375,
+        "intervalNormalizedPercent": {
+          "n": 26,
+          "min": 0,
+          "p50": 4.4796444954128445,
+          "p95": 20.304764851485146,
+          "max": 24.205395299145298
+        },
+        "interpretation": "Sample-to-sample full-tree CPU delta / wall time / logical CPUs; newly observed child lifetime CPU is charged on discovery, so short-interval maxima are noisy and not a hardware peak."
+      },
+      "retained": {
+        "beforeProcesses": {
+          "n": 0
+        },
+        "afterProcesses": {
+          "n": 0
+        },
+        "transientMaxProcesses": 7
+      },
+      "idleDurationMs": {
+        "before": null,
+        "after": null
+      }
+    },
+    {
+      "run": "cold-5",
+      "complete": true,
+      "launch": {
+        "t": 1792721689631,
+        "event": "launcher",
+        "trial": null,
+        "pid": 39820,
+        "electron": "43.2.0",
+        "node": "24.18.0"
+      },
+      "popupAppReadyMs": 751,
+      "popupDocumentMs": 748,
+      "observerReadyMs": 756,
+      "exitCode": 0,
+      "quitObserved": true,
+      "naturallyExited": true,
+      "stderrEmpty": false,
+      "harnessFailures": [],
+      "attempts": [
+        {
+          "trial": "cold-5-invoke-1",
+          "group": "first",
+          "expectedSource": "Hello baseline world 1.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 1.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721691242001,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 1.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 12653188,
+          "sourceWindow": 12653188,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            12653188
+          ]
+        }
+      ],
+      "history": {
+        "count": 1,
+        "expectedCount": 1,
+        "matchesLatestSuccessfulCaptures": true,
+        "rows": [
+          {
+            "id": 1792721691242001,
+            "src": "Hello baseline world 1.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 1.",
+            "favorite": false
+          }
+        ]
+      },
+      "windows": {
+        "created": 2,
+        "maxLive": 2,
+        "ids": [
+          {
+            "kind": "main",
+            "id": 1
+          },
+          {
+            "kind": "popup",
+            "id": 2
+          }
+        ]
+      },
+      "cpu": {
+        "logicalProcessors": 16,
+        "observedCumulativeSeconds": 2.375,
+        "intervalNormalizedPercent": {
+          "n": 25,
+          "min": 0,
+          "p50": 1.9337871287128712,
+          "p95": 17.37950211864407,
+          "max": 17.841045673076923
+        },
+        "interpretation": "Sample-to-sample full-tree CPU delta / wall time / logical CPUs; newly observed child lifetime CPU is charged on discovery, so short-interval maxima are noisy and not a hardware peak."
+      },
+      "retained": {
+        "beforeProcesses": {
+          "n": 0
+        },
+        "afterProcesses": {
+          "n": 0
+        },
+        "transientMaxProcesses": 7
+      },
+      "idleDurationMs": {
+        "before": null,
+        "after": null
+      }
+    },
+    {
+      "run": "cold-6",
+      "complete": true,
+      "launch": {
+        "t": 1792721693433,
+        "event": "launcher",
+        "trial": null,
+        "pid": 33288,
+        "electron": "43.2.0",
+        "node": "24.18.0"
+      },
+      "popupAppReadyMs": 700,
+      "popupDocumentMs": 698,
+      "observerReadyMs": 705,
+      "exitCode": 0,
+      "quitObserved": true,
+      "naturallyExited": true,
+      "stderrEmpty": false,
+      "harnessFailures": [],
+      "attempts": [
+        {
+          "trial": "cold-6-invoke-1",
+          "group": "first",
+          "expectedSource": "Hello baseline world 1.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 1.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721694956001,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 1.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 8586324,
+          "sourceWindow": 8586324,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            8586324
+          ]
+        }
+      ],
+      "history": {
+        "count": 1,
+        "expectedCount": 1,
+        "matchesLatestSuccessfulCaptures": true,
+        "rows": [
+          {
+            "id": 1792721694956001,
+            "src": "Hello baseline world 1.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 1.",
+            "favorite": false
+          }
+        ]
+      },
+      "windows": {
+        "created": 2,
+        "maxLive": 2,
+        "ids": [
+          {
+            "kind": "main",
+            "id": 1
+          },
+          {
+            "kind": "popup",
+            "id": 2
+          }
+        ]
+      },
+      "cpu": {
+        "logicalProcessors": 16,
+        "observedCumulativeSeconds": 2.375,
+        "intervalNormalizedPercent": {
+          "n": 21,
+          "min": 0,
+          "p50": 4.982461734693877,
+          "p95": 17.28429203539823,
+          "max": 25.513795045045043
+        },
+        "interpretation": "Sample-to-sample full-tree CPU delta / wall time / logical CPUs; newly observed child lifetime CPU is charged on discovery, so short-interval maxima are noisy and not a hardware peak."
+      },
+      "retained": {
+        "beforeProcesses": {
+          "n": 0
+        },
+        "afterProcesses": {
+          "n": 0
+        },
+        "transientMaxProcesses": 7
+      },
+      "idleDurationMs": {
+        "before": null,
+        "after": null
+      }
+    },
+    {
+      "run": "cold-7",
+      "complete": true,
+      "launch": {
+        "t": 1792721696626,
+        "event": "launcher",
+        "trial": null,
+        "pid": 12460,
+        "electron": "43.2.0",
+        "node": "24.18.0"
+      },
+      "popupAppReadyMs": 679,
+      "popupDocumentMs": 677,
+      "observerReadyMs": 683,
+      "exitCode": 0,
+      "quitObserved": true,
+      "naturallyExited": true,
+      "stderrEmpty": false,
+      "harnessFailures": [],
+      "attempts": [
+        {
+          "trial": "cold-7-invoke-1",
+          "group": "first",
+          "expectedSource": "Hello baseline world 1.",
+          "shortcutObserved": true,
+          "captureObserved": true,
+          "capturedText": "Hello baseline world 1.",
+          "selectionSource": "win32-selection",
+          "nonemptyCapture": true,
+          "captureMatchesFixture": true,
+          "transportCount": 1,
+          "transportMatchesCapture": true,
+          "backendSuccess": true,
+          "historyId": 1792721698164001,
+          "domText": "BENCH_TRANSLATED: Hello baseline world 1.",
+          "domVisible": "visible",
+          "domMatchesCapture": true,
+          "clipboard": {
+            "text": true,
+            "html": true,
+            "rtf": true
+          },
+          "driverCompleted": true,
+          "foregroundAtEmission": 4392152,
+          "sourceWindow": 4392152,
+          "foregroundSamples": 7,
+          "outsideSourceSamples": 0,
+          "observedForegrounds": [
+            4392152
+          ]
+        }
+      ],
+      "history": {
+        "count": 1,
+        "expectedCount": 1,
+        "matchesLatestSuccessfulCaptures": true,
+        "rows": [
+          {
+            "id": 1792721698164001,
+            "src": "Hello baseline world 1.",
+            "dst": "BENCH_TRANSLATED: Hello baseline world 1.",
+            "favorite": false
+          }
+        ]
+      },
+      "windows": {
+        "created": 2,
+        "maxLive": 2,
+        "ids": [
+          {
+            "kind": "main",
+            "id": 1
+          },
+          {
+            "kind": "popup",
+            "id": 2
+          }
+        ]
+      },
+      "cpu": {
+        "logicalProcessors": 16,
+        "observedCumulativeSeconds": 2.171875,
+        "intervalNormalizedPercent": {
+          "n": 26,
+          "min": 0,
+          "p50": 2.6877866972477062,
+          "p95": 17.022649082568808,
+          "max": 24.4140625
+        },
+        "interpretation": "Sample-to-sample full-tree CPU delta / wall time / logical CPUs; newly observed child lifetime CPU is charged on discovery, so short-interval maxima are noisy and not a hardware peak."
+      },
+      "retained": {
+        "beforeProcesses": {
+          "n": 0
+        },
+        "afterProcesses": {
+          "n": 0
+        },
+        "transientMaxProcesses": 7
+      },
+      "idleDurationMs": {
+        "before": null,
+        "after": null
+      }
+    }
+  ],
+  "measurements": {
+    "folder": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\runs-final-review-15c32a5-20261023-2",
+    "logicalProcessors": 16,
+    "startup": [
+      {
+        "run": "cold-1",
+        "appReadyMs": 442,
+        "mainReadyMs": 961
+      },
+      {
+        "run": "cold-2",
+        "appReadyMs": 287,
+        "mainReadyMs": 634
+      },
+      {
+        "run": "cold-3",
+        "appReadyMs": 232,
+        "mainReadyMs": 499
+      },
+      {
+        "run": "cold-4",
+        "appReadyMs": 310,
+        "mainReadyMs": 642
+      },
+      {
+        "run": "cold-5",
+        "appReadyMs": 252,
+        "mainReadyMs": 526
+      },
+      {
+        "run": "cold-6",
+        "appReadyMs": 242,
+        "mainReadyMs": 498
+      },
+      {
+        "run": "cold-7",
+        "appReadyMs": 231,
+        "mainReadyMs": 471
+      }
+    ],
+    "first": [
+      {
+        "trial": "cold-1-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 738,
+        "helperMs": 604,
+        "showMs": 771,
+        "popupDocumentMs": null,
+        "backendResultMs": 844,
+        "domResultMs": 840,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 33,
+        "afterCaptureToDomMs": 102
+      },
+      {
+        "trial": "cold-2-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 738,
+        "helperMs": 600,
+        "showMs": 767,
+        "popupDocumentMs": null,
+        "backendResultMs": 845,
+        "domResultMs": 841,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 29,
+        "afterCaptureToDomMs": 103
+      },
+      {
+        "trial": "cold-3-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 916,
+        "helperMs": 779,
+        "showMs": 948,
+        "popupDocumentMs": null,
+        "backendResultMs": 1014,
+        "domResultMs": 1010,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 32,
+        "afterCaptureToDomMs": 94
+      },
+      {
+        "trial": "cold-4-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 768,
+        "helperMs": 629,
+        "showMs": 799,
+        "popupDocumentMs": null,
+        "backendResultMs": 875,
+        "domResultMs": 872,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 31,
+        "afterCaptureToDomMs": 104
+      },
+      {
+        "trial": "cold-5-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 757,
+        "helperMs": 618,
+        "showMs": 795,
+        "popupDocumentMs": null,
+        "backendResultMs": 875,
+        "domResultMs": 871,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 38,
+        "afterCaptureToDomMs": 114
+      },
+      {
+        "trial": "cold-6-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 724,
+        "helperMs": 597,
+        "showMs": 751,
+        "popupDocumentMs": null,
+        "backendResultMs": 832,
+        "domResultMs": 827,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 27,
+        "afterCaptureToDomMs": 103
+      },
+      {
+        "trial": "cold-7-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 735,
+        "helperMs": 596,
+        "showMs": 788,
+        "popupDocumentMs": null,
+        "backendResultMs": 861,
+        "domResultMs": 857,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 53,
+        "afterCaptureToDomMs": 122
+      }
+    ],
+    "warm": [
+      {
+        "trial": "cold-1-invoke-2",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 720,
+        "helperMs": 583,
+        "showMs": 727,
+        "popupDocumentMs": null,
+        "backendResultMs": 795,
+        "domResultMs": 794,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 7,
+        "afterCaptureToDomMs": 74
+      },
+      {
+        "trial": "cold-1-invoke-3",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 705,
+        "helperMs": 566,
+        "showMs": 733,
+        "popupDocumentMs": null,
+        "backendResultMs": 796,
+        "domResultMs": 795,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 28,
+        "afterCaptureToDomMs": 90
+      },
+      {
+        "trial": "cold-1-invoke-4",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 720,
+        "helperMs": 582,
+        "showMs": 725,
+        "popupDocumentMs": null,
+        "backendResultMs": 796,
+        "domResultMs": 794,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 5,
+        "afterCaptureToDomMs": 74
+      },
+      {
+        "trial": "cold-1-invoke-5",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 722,
+        "helperMs": 582,
+        "showMs": 749,
+        "popupDocumentMs": null,
+        "backendResultMs": 813,
+        "domResultMs": 809,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 27,
+        "afterCaptureToDomMs": 87
+      },
+      {
+        "trial": "cold-1-invoke-6",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 727,
+        "helperMs": 586,
+        "showMs": 750,
+        "popupDocumentMs": null,
+        "backendResultMs": 815,
+        "domResultMs": 812,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 23,
+        "afterCaptureToDomMs": 85
+      },
+      {
+        "trial": "cold-1-invoke-7",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 733,
+        "helperMs": 597,
+        "showMs": 750,
+        "popupDocumentMs": null,
+        "backendResultMs": 810,
+        "domResultMs": 808,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 17,
+        "afterCaptureToDomMs": 75
+      },
+      {
+        "trial": "cold-1-invoke-8",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 722,
+        "helperMs": 583,
+        "showMs": 728,
+        "popupDocumentMs": null,
+        "backendResultMs": 788,
+        "domResultMs": 787,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": 65
+      },
+      {
+        "trial": "cold-1-invoke-9",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 722,
+        "helperMs": 596,
+        "showMs": 742,
+        "popupDocumentMs": null,
+        "backendResultMs": 811,
+        "domResultMs": 809,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 20,
+        "afterCaptureToDomMs": 87
+      },
+      {
+        "trial": "cold-1-invoke-10",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 741,
+        "helperMs": 601,
+        "showMs": 749,
+        "popupDocumentMs": null,
+        "backendResultMs": 814,
+        "domResultMs": 812,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 8,
+        "afterCaptureToDomMs": 71
+      },
+      {
+        "trial": "cold-1-invoke-11",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 765,
+        "helperMs": 613,
+        "showMs": 800,
+        "popupDocumentMs": null,
+        "backendResultMs": 878,
+        "domResultMs": 877,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 35,
+        "afterCaptureToDomMs": 112
+      },
+      {
+        "trial": "cold-1-invoke-12",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 718,
+        "helperMs": 579,
+        "showMs": 733,
+        "popupDocumentMs": null,
+        "backendResultMs": 804,
+        "domResultMs": 803,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 15,
+        "afterCaptureToDomMs": 85
+      },
+      {
+        "trial": "cold-1-invoke-13",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 735,
+        "helperMs": 595,
+        "showMs": 742,
+        "popupDocumentMs": null,
+        "backendResultMs": 808,
+        "domResultMs": 805,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 7,
+        "afterCaptureToDomMs": 70
+      },
+      {
+        "trial": "cold-1-invoke-14",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 717,
+        "helperMs": 582,
+        "showMs": 739,
+        "popupDocumentMs": null,
+        "backendResultMs": 807,
+        "domResultMs": 803,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 22,
+        "afterCaptureToDomMs": 86
+      },
+      {
+        "trial": "cold-1-invoke-15",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 732,
+        "helperMs": 594,
+        "showMs": 750,
+        "popupDocumentMs": null,
+        "backendResultMs": 821,
+        "domResultMs": 820,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 18,
+        "afterCaptureToDomMs": 88
+      },
+      {
+        "trial": "cold-1-invoke-16",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 707,
+        "helperMs": 567,
+        "showMs": 713,
+        "popupDocumentMs": null,
+        "backendResultMs": 784,
+        "domResultMs": 780,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": 73
+      },
+      {
+        "trial": "cold-1-invoke-17",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 720,
+        "helperMs": 582,
+        "showMs": 734,
+        "popupDocumentMs": null,
+        "backendResultMs": 810,
+        "domResultMs": 808,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 14,
+        "afterCaptureToDomMs": 88
+      },
+      {
+        "trial": "cold-1-invoke-18",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 720,
+        "helperMs": 581,
+        "showMs": 728,
+        "popupDocumentMs": null,
+        "backendResultMs": 795,
+        "domResultMs": 794,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 8,
+        "afterCaptureToDomMs": 74
+      },
+      {
+        "trial": "cold-1-invoke-19",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 725,
+        "helperMs": 583,
+        "showMs": 738,
+        "popupDocumentMs": null,
+        "backendResultMs": 798,
+        "domResultMs": 797,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 13,
+        "afterCaptureToDomMs": 72
+      },
+      {
+        "trial": "cold-1-invoke-20",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 719,
+        "helperMs": 582,
+        "showMs": 727,
+        "popupDocumentMs": null,
+        "backendResultMs": 796,
+        "domResultMs": 794,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 8,
+        "afterCaptureToDomMs": 75
+      },
+      {
+        "trial": "cold-1-invoke-21",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 716,
+        "helperMs": 578,
+        "showMs": 734,
+        "popupDocumentMs": null,
+        "backendResultMs": 803,
+        "domResultMs": 801,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 18,
+        "afterCaptureToDomMs": 85
+      },
+      {
+        "trial": "cold-1-invoke-22",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 707,
+        "helperMs": 566,
+        "showMs": 714,
+        "popupDocumentMs": null,
+        "backendResultMs": 781,
+        "domResultMs": 777,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 7,
+        "afterCaptureToDomMs": 70
+      },
+      {
+        "trial": "cold-1-invoke-23",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 717,
+        "helperMs": 577,
+        "showMs": 732,
+        "popupDocumentMs": null,
+        "backendResultMs": 802,
+        "domResultMs": 800,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 15,
+        "afterCaptureToDomMs": 83
+      },
+      {
+        "trial": "cold-1-invoke-24",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 708,
+        "helperMs": 569,
+        "showMs": 714,
+        "popupDocumentMs": null,
+        "backendResultMs": 782,
+        "domResultMs": 780,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": 72
+      },
+      {
+        "trial": "cold-1-invoke-25",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 737,
+        "helperMs": 599,
+        "showMs": 750,
+        "popupDocumentMs": null,
+        "backendResultMs": 810,
+        "domResultMs": 809,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 13,
+        "afterCaptureToDomMs": 72
+      },
+      {
+        "trial": "cold-1-invoke-26",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 735,
+        "helperMs": 598,
+        "showMs": 741,
+        "popupDocumentMs": null,
+        "backendResultMs": 806,
+        "domResultMs": 802,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": 67
+      },
+      {
+        "trial": "cold-1-invoke-27",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 707,
+        "helperMs": 566,
+        "showMs": 724,
+        "popupDocumentMs": null,
+        "backendResultMs": 799,
+        "domResultMs": 797,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 17,
+        "afterCaptureToDomMs": 90
+      },
+      {
+        "trial": "cold-1-invoke-28",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 725,
+        "helperMs": 585,
+        "showMs": 748,
+        "popupDocumentMs": null,
+        "backendResultMs": 811,
+        "domResultMs": 809,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 23,
+        "afterCaptureToDomMs": 84
+      },
+      {
+        "trial": "cold-1-invoke-29",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 725,
+        "helperMs": 584,
+        "showMs": 734,
+        "popupDocumentMs": null,
+        "backendResultMs": 801,
+        "domResultMs": 799,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 9,
+        "afterCaptureToDomMs": 74
+      },
+      {
+        "trial": "cold-1-invoke-30",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 725,
+        "helperMs": 584,
+        "showMs": 748,
+        "popupDocumentMs": null,
+        "backendResultMs": 815,
+        "domResultMs": 813,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 23,
+        "afterCaptureToDomMs": 88
+      },
+      {
+        "trial": "cold-1-invoke-31",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 719,
+        "helperMs": 581,
+        "showMs": 754,
+        "popupDocumentMs": null,
+        "backendResultMs": 822,
+        "domResultMs": 820,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 35,
+        "afterCaptureToDomMs": 101
+      }
+    ],
+    "empty": [
+      {
+        "trial": "cold-1-invoke-32",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 1579,
+        "helperMs": 575,
+        "showMs": 1585,
+        "popupDocumentMs": null,
+        "backendResultMs": null,
+        "domResultMs": null,
+        "successful": false,
+        "selectionSource": "empty",
+        "reason": "copy-timeout",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": null
+      }
+    ],
+    "idle": [
+      {
+        "run": "cold-1",
+        "phase": "before",
+        "durationMs": 27896,
+        "n": 257,
+        "normalizedCpuPercent": 0.024505081373673646,
+        "privateMiB": {
+          "n": 257,
+          "min": 150.01953125,
+          "p50": 152.08984375,
+          "p95": 153.48046875,
+          "max": 153.48828125
+        },
+        "workingSetMiB": {
+          "n": 257,
+          "min": 390.31640625,
+          "p50": 391.59375,
+          "p95": 392.3515625,
+          "max": 392.734375
+        },
+        "processCount": {
+          "n": 257,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "windows": {
+          "n": 55,
+          "min": 2,
+          "p50": 2,
+          "p95": 2,
+          "max": 2
+        },
+        "visibleWindows": {
+          "n": 55,
+          "min": 0,
+          "p50": 0,
+          "p95": 0,
+          "max": 0
+        }
+      },
+      {
+        "run": "cold-1",
+        "phase": "after",
+        "durationMs": 27908,
+        "n": 257,
+        "normalizedCpuPercent": 0.013996882614304141,
+        "privateMiB": {
+          "n": 257,
+          "min": 245.28125,
+          "p50": 248.0859375,
+          "p95": 269.12109375,
+          "max": 269.12109375
+        },
+        "workingSetMiB": {
+          "n": 257,
+          "min": 450.52734375,
+          "p50": 452.58203125,
+          "p95": 461.625,
+          "max": 461.625
+        },
+        "processCount": {
+          "n": 257,
+          "min": 5,
+          "p50": 5,
+          "p95": 5,
+          "max": 5
+        },
+        "windows": {
+          "n": 54,
+          "min": 2,
+          "p50": 2,
+          "p95": 2,
+          "max": 2
+        },
+        "visibleWindows": {
+          "n": 54,
+          "min": 1,
+          "p50": 1,
+          "p95": 1,
+          "max": 1
+        }
+      }
+    ],
+    "restoration": [
+      {
+        "trial": "cold-1-invoke-1",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-2",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-3",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-4",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-5",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-6",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-7",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-8",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-9",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-10",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-11",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-12",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-13",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-14",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-15",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-16",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-17",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-18",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-19",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-20",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-21",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-22",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-23",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-24",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-25",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-26",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-27",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-28",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-29",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-30",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-31",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-1-invoke-32",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-2-invoke-1",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-3-invoke-1",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-4-invoke-1",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-5-invoke-1",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-6-invoke-1",
+        "text": true,
+        "html": true,
+        "rtf": true
+      },
+      {
+        "trial": "cold-7-invoke-1",
+        "text": true,
+        "html": true,
+        "rtf": true
+      }
+    ],
+    "history": [
+      {
+        "count": 20,
+        "t": 1792721676199,
+        "allSynthetic": true,
+        "event": "history"
+      },
+      {
+        "count": 1,
+        "t": 1792721680236,
+        "allSynthetic": true,
+        "event": "history"
+      },
+      {
+        "count": 1,
+        "t": 1792721684065,
+        "allSynthetic": true,
+        "event": "history"
+      },
+      {
+        "count": 1,
+        "t": 1792721688004,
+        "allSynthetic": true,
+        "event": "history"
+      },
+      {
+        "count": 1,
+        "t": 1792721691753,
+        "allSynthetic": true,
+        "event": "history"
+      },
+      {
+        "count": 1,
+        "t": 1792721695484,
+        "allSynthetic": true,
+        "event": "history"
+      },
+      {
+        "count": 1,
+        "t": 1792721698751,
+        "allSynthetic": true,
+        "event": "history"
+      }
+    ],
+    "resource": [
+      {
+        "run": "cold-1",
+        "attribution": "causal-creation-v2",
+        "peakPrivateMiB": 349.1953125,
+        "peakWorkingSetMiB": 562.53125,
+        "maxProcesses": 7,
+        "helperPidsSampled": 32,
+        "helpers": 32,
+        "samplingMs": {
+          "n": 1057,
+          "min": 26,
+          "p50": 33,
+          "p95": 45,
+          "max": 70
+        },
+        "windowsCreated": 2,
+        "liveWindowsMax": 2
+      },
+      {
+        "run": "cold-2",
+        "attribution": "causal-creation-v2",
+        "peakPrivateMiB": 253.578125,
+        "peakWorkingSetMiB": 495.01171875,
+        "maxProcesses": 7,
+        "helperPidsSampled": 1,
+        "helpers": 1,
+        "samplingMs": {
+          "n": 26,
+          "min": 29,
+          "p50": 34,
+          "p95": 45,
+          "max": 45
+        },
+        "windowsCreated": 2,
+        "liveWindowsMax": 2
+      },
+      {
+        "run": "cold-3",
+        "attribution": "causal-creation-v2",
+        "peakPrivateMiB": 249.98828125,
+        "peakWorkingSetMiB": 494.80078125,
+        "maxProcesses": 7,
+        "helperPidsSampled": 1,
+        "helpers": 1,
+        "samplingMs": {
+          "n": 26,
+          "min": 31,
+          "p50": 40,
+          "p95": 55,
+          "max": 55
+        },
+        "windowsCreated": 2,
+        "liveWindowsMax": 2
+      },
+      {
+        "run": "cold-4",
+        "attribution": "causal-creation-v2",
+        "peakPrivateMiB": 255.21484375,
+        "peakWorkingSetMiB": 488.8671875,
+        "maxProcesses": 7,
+        "helperPidsSampled": 1,
+        "helpers": 1,
+        "samplingMs": {
+          "n": 27,
+          "min": 30,
+          "p50": 42,
+          "p95": 52,
+          "max": 53
+        },
+        "windowsCreated": 2,
+        "liveWindowsMax": 2
+      },
+      {
+        "run": "cold-5",
+        "attribution": "causal-creation-v2",
+        "peakPrivateMiB": 250.3828125,
+        "peakWorkingSetMiB": 467.4140625,
+        "maxProcesses": 7,
+        "helperPidsSampled": 1,
+        "helpers": 1,
+        "samplingMs": {
+          "n": 26,
+          "min": 30,
+          "p50": 36,
+          "p95": 43,
+          "max": 44
+        },
+        "windowsCreated": 2,
+        "liveWindowsMax": 2
+      },
+      {
+        "run": "cold-6",
+        "attribution": "causal-creation-v2",
+        "peakPrivateMiB": 250.92578125,
+        "peakWorkingSetMiB": 488.5390625,
+        "maxProcesses": 7,
+        "helperPidsSampled": 1,
+        "helpers": 1,
+        "samplingMs": {
+          "n": 22,
+          "min": 29,
+          "p50": 35,
+          "p95": 45,
+          "max": 52
+        },
+        "windowsCreated": 2,
+        "liveWindowsMax": 2
+      },
+      {
+        "run": "cold-7",
+        "attribution": "causal-creation-v2",
+        "peakPrivateMiB": 253.44921875,
+        "peakWorkingSetMiB": 494.21875,
+        "maxProcesses": 7,
+        "helperPidsSampled": 1,
+        "helpers": 1,
+        "samplingMs": {
+          "n": 27,
+          "min": 28,
+          "p50": 33,
+          "p95": 46,
+          "max": 48
+        },
+        "windowsCreated": 2,
+        "liveWindowsMax": 2
+      }
+    ],
+    "firstSuccessful": [
+      {
+        "trial": "cold-1-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 738,
+        "helperMs": 604,
+        "showMs": 771,
+        "popupDocumentMs": null,
+        "backendResultMs": 844,
+        "domResultMs": 840,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 33,
+        "afterCaptureToDomMs": 102
+      },
+      {
+        "trial": "cold-2-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 738,
+        "helperMs": 600,
+        "showMs": 767,
+        "popupDocumentMs": null,
+        "backendResultMs": 845,
+        "domResultMs": 841,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 29,
+        "afterCaptureToDomMs": 103
+      },
+      {
+        "trial": "cold-3-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 916,
+        "helperMs": 779,
+        "showMs": 948,
+        "popupDocumentMs": null,
+        "backendResultMs": 1014,
+        "domResultMs": 1010,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 32,
+        "afterCaptureToDomMs": 94
+      },
+      {
+        "trial": "cold-4-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 768,
+        "helperMs": 629,
+        "showMs": 799,
+        "popupDocumentMs": null,
+        "backendResultMs": 875,
+        "domResultMs": 872,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 31,
+        "afterCaptureToDomMs": 104
+      },
+      {
+        "trial": "cold-5-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 757,
+        "helperMs": 618,
+        "showMs": 795,
+        "popupDocumentMs": null,
+        "backendResultMs": 875,
+        "domResultMs": 871,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 38,
+        "afterCaptureToDomMs": 114
+      },
+      {
+        "trial": "cold-6-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 724,
+        "helperMs": 597,
+        "showMs": 751,
+        "popupDocumentMs": null,
+        "backendResultMs": 832,
+        "domResultMs": 827,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 27,
+        "afterCaptureToDomMs": 103
+      },
+      {
+        "trial": "cold-7-invoke-1",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 735,
+        "helperMs": 596,
+        "showMs": 788,
+        "popupDocumentMs": null,
+        "backendResultMs": 861,
+        "domResultMs": 857,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 53,
+        "afterCaptureToDomMs": 122
+      }
+    ],
+    "warmSuccessful": [
+      {
+        "trial": "cold-1-invoke-2",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 720,
+        "helperMs": 583,
+        "showMs": 727,
+        "popupDocumentMs": null,
+        "backendResultMs": 795,
+        "domResultMs": 794,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 7,
+        "afterCaptureToDomMs": 74
+      },
+      {
+        "trial": "cold-1-invoke-3",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 705,
+        "helperMs": 566,
+        "showMs": 733,
+        "popupDocumentMs": null,
+        "backendResultMs": 796,
+        "domResultMs": 795,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 28,
+        "afterCaptureToDomMs": 90
+      },
+      {
+        "trial": "cold-1-invoke-4",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 720,
+        "helperMs": 582,
+        "showMs": 725,
+        "popupDocumentMs": null,
+        "backendResultMs": 796,
+        "domResultMs": 794,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 5,
+        "afterCaptureToDomMs": 74
+      },
+      {
+        "trial": "cold-1-invoke-5",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 722,
+        "helperMs": 582,
+        "showMs": 749,
+        "popupDocumentMs": null,
+        "backendResultMs": 813,
+        "domResultMs": 809,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 27,
+        "afterCaptureToDomMs": 87
+      },
+      {
+        "trial": "cold-1-invoke-6",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 727,
+        "helperMs": 586,
+        "showMs": 750,
+        "popupDocumentMs": null,
+        "backendResultMs": 815,
+        "domResultMs": 812,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 23,
+        "afterCaptureToDomMs": 85
+      },
+      {
+        "trial": "cold-1-invoke-7",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 733,
+        "helperMs": 597,
+        "showMs": 750,
+        "popupDocumentMs": null,
+        "backendResultMs": 810,
+        "domResultMs": 808,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 17,
+        "afterCaptureToDomMs": 75
+      },
+      {
+        "trial": "cold-1-invoke-8",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 722,
+        "helperMs": 583,
+        "showMs": 728,
+        "popupDocumentMs": null,
+        "backendResultMs": 788,
+        "domResultMs": 787,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": 65
+      },
+      {
+        "trial": "cold-1-invoke-9",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 722,
+        "helperMs": 596,
+        "showMs": 742,
+        "popupDocumentMs": null,
+        "backendResultMs": 811,
+        "domResultMs": 809,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 20,
+        "afterCaptureToDomMs": 87
+      },
+      {
+        "trial": "cold-1-invoke-10",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 741,
+        "helperMs": 601,
+        "showMs": 749,
+        "popupDocumentMs": null,
+        "backendResultMs": 814,
+        "domResultMs": 812,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 8,
+        "afterCaptureToDomMs": 71
+      },
+      {
+        "trial": "cold-1-invoke-11",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 765,
+        "helperMs": 613,
+        "showMs": 800,
+        "popupDocumentMs": null,
+        "backendResultMs": 878,
+        "domResultMs": 877,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 35,
+        "afterCaptureToDomMs": 112
+      },
+      {
+        "trial": "cold-1-invoke-12",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 718,
+        "helperMs": 579,
+        "showMs": 733,
+        "popupDocumentMs": null,
+        "backendResultMs": 804,
+        "domResultMs": 803,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 15,
+        "afterCaptureToDomMs": 85
+      },
+      {
+        "trial": "cold-1-invoke-13",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 735,
+        "helperMs": 595,
+        "showMs": 742,
+        "popupDocumentMs": null,
+        "backendResultMs": 808,
+        "domResultMs": 805,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 7,
+        "afterCaptureToDomMs": 70
+      },
+      {
+        "trial": "cold-1-invoke-14",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 717,
+        "helperMs": 582,
+        "showMs": 739,
+        "popupDocumentMs": null,
+        "backendResultMs": 807,
+        "domResultMs": 803,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 22,
+        "afterCaptureToDomMs": 86
+      },
+      {
+        "trial": "cold-1-invoke-15",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 732,
+        "helperMs": 594,
+        "showMs": 750,
+        "popupDocumentMs": null,
+        "backendResultMs": 821,
+        "domResultMs": 820,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 18,
+        "afterCaptureToDomMs": 88
+      },
+      {
+        "trial": "cold-1-invoke-16",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 707,
+        "helperMs": 567,
+        "showMs": 713,
+        "popupDocumentMs": null,
+        "backendResultMs": 784,
+        "domResultMs": 780,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": 73
+      },
+      {
+        "trial": "cold-1-invoke-17",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 720,
+        "helperMs": 582,
+        "showMs": 734,
+        "popupDocumentMs": null,
+        "backendResultMs": 810,
+        "domResultMs": 808,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 14,
+        "afterCaptureToDomMs": 88
+      },
+      {
+        "trial": "cold-1-invoke-18",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 720,
+        "helperMs": 581,
+        "showMs": 728,
+        "popupDocumentMs": null,
+        "backendResultMs": 795,
+        "domResultMs": 794,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 8,
+        "afterCaptureToDomMs": 74
+      },
+      {
+        "trial": "cold-1-invoke-19",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 725,
+        "helperMs": 583,
+        "showMs": 738,
+        "popupDocumentMs": null,
+        "backendResultMs": 798,
+        "domResultMs": 797,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 13,
+        "afterCaptureToDomMs": 72
+      },
+      {
+        "trial": "cold-1-invoke-20",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 719,
+        "helperMs": 582,
+        "showMs": 727,
+        "popupDocumentMs": null,
+        "backendResultMs": 796,
+        "domResultMs": 794,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 8,
+        "afterCaptureToDomMs": 75
+      },
+      {
+        "trial": "cold-1-invoke-21",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 716,
+        "helperMs": 578,
+        "showMs": 734,
+        "popupDocumentMs": null,
+        "backendResultMs": 803,
+        "domResultMs": 801,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 18,
+        "afterCaptureToDomMs": 85
+      },
+      {
+        "trial": "cold-1-invoke-22",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 707,
+        "helperMs": 566,
+        "showMs": 714,
+        "popupDocumentMs": null,
+        "backendResultMs": 781,
+        "domResultMs": 777,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 7,
+        "afterCaptureToDomMs": 70
+      },
+      {
+        "trial": "cold-1-invoke-23",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 717,
+        "helperMs": 577,
+        "showMs": 732,
+        "popupDocumentMs": null,
+        "backendResultMs": 802,
+        "domResultMs": 800,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 15,
+        "afterCaptureToDomMs": 83
+      },
+      {
+        "trial": "cold-1-invoke-24",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 708,
+        "helperMs": 569,
+        "showMs": 714,
+        "popupDocumentMs": null,
+        "backendResultMs": 782,
+        "domResultMs": 780,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": 72
+      },
+      {
+        "trial": "cold-1-invoke-25",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 737,
+        "helperMs": 599,
+        "showMs": 750,
+        "popupDocumentMs": null,
+        "backendResultMs": 810,
+        "domResultMs": 809,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 13,
+        "afterCaptureToDomMs": 72
+      },
+      {
+        "trial": "cold-1-invoke-26",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 735,
+        "helperMs": 598,
+        "showMs": 741,
+        "popupDocumentMs": null,
+        "backendResultMs": 806,
+        "domResultMs": 802,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 6,
+        "afterCaptureToDomMs": 67
+      },
+      {
+        "trial": "cold-1-invoke-27",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 707,
+        "helperMs": 566,
+        "showMs": 724,
+        "popupDocumentMs": null,
+        "backendResultMs": 799,
+        "domResultMs": 797,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 17,
+        "afterCaptureToDomMs": 90
+      },
+      {
+        "trial": "cold-1-invoke-28",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 725,
+        "helperMs": 585,
+        "showMs": 748,
+        "popupDocumentMs": null,
+        "backendResultMs": 811,
+        "domResultMs": 809,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 23,
+        "afterCaptureToDomMs": 84
+      },
+      {
+        "trial": "cold-1-invoke-29",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 725,
+        "helperMs": 584,
+        "showMs": 734,
+        "popupDocumentMs": null,
+        "backendResultMs": 801,
+        "domResultMs": 799,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 9,
+        "afterCaptureToDomMs": 74
+      },
+      {
+        "trial": "cold-1-invoke-30",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 725,
+        "helperMs": 584,
+        "showMs": 748,
+        "popupDocumentMs": null,
+        "backendResultMs": 815,
+        "domResultMs": 813,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 23,
+        "afterCaptureToDomMs": 88
+      },
+      {
+        "trial": "cold-1-invoke-31",
+        "foregroundOK": true,
+        "shortcutObserved": true,
+        "selectionMs": 719,
+        "helperMs": 581,
+        "showMs": 754,
+        "popupDocumentMs": null,
+        "backendResultMs": 822,
+        "domResultMs": 820,
+        "domVisible": "visible",
+        "successful": true,
+        "selectionSource": "win32-selection",
+        "captureToShowMs": 35,
+        "afterCaptureToDomMs": 101
+      }
+    ],
+    "summary": {
+      "startup": {
+        "appReadyMs": {
+          "n": 7,
+          "min": 231,
+          "p50": 252,
+          "p95": 442,
+          "max": 442
+        },
+        "mainReadyMs": {
+          "n": 7,
+          "min": 471,
+          "p50": 526,
+          "p95": 961,
+          "max": 961
+        }
+      },
+      "first": {
+        "selectionMs": {
+          "n": 7,
+          "min": 724,
+          "p50": 738,
+          "p95": 916,
+          "max": 916
+        },
+        "helperMs": {
+          "n": 7,
+          "min": 596,
+          "p50": 604,
+          "p95": 779,
+          "max": 779
+        },
+        "showMs": {
+          "n": 7,
+          "min": 751,
+          "p50": 788,
+          "p95": 948,
+          "max": 948
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 7,
+          "min": 832,
+          "p50": 861,
+          "p95": 1014,
+          "max": 1014
+        },
+        "domResultMs": {
+          "n": 7,
+          "min": 827,
+          "p50": 857,
+          "p95": 1010,
+          "max": 1010
+        },
+        "captureToShowMs": {
+          "n": 7,
+          "min": 27,
+          "p50": 32,
+          "p95": 53,
+          "max": 53
+        },
+        "afterCaptureToDomMs": {
+          "n": 7,
+          "min": 94,
+          "p50": 103,
+          "p95": 122,
+          "max": 122
+        },
+        "successful": 7
+      },
+      "warm": {
+        "selectionMs": {
+          "n": 30,
+          "min": 705,
+          "p50": 720,
+          "p95": 741,
+          "max": 765
+        },
+        "helperMs": {
+          "n": 30,
+          "min": 566,
+          "p50": 582,
+          "p95": 601,
+          "max": 613
+        },
+        "showMs": {
+          "n": 30,
+          "min": 713,
+          "p50": 734,
+          "p95": 754,
+          "max": 800
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 30,
+          "min": 781,
+          "p50": 804,
+          "p95": 822,
+          "max": 878
+        },
+        "domResultMs": {
+          "n": 30,
+          "min": 777,
+          "p50": 802,
+          "p95": 820,
+          "max": 877
+        },
+        "captureToShowMs": {
+          "n": 30,
+          "min": 5,
+          "p50": 14,
+          "p95": 35,
+          "max": 35
+        },
+        "afterCaptureToDomMs": {
+          "n": 30,
+          "min": 65,
+          "p50": 75,
+          "p95": 101,
+          "max": 112
+        },
+        "successful": 30
+      },
+      "firstSuccessful": {
+        "selectionMs": {
+          "n": 7,
+          "min": 724,
+          "p50": 738,
+          "p95": 916,
+          "max": 916
+        },
+        "helperMs": {
+          "n": 7,
+          "min": 596,
+          "p50": 604,
+          "p95": 779,
+          "max": 779
+        },
+        "showMs": {
+          "n": 7,
+          "min": 751,
+          "p50": 788,
+          "p95": 948,
+          "max": 948
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 7,
+          "min": 832,
+          "p50": 861,
+          "p95": 1014,
+          "max": 1014
+        },
+        "domResultMs": {
+          "n": 7,
+          "min": 827,
+          "p50": 857,
+          "p95": 1010,
+          "max": 1010
+        },
+        "captureToShowMs": {
+          "n": 7,
+          "min": 27,
+          "p50": 32,
+          "p95": 53,
+          "max": 53
+        },
+        "afterCaptureToDomMs": {
+          "n": 7,
+          "min": 94,
+          "p50": 103,
+          "p95": 122,
+          "max": 122
+        },
+        "successful": 7
+      },
+      "warmSuccessful": {
+        "selectionMs": {
+          "n": 30,
+          "min": 705,
+          "p50": 720,
+          "p95": 741,
+          "max": 765
+        },
+        "helperMs": {
+          "n": 30,
+          "min": 566,
+          "p50": 582,
+          "p95": 601,
+          "max": 613
+        },
+        "showMs": {
+          "n": 30,
+          "min": 713,
+          "p50": 734,
+          "p95": 754,
+          "max": 800
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 30,
+          "min": 781,
+          "p50": 804,
+          "p95": 822,
+          "max": 878
+        },
+        "domResultMs": {
+          "n": 30,
+          "min": 777,
+          "p50": 802,
+          "p95": 820,
+          "max": 877
+        },
+        "captureToShowMs": {
+          "n": 30,
+          "min": 5,
+          "p50": 14,
+          "p95": 35,
+          "max": 35
+        },
+        "afterCaptureToDomMs": {
+          "n": 30,
+          "min": 65,
+          "p50": 75,
+          "p95": 101,
+          "max": 112
+        },
+        "successful": 30
+      },
+      "empty": {
+        "selectionMs": {
+          "n": 1,
+          "min": 1579,
+          "p50": 1579,
+          "p95": 1579,
+          "max": 1579
+        },
+        "helperMs": {
+          "n": 1,
+          "min": 575,
+          "p50": 575,
+          "p95": 575,
+          "max": 575
+        },
+        "showMs": {
+          "n": 1,
+          "min": 1585,
+          "p50": 1585,
+          "p95": 1585,
+          "max": 1585
+        },
+        "popupDocumentMs": {
+          "n": 0
+        },
+        "backendResultMs": {
+          "n": 0
+        },
+        "domResultMs": {
+          "n": 0
+        },
+        "captureToShowMs": {
+          "n": 1,
+          "min": 6,
+          "p50": 6,
+          "p95": 6,
+          "max": 6
+        },
+        "afterCaptureToDomMs": {
+          "n": 0
+        },
+        "successful": 0
+      }
+    }
+  },
+  "result": "PASS: latest reviewed production ASAR complete frozen performance cohort",
+  "execution": {
+    "operator": "Root direct foreground exec; unified session13346 completed naturally with exit0",
+    "sourceCommit": "15c32a52148399d6ff383d80874f60931954ee77",
+    "runtimeEquivalentRootCommit": "1b9258d0ca562d159043f9a9d10e52d30f48c1d6",
+    "startedAtEpochMs": 1792721561522,
+    "endedAtEpochMs": 1792721699588,
+    "startUTC": "2026-10-23T02:12:41.522Z",
+    "endUTC": "2026-10-23T02:14:59.588Z",
+    "driverElapsedMs": 138066,
+    "authorization": "New explicit user YES to a fresh five-minute idle interval; previous grants were not reused",
+    "requestedHumanCondition": "Click the visible owned synthetic source window once before the first key, then leave input idle",
+    "humanClickObserved": false,
+    "causalLimit": "A click was requested, not recorded. This successful cohort does not establish the cause of the earlier unacknowledged source command or prove it fixed."
+  },
+  "notStartedEarlierGrant": {
+    "userAnswerUTC": "2026-10-23T02:09:16Z",
+    "deadlineUTC": "2026-10-23T02:12:16Z",
+    "prelaunchClockUTC": "2026-10-23T02:10:08Z",
+    "remainingSeconds": 128,
+    "minimumRemainingSeconds": 150,
+    "nativeLaunched": false,
+    "reason": "The52-second relay consumed enough of the three-minute interval that the134-second historical cohort plus margin could not fit. Time guard exited before exec_command; no cohort or raw directory was created by that grant."
+  },
+  "coverage": {
+    "freshFirst": 7,
+    "warm": 30,
+    "deliberateEmpty": 1,
+    "totalShortcuts": 38,
+    "exactSuccessfulNonempty": 37,
+    "coldCaptureTimeouts": 0,
+    "warmCaptureTimeouts": 0,
+    "sampledCaptureForeground": {
+      "samples": 261,
+      "outsideOwnedSource": 0
+    },
+    "preImportIsolationReady": 7
+  },
+  "clipboardGuard": {
+    "savedFormatCount": 4,
+    "restoredFormatPresence": true,
+    "payloadLogged": false,
+    "verification": "memory DataObject snapshot; format presence after final restore, not byte equality for arbitrary opaque objects"
+  },
+  "cleanup": {
+    "allSevenNaturalExitZero": true,
+    "ownedProcessMatchesAfterRelease": 0,
+    "independentMetadataCheckUTC": "2026-10-23T02:18:42.2010326Z",
+    "scope": "Exact private stock Electron executable and owned source-form command for this label; excludes the metadata query process"
+  },
+  "postprocessing": {
+    "script": "scripts/performance/final-evidence.cjs",
+    "sha256": "ab2d256793b2584db5b1a88a89c4ac963291b8dc45a9e4e9daad2167aea903bb",
+    "timedFiveMatchFrozen": true,
+    "analysisOrder": "The first report-only attempt failed because derived summary.json had not yet been generated. analyze.cjs then generated it from existing raw data and the same AB2 final-evidence processor passed all22 gates. No native rerun or observation rewrite occurred for that analysis-order correction.",
+    "nativeRunsAddedByThisCuration": 0,
+    "testsOrBuildsAddedByThisCuration": 0
+  },
+  "retainedIncomplete": {
+    "report": "2026-10-23-review-production-incomplete.json",
+    "raw": "E:/EasyTranslate-implementation-notes-20261020/benchmark/runs-final-review-15c32a5-20261022-1",
+    "emittedShortcuts": 0,
+    "sourceReadyAcknowledged": false,
+    "earlierCause": "unconfirmed",
+    "nonGuiProtocolProbe": "100/100 pass does not establish GUI pump, source lifetime or OS activation behavior"
+  },
+  "sideEffect": {
+    "relativePath": "runner-side-effects/Microsoft/Windows/PowerShell/ModuleAnalysisCache",
+    "sizeBytes": 8246,
+    "contentsRead": false,
+    "archivedUnchangedAfter": "Resolved absolute owned source and target bounds plus no-reparse verification",
+    "rootEAdditionalCacheFound": false
+  },
+  "raw": {
+    "root": "E:/EasyTranslate-implementation-notes-20261020/benchmark/runs-final-review-15c32a5-20261023-2",
+    "immutableObservationSha256": {
+      "clipboard-guard.json": "3986ddc1632084002c8f1b3f9edfa9538e8cea84d4fcbb2b1e02e84910436f29",
+      "environment.json": "2163cd7a671188e576d44e544f6c584e63ea993ce29b7ee8fe2b4df2b2e42119",
+      "cold-1/driver.jsonl": "fe764d6d2b31c8efd5b8d50f9487d9ad7c1cc0d00ded322c3ddf9a8b15633a21",
+      "cold-1/events.jsonl": "8c6827c08f23b16393ccfe2d22c8e4eff0c48f7cd9bd465a9665f8503c1f8d59",
+      "cold-1/resources.csv": "e28e838ddd96933c5bfe77924dedad16fda04958c30cead436a57f878b53f65e",
+      "cold-1/source-window.json": "2bb29c415f205107fbc4e420f4dc3a09c9eb77dc9feebdfd49a8e806c1c8e5cc",
+      "cold-1/source-ready.json": "49c1c252f048c501f082a76c060e84e4af1f2f69048f6b614fdadba98cd0dbe3",
+      "cold-1/stdout.txt": "2a9af71de1be7eeeade1dd331c5b2ecff51dcba3878573f1a9c616c28d736b9b",
+      "cold-1/stderr.txt": "950f11bdc0f129044b944c0e5f12516cf8f825a41fab151e0e3d07d7274e9c78",
+      "cold-1/.translate-app.history.json": "008bec887d164a0f0b9aa57db660a671b55e0c9a310932c41d5493a530d7ec6d",
+      "cold-2/driver.jsonl": "2dd96e49184cd40f0b5ee54bb2d9a07f4334871f5dbe9b16e74707b05287b833",
+      "cold-2/events.jsonl": "c2d8823469627ad7063235c08bae7dd2fb5d2172ae41d90ed7fedcfdd54c1615",
+      "cold-2/resources.csv": "41cfc1180ba2da8ab464ff60816e6962bc62d8da1ab7935185138560d2860dfe",
+      "cold-2/source-window.json": "a08bba050bb5826664a4c492cac72575d5d0db4622faffd548201cf67b9f16bc",
+      "cold-2/source-ready.json": "d9ef65968c7e76eff430e2fd86d103f6edf61e281f3712e3f71010e415c71e21",
+      "cold-2/stdout.txt": "ff93f3c27d21a7c4c966e3ea8641eea91626a48fef74f31d574ce83f7800b6d1",
+      "cold-2/stderr.txt": "c754652873b1ea5a46179134f2bde1b89a550fb305677850e2aedc65890e8a84",
+      "cold-2/.translate-app.history.json": "f5ad4f2370887907985ae02b365e9e0d557838e97a5ade47ec1df0469a691b19",
+      "cold-3/driver.jsonl": "1f1fe9f3b994a4da69a405b0d1ea384d2eaf77054d0acb4c7fb923b272c2b44c",
+      "cold-3/events.jsonl": "5d523717d175bda7ac0fd119a95e404890d84d9d8cf74ed6f83bfbf83111d7aa",
+      "cold-3/resources.csv": "10b26b1281159c75f517e4441f9c45fbcf9a74a03cd9410e5a1230dadcf45954",
+      "cold-3/source-window.json": "4749e3536a6dad7caf7f6fb690b319659ebffdb1c526a8fc3822896c125e6e33",
+      "cold-3/source-ready.json": "0db6a82391ca89ab22ebdd2d7415d263cead3cff2c5129d19701e369e91bff23",
+      "cold-3/stdout.txt": "ff93f3c27d21a7c4c966e3ea8641eea91626a48fef74f31d574ce83f7800b6d1",
+      "cold-3/stderr.txt": "f7916eec0a202c1d9543f194defe8b6a3df7d63fa102015e533214755ededf62",
+      "cold-3/.translate-app.history.json": "9f7bb244e27d8692dd4500fd39b3c521898a0a3c5fff317e043ea472df911202",
+      "cold-4/driver.jsonl": "9988fbd6334c81c6a49ea82d9962daa58cf35c80f890600bbc84f199959913ae",
+      "cold-4/events.jsonl": "2721b80a866b5f76e2ee9869f23f039734c22b35a6c6c3969338849f5031a5ec",
+      "cold-4/resources.csv": "2641497a6fa1e3f597cec97da3b85e0c1d182f04c736f521e57a986e6f220d43",
+      "cold-4/source-window.json": "15c868343e0ab4ad91878707c310fbf79de07396d85af73209f965f3341d86c4",
+      "cold-4/source-ready.json": "14e04f9ce8aa0ad953b9175e07a99db66f1c3cfd057aa6d69ce4f18be775afa8",
+      "cold-4/stdout.txt": "ff93f3c27d21a7c4c966e3ea8641eea91626a48fef74f31d574ce83f7800b6d1",
+      "cold-4/stderr.txt": "bb039877a1231c7ae40cfe91d1c81fd1bcdd39350c13fd746cd83eead01ea6ac",
+      "cold-4/.translate-app.history.json": "a8b8ee104660246e2e64d739e4d736b00be781a395b0a8180e3975acea84d026",
+      "cold-5/driver.jsonl": "2e9b0c76db42cbb00b65f2812f3cf420b0cc9fe27840f531d98fba87450f254a",
+      "cold-5/events.jsonl": "229b5b2458fbe2895cfbe5dc087a2077968caa4767e52400af32620cfdeb7c47",
+      "cold-5/resources.csv": "c783bf30cc2eb02d3a9ef4eb36aec54cd1d9a2623ba4c2a470b78933bcf9bd76",
+      "cold-5/source-window.json": "723e9c7fc9dfe29ca57eb661b37ba311d59eff23f402d402eff10d46787e88cc",
+      "cold-5/source-ready.json": "d9522154a0552c0414d25b7724148632da671932f1fe2201e873813bf36a554b",
+      "cold-5/stdout.txt": "ff93f3c27d21a7c4c966e3ea8641eea91626a48fef74f31d574ce83f7800b6d1",
+      "cold-5/stderr.txt": "941879a1ac910918a6414f54f93128831bb3b09c959a89f2ad387f092dd03de4",
+      "cold-5/.translate-app.history.json": "956096a75db5e4ac659f05e161e3f369abae6fde5a7998ad9e2b4d28c6d3b899",
+      "cold-6/driver.jsonl": "6466df0f47290ecc528afd05f12a634e5e45fe27a372eb55377340e64cd8a82b",
+      "cold-6/events.jsonl": "bc1b7480ae8af53468952f0816221affe486d60ff72cf3c2a97de5966b13a603",
+      "cold-6/resources.csv": "bb37a1158e601f05d31bdfd45b805d96d00c77101de475043abd1ff214320d89",
+      "cold-6/source-window.json": "40fd19226ff32232807438be6ab6b6b4c27978eec233dcaf57d7f81f31397b60",
+      "cold-6/source-ready.json": "7d4525adce9356ec829e996dc370f020761f687666971b6e3e4c565a6829e395",
+      "cold-6/stdout.txt": "ff93f3c27d21a7c4c966e3ea8641eea91626a48fef74f31d574ce83f7800b6d1",
+      "cold-6/stderr.txt": "8d82b1543031cf8a40c1b3436751f42e48b51a13893a2a1eb8b6b927ff0bde6e",
+      "cold-6/.translate-app.history.json": "cfbab8b19059de180771bfe7fed0744a8c019ef93974326aa05163538b83dbdc",
+      "cold-7/driver.jsonl": "0be587365ef960754bcfc771e22cf5efb6072e409edced38eff8916361d1011c",
+      "cold-7/events.jsonl": "4ffdc4b201e90db0f7cb43d371d33db4ee7d5649f2f01f75c8dea6cf328a70b3",
+      "cold-7/resources.csv": "aef8c92ae55b21f04751a070449fd2f81daa53c03fb1a6d61115dd64e3398e92",
+      "cold-7/source-window.json": "d09e941f57ea3b979078f4408dc1c8ab5c96068be1d64704593253ca608e3924",
+      "cold-7/source-ready.json": "8830be660ac499586740f4c4d7667def1bd8a51b56d8e16744b562b7851c23e7",
+      "cold-7/stdout.txt": "ff93f3c27d21a7c4c966e3ea8641eea91626a48fef74f31d574ce83f7800b6d1",
+      "cold-7/stderr.txt": "63d083b13d2a0d468870b30b72006e5074d32f42343f47c7e6fa6a6661344d53",
+      "cold-7/.translate-app.history.json": "88c25e24a3120e1cf0431ae5cf1282a6ebc59b942fa6a96733090e3f1db93ab2"
+    }
+  },
+  "scope": "Stock Electron43.2 requires unchanged latest production ASAR with controlled synthetic HTTPS, no Node inspector/attachment, frozen Chromium9333 flag retained. Actual EXE functionality is separate; NSIS/Linux retain prior-payload scope. DOM availability is not photometric presentation; finite same-machine evidence is not a universal guarantee.",
+  "priorClipboardIncident": "Earlier Windows functional1-8 probes overwrote the original clipboard before an outer snapshot existed. The original cannot be restored; final guards protect later state and do not repair that incident.",
+  "manifestStatusScope": "Embedded manifest retains its preparation-time pending authorization/status. execution records the later fresh explicit five-minute grant and the completed native run; the original manifest was not rewritten."
+}

@@ -9,11 +9,12 @@
         <input class="search-input" :placeholder="text.search" v-model="keyword" />
       </div>
       <BaseSelect v-model="engineFilter" :options="engineOptions" />
-      <button class="btn btn-sm btn-ghost" @click="clearAll"><Trash2 :size="13" :stroke-width="1.75" />{{ text.clear }}</button>
+      <button class="btn btn-sm btn-ghost" :disabled="saving" @click="clearAll"><Trash2 :size="13" :stroke-width="1.75" />{{ text.clear }}</button>
     </div>
 
+    <p v-if="historyError" class="history-error" role="alert">{{ historyError }}</p>
     <div class="history">
-      <template v-for="g in grouped" :key="g.date">
+      <template v-for="g in grouped" :key="g.label">
         <div class="date-header">{{ g.label }}</div>
         <div v-for="h in g.items" :key="h.id" class="history-item card">
           <div class="brand-bar" :style="{ background: h.color }"></div>
@@ -27,12 +28,13 @@
                   class="icon-btn"
                   :class="{ favorite: h.favorite }"
                   :title="h.favorite ? text.unfavorite : text.favorite"
+                  :disabled="saving"
                   @click="toggleFavorite(h)"
                 >
                   <Star :size="13" :stroke-width="1.75" :fill="h.favorite ? 'currentColor' : 'none'" />
                 </button>
                 <button class="icon-btn" :title="text.copy" @click="copyDst(h)"><Copy :size="13" :stroke-width="1.75" /></button>
-                <button class="icon-btn" :title="text.delete" @click="removeItem(h)"><Trash2 :size="13" :stroke-width="1.75" /></button>
+                <button class="icon-btn" :title="text.delete" :disabled="saving" @click="removeItem(h)"><Trash2 :size="13" :stroke-width="1.75" /></button>
               </span>
             </div>
             <div class="h-src">{{ h.src }}</div>
@@ -40,7 +42,7 @@
           </div>
         </div>
       </template>
-      <div v-if="!grouped.length" class="empty">
+      <div v-if="!grouped.length && !historyError" class="empty">
         <div class="empty-ico"><Inbox :size="42" :stroke-width="1.5" /></div>
         <div class="empty-title">{{ text.empty }}</div>
         <div class="empty-sub">{{ text.emptyDesc }}</div>
@@ -60,7 +62,9 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { HistoryEntry, Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
+import { errorMessage } from '../types'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Search, Copy, Trash2, Inbox, Star } from 'lucide-vue-next'
 import BaseSelect from '../components/BaseSelect.vue'
@@ -122,28 +126,31 @@ const engineOptions = computed(() => [
 
 const keyword = ref('')
 const engineFilter = ref('')
-const list = ref([])
+const list = ref<HistoryEntry[]>([])
 const showConfirm = ref(false)
-let unsubHistory = null
+const saving = ref(false)
+const historyError = ref('')
+let unsubHistory: Unsubscribe | undefined
+let loadSequence = 0
 
-function langLabel(lang) {
+function langLabel(lang: string) {
   if (lang === '中文(简体)') return isEnglish.value ? 'EN → ZH' : '英 → 中'
   if (lang === 'English') return isEnglish.value ? 'ZH → EN' : '中 → 英'
   return lang
 }
-function formatTime(ts) {
+function formatTime(ts: number) {
   const d = new Date(ts)
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-function getDateStr(ts) {
+function getDateStr(ts: number) {
   const d = new Date(ts)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-function dateLabel(dateStr) {
+function dateLabel(dateStr: string) {
   const today = new Date()
-  const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   const todayStr = ymd(today)
   const yesterday = new Date(today)
   yesterday.setDate(yesterday.getDate() - 1)
@@ -153,7 +160,7 @@ function dateLabel(dateStr) {
   if (dateStr === yesterdayStr) return text.value.yesterday
 
   const d = new Date(dateStr)
-  const diffDays = Math.floor((today - d) / (1000 * 60 * 60 * 24))
+  const diffDays = Math.floor((today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
   if (diffDays <= 7) return text.value.thisWeek
   if (diffDays <= 30) return text.value.thisMonth
   return dateStr
@@ -168,7 +175,7 @@ const filtered = computed(() => {
 })
 
 const grouped = computed(() => {
-  const groups = {}
+  const groups: Record<string, { label: string; items: HistoryEntry[] }> = {}
   for (const h of filtered.value) {
     const label = dateLabel(getDateStr(h.ts))
     if (!groups[label]) groups[label] = { label, items: [] }
@@ -183,23 +190,16 @@ const grouped = computed(() => {
     .map(([, g]) => g)
 })
 
-function copyDst(h) {
+function copyDst(h: HistoryEntry) {
   navigator.clipboard.writeText(h.dst)
 }
 
-async function toggleFavorite(h) {
-  try {
-    const updated = await window.api.setFavorite(h.id, !h.favorite)
-    if (updated) h.favorite = updated.favorite
-  } catch (_) {}
+async function toggleFavorite(h: HistoryEntry) {
+  await mutate(() => window.api?.setFavorite(h.id, !h.favorite))
 }
 
-async function removeItem(h) {
-  try {
-    await window.api.deleteHistory(h.id)
-    const idx = list.value.findIndex(i => i.id === h.id)
-    if (idx !== -1) list.value.splice(idx, 1)
-  } catch (_) {}
+async function removeItem(h: HistoryEntry) {
+  await mutate(() => window.api?.deleteHistory(h.id))
 }
 
 function clearAll() {
@@ -209,29 +209,43 @@ function clearAll() {
 
 async function doClear() {
   showConfirm.value = false
-  try {
-    await window.api.clearHistory()
-    list.value.splice(0)
-  } catch (_) {}
+  await mutate(() => window.api?.clearHistory())
+}
+
+async function mutate(operation: () => Promise<unknown> | undefined) {
+  if (saving.value) return
+  saving.value = true
+  historyError.value = ''
+  try { await operation() }
+  catch (error) { historyError.value = errorMessage(error, '历史保存失败，请重试') }
+  finally { saving.value = false }
 }
 
 async function load() {
+  const sequence = ++loadSequence
   try {
-    list.value = await window.api.loadHistory()
-  } catch (_) { list.value = [] }
+    const items = await window.api?.loadHistory()
+    if (sequence !== loadSequence) return
+    list.value = items || []
+    historyError.value = ''
+  } catch (error) {
+    if (sequence === loadSequence) historyError.value = errorMessage(error, '历史读取失败，请重试')
+  }
 }
 
 onMounted(() => {
+  unsubHistory = window.api?.onHistoryUpdate(() => load())
   load()
-  unsubHistory = window.api.onHistoryUpdate(() => load())
 })
 
 onUnmounted(() => {
+  ++loadSequence
   if (unsubHistory) unsubHistory()
 })
 </script>
 
 <style scoped>
+.history-error { color: var(--danger); font-size: var(--fs-sm); margin-bottom: var(--space-3); }
 .toolbar {
   display: flex;
   gap: var(--space-2);

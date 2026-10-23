@@ -1,0 +1,250 @@
+{
+  "source": "6223e2e194fb07fa90550e4d1d48bf3cffd9148b",
+  "nativeBoundary": "real Windows source / foreground / clipboard; controlled HTTPS; isolated profile",
+  "focus": {
+    "artifact": "prewarm-native-focus-1792561644287",
+    "mode": "focus",
+    "allClipboardRestored": true,
+    "prewarmClipboardStable": true,
+    "pass": true,
+    "captureCount": 1,
+    "prewarmSelectionStable": true,
+    "foregroundSamples": 36,
+    "application": {
+      "pass": true,
+      "mode": "focus",
+      "visible": "TRANSLATED PREWARM_A",
+      "requests": [
+        "PREWARM_A"
+      ],
+      "history": [
+        "PREWARM_A"
+      ],
+      "windows": 2
+    },
+    "prewarmForegroundStable": true,
+    "shutdown": {
+      "naturalExit": true,
+      "exitCode": 0
+    },
+    "initialPage": {
+      "t": 1792561645444,
+      "event": "popup-initialized-hidden",
+      "visibility": "hidden"
+    }
+  },
+  "queue": {
+    "artifact": "prewarm-native-queue-1792561647437",
+    "mode": "queue",
+    "allClipboardRestored": true,
+    "prewarmClipboardStable": true,
+    "pass": true,
+    "captureCount": 2,
+    "prewarmSelectionStable": true,
+    "foregroundSamples": 36,
+    "application": {
+      "pass": true,
+      "mode": "queue",
+      "visible": "TRANSLATED PREWARM_B",
+      "requests": [
+        "PREWARM_B"
+      ],
+      "history": [
+        "PREWARM_B"
+      ],
+      "windows": 2
+    },
+    "prewarmForegroundStable": true,
+    "shutdown": {
+      "naturalExit": true,
+      "exitCode": 0
+    },
+    "initialPage": {
+      "t": 1792561653538,
+      "event": "popup-initialized-hidden",
+      "visibility": "hidden"
+    }
+  },
+  "quit": {
+    "artifact": "desktop-quit-1792561659329",
+    "exitCode": 0,
+    "pass": true,
+    "root": "D:\\codex_worktree\\easytranslate-t7\\EasyTranslate",
+    "naturalExit": true
+  },
+  "startup": [
+    {
+      "artifact": "desktop-startup-tray-1792561588745",
+      "pass": true,
+      "mode": "tray",
+      "initial": {
+        "visible": false,
+        "visibility": "hidden",
+        "shows": 0,
+        "focuses": 0
+      },
+      "laterVisible": true,
+      "historyVisible": true,
+      "popupApplicationReady": true,
+      "shutdown": {
+        "naturalExit": true,
+        "exitCode": 0
+      }
+    },
+    {
+      "artifact": "desktop-startup-normal-1792561589998",
+      "pass": true,
+      "mode": "normal",
+      "initial": {
+        "visible": true,
+        "visibility": "visible",
+        "shows": 1,
+        "focuses": 1
+      },
+      "laterVisible": true,
+      "historyVisible": true,
+      "popupApplicationReady": true,
+      "shutdown": {
+        "naturalExit": true,
+        "exitCode": 0
+      }
+    },
+    {
+      "artifact": "desktop-startup-force-show-1792561590930",
+      "pass": true,
+      "mode": "force-show",
+      "initial": {
+        "visible": true,
+        "visibility": "visible",
+        "shows": 1,
+        "focuses": 1
+      },
+      "laterVisible": true,
+      "historyVisible": true,
+      "popupApplicationReady": true,
+      "shutdown": {
+        "naturalExit": true,
+        "exitCode": 0
+      }
+    },
+    {
+      "artifact": "desktop-startup-force-hidden-1792561591987",
+      "pass": true,
+      "mode": "force-hidden",
+      "initial": {
+        "visible": false,
+        "visibility": "hidden",
+        "shows": 0,
+        "focuses": 0
+      },
+      "laterVisible": true,
+      "historyVisible": true,
+      "popupApplicationReady": true,
+      "shutdown": {
+        "naturalExit": true,
+        "exitCode": 0
+      }
+    }
+  ],
+  "hiddenHistory": {
+    "pass": true,
+    "controlledHiddenDom": true,
+    "physicalClipboardUsed": false,
+    "beforePersistence": {
+      "text": "FAIL translated",
+      "ipcCompleted": false,
+      "historySources": [
+        "LEGACY"
+      ]
+    },
+    "failedSave": {
+      "translation": "FAIL translated",
+      "historyId": null,
+      "historyError": "翻译成功，但历史保存失败"
+    },
+    "legacyIdAndCustomFieldPreserved": true,
+    "subscribers": 2,
+    "verified": [
+      "translation",
+      "save failure",
+      "copy IPC",
+      "retry",
+      "favorite",
+      "failed unfavorite",
+      "unfavorite",
+      "delete",
+      "clear"
+    ],
+    "windowsStayedHidden": true
+  },
+  "hiddenRace": {
+    "artifact": "integrated-popup-race-f98a93b-3",
+    "pass": true,
+    "controlledHiddenDom": true,
+    "screenshot": {
+      "captured": false,
+      "reason": "Current display surface not available for capture"
+    },
+    "beforeSaveAndSlow": {
+      "text": "RACE fast",
+      "historyCount": 0,
+      "slowFinished": false
+    },
+    "chosenComparisonAfterDone": "EDITED SLOW",
+    "raceHistoryCount": 1,
+    "raceToSingleHistory": [
+      "SINGLE_CURRENT"
+    ],
+    "singleToRaceHistory": [
+      "RACE_CURRENT"
+    ],
+    "abortAttempts": 6,
+    "windows": 2,
+    "requests": [
+      {
+        "source": "RACE",
+        "engine": "fast"
+      },
+      {
+        "source": "RACE",
+        "engine": "slow"
+      },
+      {
+        "source": "OLD_RACE",
+        "engine": "fast"
+      },
+      {
+        "source": "OLD_RACE",
+        "engine": "slow"
+      },
+      {
+        "source": "OLD_RACE",
+        "engine": "fast"
+      },
+      {
+        "source": "SINGLE_CURRENT",
+        "engine": "fast"
+      },
+      {
+        "source": "OLD_SINGLE",
+        "engine": "fast"
+      },
+      {
+        "source": "OLD_SINGLE",
+        "engine": "fast"
+      },
+      {
+        "source": "OLD_SINGLE",
+        "engine": "slow"
+      },
+      {
+        "source": "RACE_CURRENT",
+        "engine": "fast"
+      },
+      {
+        "source": "RACE_CURRENT",
+        "engine": "slow"
+      }
+    ]
+  }
+}
