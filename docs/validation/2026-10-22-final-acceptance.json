@@ -1,9 +1,9 @@
 {
   "issue": "https://github.com/QMinitaitan/EasyTranslate/issues/11",
-  "scopeNotice": "Existing source/fullCheck/performance fields below retain the historical 2e97ef0 artifact. latestReview describes the current reviewed renderer; latest performance is incomplete and the old 22-gate pass must not be promoted to it.",
+  "scopeNotice": "Top-level historical source/fullCheck/performance fields retain the2e97ef0 artifact. latestReview now includes its own F0D9 latest-artifact22gate performance PASS; prior NSIS/Linux scope is unchanged.",
   "latestReview": {
     "sourceCommit": "15c32a52148399d6ff383d80874f60931954ee77",
-    "equivalentRootCommit": "bdbdc3c687146aab30439e1c81fd6a4fd7ae62e8",
+    "equivalentRootCommit": "1b9258d0ca562d159043f9a9d10e52d30f48c1d6",
     "productionAsarSha256": "f0d9e094fcb66a662f7120420cc31d0263c5e594204d82d23554e2ed70bd03ce",
     "windowsReport": "2026-10-23-windows-review-15c32a5.md",
     "windowsJson": "2026-10-23-windows-review-15c32a5.json",
@@ -27,14 +27,50 @@
       "scope": "Product inputs match source15c; existing authoritative root check, not rerun for this docs-only curation"
     },
     "performance": {
+      "status": "PASS",
+      "sourceCommit": "15c32a52148399d6ff383d80874f60931954ee77",
+      "productionAsarSha256": "F0D9E094FCB66A662F7120420CC31D0263C5E594204D82D23554E2ED70BD03CE",
+      "report": "../performance/2026-10-23-review-production.md",
+      "json": "../performance/2026-10-23-review-production.json",
+      "raw": "E:/EasyTranslate-implementation-notes-20261020/benchmark/runs-final-review-15c32a5-20261023-2",
+      "allFrozenGatesPassed": 22,
+      "allFrozenGatesTotal": 22,
+      "cohortComplete": true,
+      "shortcutsEmitted": 38,
+      "firstInvocations": 7,
+      "warmInvocations": 30,
+      "emptyInvocations": 1,
+      "exactSuccessfulNonempty": 37,
+      "timeouts": 0,
+      "naturalExitsZero": 7,
+      "fixtureClipboardRestores": 38,
+      "outerClipboardFormatsPresentAfterRestore": 4,
+      "firstShowP50Ms": 788,
+      "firstDomP50Ms": 857,
+      "warmShowP50P95Ms": [
+        734,
+        754
+      ],
+      "warmDomP50P95Ms": [
+        802,
+        820
+      ],
+      "afterPrivateP50MiB": 248.0859375,
+      "afterNormalizedCpuPercent": 0.013996882614304141,
+      "steadyPrivateMiBLimit": 315.7828125,
+      "driverElapsedMs": 138066,
+      "humanClick": "Requested once; not recorded and not claimed observed",
+      "priorFailureCause": "Unconfirmed; retained incomplete proof remains unchanged"
+    },
+    "priorPlatformScope": "NSIS and Linux retain their original pre-review artifact/source identities; neither was rerun for the current frontend fix",
+    "nextStage": "Root final PR readiness/push and cleanup; no further native run required for this latest performance evidence. No main merge or release.",
+    "retainedIncompletePerformance": {
       "status": "INCOMPLETE",
       "raw": "E:/EasyTranslate-implementation-notes-20261020/benchmark/runs-final-review-15c32a5-20261022-1",
       "shortcutsEmitted": 0,
       "sourceReadyAcknowledgement": "absent",
       "scope": "Initial source precondition failed before first Alt+Q; no latest artifact formal performance pass or accepted latency/resource values"
-    },
-    "priorPlatformScope": "NSIS and Linux retain their original pre-review artifact/source identities; neither was rerun for the current frontend fix",
-    "nextStage": "Latest artifact performance remains unresolved; root owns further coordination and remote publication"
+    }
   },
   "applicationSourceCommit": "2e97ef06d5b91de1ba929ad87425a083006039ce",
   "validationBranchAtFullCheck": "397dd65c2320cec098853439fb855d7c6ed0588e",
@@ -70,7 +106,10 @@
     "linuxJson": "2026-10-22-linux-packaged.json",
     "performance": "../performance/2026-10-22-final-production.md",
     "performanceJson": "../performance/2026-10-22-final-production.json",
-    "retainedIncompletePerformance": "../performance/2026-10-22-final-production-incomplete.md"
+    "retainedIncompletePerformance": "../performance/2026-10-22-final-production-incomplete.md",
+    "latestPerformance": "../performance/2026-10-23-review-production.md",
+    "latestPerformanceJson": "../performance/2026-10-23-review-production.json",
+    "retainedLatestArtifactIncomplete": "../performance/2026-10-23-review-production-incomplete.md"
   },
   "performance": {
     "frozenGatesPassed": 22,
@@ -96,5 +135,5 @@
   "paidRequestsBasis": "Synthetic isolated controlled transport and pre-import default-deny guard, not a provider billing audit",
   "scheduledContinuation": "remains disabled",
   "remoteActions": "None by this worker; no main merge, release, version/tag change or daily-install replacement",
-  "nextStage": "Root integration through merger and final independent Standards/Spec review"
+  "nextStage": "Root final PR readiness, authorized push and cleanup; preserve platform and incident scope, do not merge main or release"
 }
