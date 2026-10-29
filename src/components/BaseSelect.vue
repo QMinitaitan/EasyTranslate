@@ -25,28 +25,28 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
+<script setup lang="ts" generic="T extends string | number = string">
+import { ref, computed, onUnmounted } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 import { useLocale } from '../composables/useLocale'
 
 const { isEnglish } = useLocale()
 
-const props = defineProps({
-  modelValue: { type: [String, Number], default: '' },
-  options: { type: Array, required: true },
-  placeholder: { type: String, default: '请选择' },
-  disabled: Boolean
-})
-const emit = defineEmits(['update:modelValue'])
+const props = withDefaults(defineProps<{
+  modelValue: T
+  options: (T | { label?: string; value: T })[]
+  placeholder?: string
+  disabled?: boolean
+}>(), { placeholder: '请选择', disabled: false })
+const emit = defineEmits<{ 'update:modelValue': [value: T] }>()
 
 const open = ref(false)
-const wrapper = ref(null)
+const wrapper = ref<HTMLElement | null>(null)
 
 const normalizedOptions = computed(() =>
   props.options.map(o => typeof o === 'string' || typeof o === 'number'
     ? { label: String(o), value: o }
-    : { label: String(o.label ?? o.value ?? ''), value: o.value ?? o.label }
+    : { label: String(o.label ?? o.value), value: o.value }
   )
 )
 
@@ -56,7 +56,7 @@ const displayText = computed(() => {
   return found ? found.label : placeholder
 })
 
-function toggle(e) {
+function toggle(e: MouseEvent) {
   if (props.disabled) return
   e.stopPropagation()
   open.value = !open.value
@@ -70,10 +70,11 @@ function closeExternal() {
   document.removeEventListener('click', closeExternal, true)
 }
 
-function select(opt) {
+function select(opt: { value: T }) {
   emit('update:modelValue', opt.value)
-  open.value = false
+  closeExternal()
 }
+onUnmounted(closeExternal)
 </script>
 
 <style scoped>

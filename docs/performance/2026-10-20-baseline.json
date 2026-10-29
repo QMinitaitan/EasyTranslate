@@ -1,0 +1,1967 @@
+{
+  "folder": "E:\\EasyTranslate-implementation-notes-20261020\\benchmark\\runs-baseline",
+  "startup": [
+    {
+      "run": "cold-1",
+      "appReadyMs": 313,
+      "mainReadyMs": 864
+    },
+    {
+      "run": "cold-2",
+      "appReadyMs": 260,
+      "mainReadyMs": 519
+    },
+    {
+      "run": "cold-3",
+      "appReadyMs": 226,
+      "mainReadyMs": 452
+    },
+    {
+      "run": "cold-4",
+      "appReadyMs": 247,
+      "mainReadyMs": 467
+    },
+    {
+      "run": "cold-5",
+      "appReadyMs": 333,
+      "mainReadyMs": 842
+    },
+    {
+      "run": "cold-6",
+      "appReadyMs": 318,
+      "mainReadyMs": 677
+    },
+    {
+      "run": "cold-7",
+      "appReadyMs": 242,
+      "mainReadyMs": 480
+    }
+  ],
+  "first": [
+    {
+      "trial": "cold-1-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 883,
+      "helperMs": 736,
+      "showMs": 986,
+      "popupDocumentMs": 1113,
+      "backendResultMs": 1189,
+      "domResultMs": 1192,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 103,
+      "afterCaptureToDomMs": 309
+    },
+    {
+      "trial": "cold-2-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 886,
+      "helperMs": 736,
+      "showMs": 923,
+      "popupDocumentMs": 1053,
+      "backendResultMs": 1124,
+      "domResultMs": 1126,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 37,
+      "afterCaptureToDomMs": 240
+    },
+    {
+      "trial": "cold-3-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 824,
+      "helperMs": 687,
+      "showMs": 881,
+      "popupDocumentMs": 987,
+      "backendResultMs": 1056,
+      "domResultMs": 1058,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 57,
+      "afterCaptureToDomMs": 234
+    },
+    {
+      "trial": "cold-4-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 900,
+      "helperMs": 744,
+      "showMs": 976,
+      "popupDocumentMs": 1083,
+      "backendResultMs": 1167,
+      "domResultMs": 1169,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 76,
+      "afterCaptureToDomMs": 269
+    },
+    {
+      "trial": "cold-5-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 883,
+      "helperMs": 718,
+      "showMs": 935,
+      "popupDocumentMs": 1056,
+      "backendResultMs": 1117,
+      "domResultMs": 1120,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 52,
+      "afterCaptureToDomMs": 237
+    },
+    {
+      "trial": "cold-6-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 1911,
+      "helperMs": 885,
+      "showMs": 1952,
+      "popupDocumentMs": 2097,
+      "backendResultMs": null,
+      "domResultMs": null,
+      "successful": false,
+      "selectionSource": "empty",
+      "reason": "copy-timeout",
+      "captureToShowMs": 41,
+      "afterCaptureToDomMs": null
+    },
+    {
+      "trial": "cold-7-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 847,
+      "helperMs": 708,
+      "showMs": 890,
+      "popupDocumentMs": 1021,
+      "backendResultMs": 1091,
+      "domResultMs": 1094,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 43,
+      "afterCaptureToDomMs": 247
+    }
+  ],
+  "warm": [
+    {
+      "trial": "cold-1-invoke-2",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 906,
+      "helperMs": 768,
+      "showMs": 939,
+      "popupDocumentMs": null,
+      "backendResultMs": 1014,
+      "domResultMs": 1016,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 33,
+      "afterCaptureToDomMs": 110
+    },
+    {
+      "trial": "cold-1-invoke-3",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 877,
+      "helperMs": 740,
+      "showMs": 905,
+      "popupDocumentMs": null,
+      "backendResultMs": 963,
+      "domResultMs": 964,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 28,
+      "afterCaptureToDomMs": 87
+    },
+    {
+      "trial": "cold-1-invoke-4",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 844,
+      "helperMs": 717,
+      "showMs": 854,
+      "popupDocumentMs": null,
+      "backendResultMs": 913,
+      "domResultMs": 915,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 10,
+      "afterCaptureToDomMs": 71
+    },
+    {
+      "trial": "cold-1-invoke-5",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 826,
+      "helperMs": 685,
+      "showMs": 864,
+      "popupDocumentMs": null,
+      "backendResultMs": 932,
+      "domResultMs": 934,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 38,
+      "afterCaptureToDomMs": 108
+    },
+    {
+      "trial": "cold-1-invoke-6",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 854,
+      "helperMs": 714,
+      "showMs": 876,
+      "popupDocumentMs": null,
+      "backendResultMs": 945,
+      "domResultMs": 946,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 22,
+      "afterCaptureToDomMs": 92
+    },
+    {
+      "trial": "cold-1-invoke-7",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 896,
+      "helperMs": 756,
+      "showMs": 903,
+      "popupDocumentMs": null,
+      "backendResultMs": 960,
+      "domResultMs": 961,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 7,
+      "afterCaptureToDomMs": 65
+    },
+    {
+      "trial": "cold-1-invoke-8",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 827,
+      "helperMs": 695,
+      "showMs": 852,
+      "popupDocumentMs": null,
+      "backendResultMs": 922,
+      "domResultMs": 924,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 25,
+      "afterCaptureToDomMs": 97
+    },
+    {
+      "trial": "cold-1-invoke-9",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 836,
+      "helperMs": 698,
+      "showMs": 843,
+      "popupDocumentMs": null,
+      "backendResultMs": 911,
+      "domResultMs": 913,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 7,
+      "afterCaptureToDomMs": 77
+    },
+    {
+      "trial": "cold-1-invoke-10",
+      "foregroundOK": false,
+      "shortcutObserved": true,
+      "selectionMs": 1946,
+      "helperMs": 865,
+      "showMs": 1974,
+      "popupDocumentMs": null,
+      "backendResultMs": null,
+      "domResultMs": null,
+      "successful": false,
+      "selectionSource": "empty",
+      "reason": "copy-timeout",
+      "captureToShowMs": 28,
+      "afterCaptureToDomMs": null
+    },
+    {
+      "trial": "cold-1-invoke-11",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 911,
+      "helperMs": 772,
+      "showMs": 934,
+      "popupDocumentMs": null,
+      "backendResultMs": 1005,
+      "domResultMs": 1007,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 23,
+      "afterCaptureToDomMs": 96
+    },
+    {
+      "trial": "cold-1-invoke-12",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 899,
+      "helperMs": 751,
+      "showMs": 902,
+      "popupDocumentMs": null,
+      "backendResultMs": 959,
+      "domResultMs": 960,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 3,
+      "afterCaptureToDomMs": 61
+    },
+    {
+      "trial": "cold-1-invoke-13",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 910,
+      "helperMs": 758,
+      "showMs": 915,
+      "popupDocumentMs": null,
+      "backendResultMs": 976,
+      "domResultMs": 977,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 5,
+      "afterCaptureToDomMs": 67
+    },
+    {
+      "trial": "cold-1-invoke-14",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 864,
+      "helperMs": 711,
+      "showMs": 887,
+      "popupDocumentMs": null,
+      "backendResultMs": 945,
+      "domResultMs": 946,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 23,
+      "afterCaptureToDomMs": 82
+    },
+    {
+      "trial": "cold-1-invoke-15",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 1767,
+      "helperMs": 757,
+      "showMs": 1774,
+      "popupDocumentMs": null,
+      "backendResultMs": null,
+      "domResultMs": null,
+      "successful": false,
+      "selectionSource": "empty",
+      "reason": "copy-timeout",
+      "captureToShowMs": 7,
+      "afterCaptureToDomMs": null
+    },
+    {
+      "trial": "cold-1-invoke-16",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 848,
+      "helperMs": 707,
+      "showMs": 881,
+      "popupDocumentMs": null,
+      "backendResultMs": 964,
+      "domResultMs": 965,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 33,
+      "afterCaptureToDomMs": 117
+    },
+    {
+      "trial": "cold-1-invoke-17",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 855,
+      "helperMs": 715,
+      "showMs": 881,
+      "popupDocumentMs": null,
+      "backendResultMs": 947,
+      "domResultMs": 949,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 26,
+      "afterCaptureToDomMs": 94
+    },
+    {
+      "trial": "cold-1-invoke-18",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 881,
+      "helperMs": 735,
+      "showMs": 891,
+      "popupDocumentMs": null,
+      "backendResultMs": 960,
+      "domResultMs": 961,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 10,
+      "afterCaptureToDomMs": 80
+    },
+    {
+      "trial": "cold-1-invoke-19",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 995,
+      "helperMs": 853,
+      "showMs": 1036,
+      "popupDocumentMs": null,
+      "backendResultMs": 1103,
+      "domResultMs": 1104,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 41,
+      "afterCaptureToDomMs": 109
+    },
+    {
+      "trial": "cold-1-invoke-20",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 888,
+      "helperMs": 747,
+      "showMs": 911,
+      "popupDocumentMs": null,
+      "backendResultMs": 982,
+      "domResultMs": 984,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 23,
+      "afterCaptureToDomMs": 96
+    },
+    {
+      "trial": "cold-1-invoke-21",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 875,
+      "helperMs": 730,
+      "showMs": 897,
+      "popupDocumentMs": null,
+      "backendResultMs": 962,
+      "domResultMs": 963,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 22,
+      "afterCaptureToDomMs": 88
+    },
+    {
+      "trial": "cold-1-invoke-22",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 835,
+      "helperMs": 696,
+      "showMs": 845,
+      "popupDocumentMs": null,
+      "backendResultMs": 915,
+      "domResultMs": 916,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 10,
+      "afterCaptureToDomMs": 81
+    },
+    {
+      "trial": "cold-1-invoke-23",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 875,
+      "helperMs": 733,
+      "showMs": 926,
+      "popupDocumentMs": null,
+      "backendResultMs": 990,
+      "domResultMs": 991,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 51,
+      "afterCaptureToDomMs": 116
+    },
+    {
+      "trial": "cold-1-invoke-24",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 900,
+      "helperMs": 758,
+      "showMs": 929,
+      "popupDocumentMs": null,
+      "backendResultMs": 1010,
+      "domResultMs": 1012,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 29,
+      "afterCaptureToDomMs": 112
+    },
+    {
+      "trial": "cold-1-invoke-25",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 828,
+      "helperMs": 688,
+      "showMs": 854,
+      "popupDocumentMs": null,
+      "backendResultMs": 918,
+      "domResultMs": 919,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 26,
+      "afterCaptureToDomMs": 91
+    },
+    {
+      "trial": "cold-1-invoke-26",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 855,
+      "helperMs": 704,
+      "showMs": 864,
+      "popupDocumentMs": null,
+      "backendResultMs": 934,
+      "domResultMs": 935,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 9,
+      "afterCaptureToDomMs": 80
+    },
+    {
+      "trial": "cold-1-invoke-27",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 909,
+      "helperMs": 768,
+      "showMs": 944,
+      "popupDocumentMs": null,
+      "backendResultMs": 1013,
+      "domResultMs": 1014,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 35,
+      "afterCaptureToDomMs": 105
+    },
+    {
+      "trial": "cold-1-invoke-28",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 945,
+      "helperMs": 802,
+      "showMs": 980,
+      "popupDocumentMs": null,
+      "backendResultMs": 1056,
+      "domResultMs": 1058,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 35,
+      "afterCaptureToDomMs": 113
+    },
+    {
+      "trial": "cold-1-invoke-29",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 897,
+      "helperMs": 756,
+      "showMs": 922,
+      "popupDocumentMs": null,
+      "backendResultMs": 984,
+      "domResultMs": 986,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 25,
+      "afterCaptureToDomMs": 89
+    },
+    {
+      "trial": "cold-1-invoke-30",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 979,
+      "helperMs": 841,
+      "showMs": 989,
+      "popupDocumentMs": null,
+      "backendResultMs": 1052,
+      "domResultMs": 1054,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 10,
+      "afterCaptureToDomMs": 75
+    },
+    {
+      "trial": "cold-1-invoke-31",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 1021,
+      "helperMs": 889,
+      "showMs": 1049,
+      "popupDocumentMs": null,
+      "backendResultMs": 1111,
+      "domResultMs": 1112,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 28,
+      "afterCaptureToDomMs": 91
+    }
+  ],
+  "empty": [
+    {
+      "trial": "cold-1-invoke-32",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 1812,
+      "helperMs": 800,
+      "showMs": 1823,
+      "popupDocumentMs": null,
+      "backendResultMs": null,
+      "domResultMs": null,
+      "successful": false,
+      "selectionSource": "empty",
+      "reason": "copy-timeout",
+      "captureToShowMs": 11,
+      "afterCaptureToDomMs": null
+    }
+  ],
+  "idle": [
+    {
+      "run": "cold-1",
+      "phase": "before",
+      "durationMs": 27933,
+      "n": 257,
+      "normalizedCpuPercent": 0.06992177710951204,
+      "privateMiB": {
+        "n": 257,
+        "min": 221.2890625,
+        "p50": 222.35546875,
+        "p95": 230.08203125,
+        "max": 230.15625
+      },
+      "workingSetMiB": {
+        "n": 257,
+        "min": 349.9453125,
+        "p50": 350.71484375,
+        "p95": 358.17578125,
+        "max": 358.37890625
+      },
+      "processCount": {
+        "n": 257,
+        "min": 4,
+        "p50": 4,
+        "p95": 4,
+        "max": 4
+      },
+      "windows": {
+        "n": 55,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "visibleWindows": {
+        "n": 55,
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      }
+    },
+    {
+      "run": "cold-1",
+      "phase": "after",
+      "durationMs": 27886,
+      "n": 256,
+      "normalizedCpuPercent": 0.2731545399125009,
+      "privateMiB": {
+        "n": 256,
+        "min": 266.328125,
+        "p50": 274.59375,
+        "p95": 340.54296875,
+        "max": 348.55859375
+      },
+      "workingSetMiB": {
+        "n": 256,
+        "min": 492.890625,
+        "p50": 502.546875,
+        "p95": 535.7578125,
+        "max": 616.21875
+      },
+      "processCount": {
+        "n": 256,
+        "min": 5,
+        "p50": 5,
+        "p95": 5,
+        "max": 6
+      },
+      "windows": {
+        "n": 55,
+        "min": 2,
+        "p50": 2,
+        "p95": 2,
+        "max": 2
+      },
+      "visibleWindows": {
+        "n": 55,
+        "min": 0,
+        "p50": 0,
+        "p95": 1,
+        "max": 1
+      }
+    }
+  ],
+  "restoration": [
+    {
+      "trial": "cold-1-invoke-1",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-2",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-3",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-4",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-5",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-6",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-7",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-8",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-9",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-10",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-11",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-12",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-13",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-14",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-15",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-16",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-17",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-18",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-19",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-20",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-21",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-22",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-23",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-24",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-25",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-26",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-27",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-28",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-29",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-30",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-31",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-1-invoke-32",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-2-invoke-1",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-3-invoke-1",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-4-invoke-1",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-5-invoke-1",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-6-invoke-1",
+      "text": true,
+      "html": true,
+      "rtf": true
+    },
+    {
+      "trial": "cold-7-invoke-1",
+      "text": true,
+      "html": true,
+      "rtf": true
+    }
+  ],
+  "history": [
+    {
+      "count": 20,
+      "t": 1792495593875,
+      "allSynthetic": true,
+      "event": "history"
+    },
+    {
+      "count": 1,
+      "t": 1792495597960,
+      "allSynthetic": true,
+      "event": "history"
+    },
+    {
+      "count": 1,
+      "t": 1792495601593,
+      "allSynthetic": true,
+      "event": "history"
+    },
+    {
+      "count": 1,
+      "t": 1792495605634,
+      "allSynthetic": true,
+      "event": "history"
+    },
+    {
+      "count": 1,
+      "t": 1792495609680,
+      "allSynthetic": true,
+      "event": "history"
+    },
+    null,
+    {
+      "count": 1,
+      "t": 1792495621572,
+      "allSynthetic": true,
+      "event": "history"
+    }
+  ],
+  "resource": [
+    {
+      "run": "cold-1",
+      "peakPrivateMiB": 434.76171875,
+      "peakWorkingSetMiB": 647.31640625,
+      "maxProcesses": 9,
+      "helperPidsSampled": 32,
+      "helpers": 32,
+      "samplingMs": {
+        "n": 1197,
+        "min": 24,
+        "p50": 51,
+        "p95": 64,
+        "max": 86
+      },
+      "windowsCreated": 2,
+      "liveWindowsMax": 2
+    },
+    {
+      "run": "cold-2",
+      "peakPrivateMiB": 276.23828125,
+      "peakWorkingSetMiB": 447.328125,
+      "maxProcesses": 7,
+      "helperPidsSampled": 1,
+      "helpers": 1,
+      "samplingMs": {
+        "n": 26,
+        "min": 42,
+        "p50": 53,
+        "p95": 58,
+        "max": 58
+      },
+      "windowsCreated": 2,
+      "liveWindowsMax": 2
+    },
+    {
+      "run": "cold-3",
+      "peakPrivateMiB": 279.87109375,
+      "peakWorkingSetMiB": 453.2265625,
+      "maxProcesses": 7,
+      "helperPidsSampled": 1,
+      "helpers": 1,
+      "samplingMs": {
+        "n": 27,
+        "min": 37,
+        "p50": 51,
+        "p95": 59,
+        "max": 60
+      },
+      "windowsCreated": 2,
+      "liveWindowsMax": 2
+    },
+    {
+      "run": "cold-4",
+      "peakPrivateMiB": 270.34765625,
+      "peakWorkingSetMiB": 437.32421875,
+      "maxProcesses": 7,
+      "helperPidsSampled": 1,
+      "helpers": 1,
+      "samplingMs": {
+        "n": 26,
+        "min": 43,
+        "p50": 51,
+        "p95": 58,
+        "max": 60
+      },
+      "windowsCreated": 2,
+      "liveWindowsMax": 2
+    },
+    {
+      "run": "cold-5",
+      "peakPrivateMiB": 298.46875,
+      "peakWorkingSetMiB": 493.8515625,
+      "maxProcesses": 7,
+      "helperPidsSampled": 1,
+      "helpers": 1,
+      "samplingMs": {
+        "n": 32,
+        "min": 30,
+        "p50": 37,
+        "p95": 63,
+        "max": 64
+      },
+      "windowsCreated": 2,
+      "liveWindowsMax": 2
+    },
+    {
+      "run": "cold-6",
+      "peakPrivateMiB": 275.52734375,
+      "peakWorkingSetMiB": 457.1328125,
+      "maxProcesses": 7,
+      "helperPidsSampled": 1,
+      "helpers": 1,
+      "samplingMs": {
+        "n": 65,
+        "min": 30,
+        "p50": 49,
+        "p95": 65,
+        "max": 70
+      },
+      "windowsCreated": 2,
+      "liveWindowsMax": 2
+    },
+    {
+      "run": "cold-7",
+      "peakPrivateMiB": 276.2265625,
+      "peakWorkingSetMiB": 464.91796875,
+      "maxProcesses": 7,
+      "helperPidsSampled": 1,
+      "helpers": 1,
+      "samplingMs": {
+        "n": 26,
+        "min": 38,
+        "p50": 48,
+        "p95": 59,
+        "max": 66
+      },
+      "windowsCreated": 2,
+      "liveWindowsMax": 2
+    }
+  ],
+  "firstSuccessful": [
+    {
+      "trial": "cold-1-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 883,
+      "helperMs": 736,
+      "showMs": 986,
+      "popupDocumentMs": 1113,
+      "backendResultMs": 1189,
+      "domResultMs": 1192,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 103,
+      "afterCaptureToDomMs": 309
+    },
+    {
+      "trial": "cold-2-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 886,
+      "helperMs": 736,
+      "showMs": 923,
+      "popupDocumentMs": 1053,
+      "backendResultMs": 1124,
+      "domResultMs": 1126,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 37,
+      "afterCaptureToDomMs": 240
+    },
+    {
+      "trial": "cold-3-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 824,
+      "helperMs": 687,
+      "showMs": 881,
+      "popupDocumentMs": 987,
+      "backendResultMs": 1056,
+      "domResultMs": 1058,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 57,
+      "afterCaptureToDomMs": 234
+    },
+    {
+      "trial": "cold-4-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 900,
+      "helperMs": 744,
+      "showMs": 976,
+      "popupDocumentMs": 1083,
+      "backendResultMs": 1167,
+      "domResultMs": 1169,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 76,
+      "afterCaptureToDomMs": 269
+    },
+    {
+      "trial": "cold-5-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 883,
+      "helperMs": 718,
+      "showMs": 935,
+      "popupDocumentMs": 1056,
+      "backendResultMs": 1117,
+      "domResultMs": 1120,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 52,
+      "afterCaptureToDomMs": 237
+    },
+    {
+      "trial": "cold-7-invoke-1",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 847,
+      "helperMs": 708,
+      "showMs": 890,
+      "popupDocumentMs": 1021,
+      "backendResultMs": 1091,
+      "domResultMs": 1094,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 43,
+      "afterCaptureToDomMs": 247
+    }
+  ],
+  "warmSuccessful": [
+    {
+      "trial": "cold-1-invoke-2",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 906,
+      "helperMs": 768,
+      "showMs": 939,
+      "popupDocumentMs": null,
+      "backendResultMs": 1014,
+      "domResultMs": 1016,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 33,
+      "afterCaptureToDomMs": 110
+    },
+    {
+      "trial": "cold-1-invoke-3",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 877,
+      "helperMs": 740,
+      "showMs": 905,
+      "popupDocumentMs": null,
+      "backendResultMs": 963,
+      "domResultMs": 964,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 28,
+      "afterCaptureToDomMs": 87
+    },
+    {
+      "trial": "cold-1-invoke-4",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 844,
+      "helperMs": 717,
+      "showMs": 854,
+      "popupDocumentMs": null,
+      "backendResultMs": 913,
+      "domResultMs": 915,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 10,
+      "afterCaptureToDomMs": 71
+    },
+    {
+      "trial": "cold-1-invoke-5",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 826,
+      "helperMs": 685,
+      "showMs": 864,
+      "popupDocumentMs": null,
+      "backendResultMs": 932,
+      "domResultMs": 934,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 38,
+      "afterCaptureToDomMs": 108
+    },
+    {
+      "trial": "cold-1-invoke-6",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 854,
+      "helperMs": 714,
+      "showMs": 876,
+      "popupDocumentMs": null,
+      "backendResultMs": 945,
+      "domResultMs": 946,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 22,
+      "afterCaptureToDomMs": 92
+    },
+    {
+      "trial": "cold-1-invoke-7",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 896,
+      "helperMs": 756,
+      "showMs": 903,
+      "popupDocumentMs": null,
+      "backendResultMs": 960,
+      "domResultMs": 961,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 7,
+      "afterCaptureToDomMs": 65
+    },
+    {
+      "trial": "cold-1-invoke-8",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 827,
+      "helperMs": 695,
+      "showMs": 852,
+      "popupDocumentMs": null,
+      "backendResultMs": 922,
+      "domResultMs": 924,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 25,
+      "afterCaptureToDomMs": 97
+    },
+    {
+      "trial": "cold-1-invoke-9",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 836,
+      "helperMs": 698,
+      "showMs": 843,
+      "popupDocumentMs": null,
+      "backendResultMs": 911,
+      "domResultMs": 913,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 7,
+      "afterCaptureToDomMs": 77
+    },
+    {
+      "trial": "cold-1-invoke-11",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 911,
+      "helperMs": 772,
+      "showMs": 934,
+      "popupDocumentMs": null,
+      "backendResultMs": 1005,
+      "domResultMs": 1007,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 23,
+      "afterCaptureToDomMs": 96
+    },
+    {
+      "trial": "cold-1-invoke-12",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 899,
+      "helperMs": 751,
+      "showMs": 902,
+      "popupDocumentMs": null,
+      "backendResultMs": 959,
+      "domResultMs": 960,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 3,
+      "afterCaptureToDomMs": 61
+    },
+    {
+      "trial": "cold-1-invoke-13",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 910,
+      "helperMs": 758,
+      "showMs": 915,
+      "popupDocumentMs": null,
+      "backendResultMs": 976,
+      "domResultMs": 977,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 5,
+      "afterCaptureToDomMs": 67
+    },
+    {
+      "trial": "cold-1-invoke-14",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 864,
+      "helperMs": 711,
+      "showMs": 887,
+      "popupDocumentMs": null,
+      "backendResultMs": 945,
+      "domResultMs": 946,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 23,
+      "afterCaptureToDomMs": 82
+    },
+    {
+      "trial": "cold-1-invoke-16",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 848,
+      "helperMs": 707,
+      "showMs": 881,
+      "popupDocumentMs": null,
+      "backendResultMs": 964,
+      "domResultMs": 965,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 33,
+      "afterCaptureToDomMs": 117
+    },
+    {
+      "trial": "cold-1-invoke-17",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 855,
+      "helperMs": 715,
+      "showMs": 881,
+      "popupDocumentMs": null,
+      "backendResultMs": 947,
+      "domResultMs": 949,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 26,
+      "afterCaptureToDomMs": 94
+    },
+    {
+      "trial": "cold-1-invoke-18",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 881,
+      "helperMs": 735,
+      "showMs": 891,
+      "popupDocumentMs": null,
+      "backendResultMs": 960,
+      "domResultMs": 961,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 10,
+      "afterCaptureToDomMs": 80
+    },
+    {
+      "trial": "cold-1-invoke-19",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 995,
+      "helperMs": 853,
+      "showMs": 1036,
+      "popupDocumentMs": null,
+      "backendResultMs": 1103,
+      "domResultMs": 1104,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 41,
+      "afterCaptureToDomMs": 109
+    },
+    {
+      "trial": "cold-1-invoke-20",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 888,
+      "helperMs": 747,
+      "showMs": 911,
+      "popupDocumentMs": null,
+      "backendResultMs": 982,
+      "domResultMs": 984,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 23,
+      "afterCaptureToDomMs": 96
+    },
+    {
+      "trial": "cold-1-invoke-21",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 875,
+      "helperMs": 730,
+      "showMs": 897,
+      "popupDocumentMs": null,
+      "backendResultMs": 962,
+      "domResultMs": 963,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 22,
+      "afterCaptureToDomMs": 88
+    },
+    {
+      "trial": "cold-1-invoke-22",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 835,
+      "helperMs": 696,
+      "showMs": 845,
+      "popupDocumentMs": null,
+      "backendResultMs": 915,
+      "domResultMs": 916,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 10,
+      "afterCaptureToDomMs": 81
+    },
+    {
+      "trial": "cold-1-invoke-23",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 875,
+      "helperMs": 733,
+      "showMs": 926,
+      "popupDocumentMs": null,
+      "backendResultMs": 990,
+      "domResultMs": 991,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 51,
+      "afterCaptureToDomMs": 116
+    },
+    {
+      "trial": "cold-1-invoke-24",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 900,
+      "helperMs": 758,
+      "showMs": 929,
+      "popupDocumentMs": null,
+      "backendResultMs": 1010,
+      "domResultMs": 1012,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 29,
+      "afterCaptureToDomMs": 112
+    },
+    {
+      "trial": "cold-1-invoke-25",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 828,
+      "helperMs": 688,
+      "showMs": 854,
+      "popupDocumentMs": null,
+      "backendResultMs": 918,
+      "domResultMs": 919,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 26,
+      "afterCaptureToDomMs": 91
+    },
+    {
+      "trial": "cold-1-invoke-26",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 855,
+      "helperMs": 704,
+      "showMs": 864,
+      "popupDocumentMs": null,
+      "backendResultMs": 934,
+      "domResultMs": 935,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 9,
+      "afterCaptureToDomMs": 80
+    },
+    {
+      "trial": "cold-1-invoke-27",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 909,
+      "helperMs": 768,
+      "showMs": 944,
+      "popupDocumentMs": null,
+      "backendResultMs": 1013,
+      "domResultMs": 1014,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 35,
+      "afterCaptureToDomMs": 105
+    },
+    {
+      "trial": "cold-1-invoke-28",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 945,
+      "helperMs": 802,
+      "showMs": 980,
+      "popupDocumentMs": null,
+      "backendResultMs": 1056,
+      "domResultMs": 1058,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 35,
+      "afterCaptureToDomMs": 113
+    },
+    {
+      "trial": "cold-1-invoke-29",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 897,
+      "helperMs": 756,
+      "showMs": 922,
+      "popupDocumentMs": null,
+      "backendResultMs": 984,
+      "domResultMs": 986,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 25,
+      "afterCaptureToDomMs": 89
+    },
+    {
+      "trial": "cold-1-invoke-30",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 979,
+      "helperMs": 841,
+      "showMs": 989,
+      "popupDocumentMs": null,
+      "backendResultMs": 1052,
+      "domResultMs": 1054,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 10,
+      "afterCaptureToDomMs": 75
+    },
+    {
+      "trial": "cold-1-invoke-31",
+      "foregroundOK": true,
+      "shortcutObserved": true,
+      "selectionMs": 1021,
+      "helperMs": 889,
+      "showMs": 1049,
+      "popupDocumentMs": null,
+      "backendResultMs": 1111,
+      "domResultMs": 1112,
+      "domVisible": "visible",
+      "successful": true,
+      "selectionSource": "win32-selection",
+      "captureToShowMs": 28,
+      "afterCaptureToDomMs": 91
+    }
+  ],
+  "summary": {
+    "startup": {
+      "appReadyMs": {
+        "n": 7,
+        "min": 226,
+        "p50": 260,
+        "p95": 333,
+        "max": 333
+      },
+      "mainReadyMs": {
+        "n": 7,
+        "min": 452,
+        "p50": 519,
+        "p95": 864,
+        "max": 864
+      }
+    },
+    "first": {
+      "selectionMs": {
+        "n": 7,
+        "min": 824,
+        "p50": 883,
+        "p95": 1911,
+        "max": 1911
+      },
+      "helperMs": {
+        "n": 7,
+        "min": 687,
+        "p50": 736,
+        "p95": 885,
+        "max": 885
+      },
+      "showMs": {
+        "n": 7,
+        "min": 881,
+        "p50": 935,
+        "p95": 1952,
+        "max": 1952
+      },
+      "popupDocumentMs": {
+        "n": 7,
+        "min": 987,
+        "p50": 1056,
+        "p95": 2097,
+        "max": 2097
+      },
+      "backendResultMs": {
+        "n": 6,
+        "min": 1056,
+        "p50": 1117,
+        "p95": 1189,
+        "max": 1189
+      },
+      "domResultMs": {
+        "n": 6,
+        "min": 1058,
+        "p50": 1120,
+        "p95": 1192,
+        "max": 1192
+      },
+      "captureToShowMs": {
+        "n": 7,
+        "min": 37,
+        "p50": 52,
+        "p95": 103,
+        "max": 103
+      },
+      "afterCaptureToDomMs": {
+        "n": 6,
+        "min": 234,
+        "p50": 240,
+        "p95": 309,
+        "max": 309
+      },
+      "successful": 6
+    },
+    "warm": {
+      "selectionMs": {
+        "n": 30,
+        "min": 826,
+        "p50": 881,
+        "p95": 1767,
+        "max": 1946
+      },
+      "helperMs": {
+        "n": 30,
+        "min": 685,
+        "p50": 740,
+        "p95": 865,
+        "max": 889
+      },
+      "showMs": {
+        "n": 30,
+        "min": 843,
+        "p50": 903,
+        "p95": 1774,
+        "max": 1974
+      },
+      "popupDocumentMs": {
+        "n": 0
+      },
+      "backendResultMs": {
+        "n": 28,
+        "min": 911,
+        "p50": 962,
+        "p95": 1103,
+        "max": 1111
+      },
+      "domResultMs": {
+        "n": 28,
+        "min": 913,
+        "p50": 963,
+        "p95": 1104,
+        "max": 1112
+      },
+      "captureToShowMs": {
+        "n": 30,
+        "min": 3,
+        "p50": 23,
+        "p95": 41,
+        "max": 51
+      },
+      "afterCaptureToDomMs": {
+        "n": 28,
+        "min": 61,
+        "p50": 91,
+        "p95": 116,
+        "max": 117
+      },
+      "successful": 28
+    },
+    "firstSuccessful": {
+      "selectionMs": {
+        "n": 6,
+        "min": 824,
+        "p50": 883,
+        "p95": 900,
+        "max": 900
+      },
+      "helperMs": {
+        "n": 6,
+        "min": 687,
+        "p50": 718,
+        "p95": 744,
+        "max": 744
+      },
+      "showMs": {
+        "n": 6,
+        "min": 881,
+        "p50": 923,
+        "p95": 986,
+        "max": 986
+      },
+      "popupDocumentMs": {
+        "n": 6,
+        "min": 987,
+        "p50": 1053,
+        "p95": 1113,
+        "max": 1113
+      },
+      "backendResultMs": {
+        "n": 6,
+        "min": 1056,
+        "p50": 1117,
+        "p95": 1189,
+        "max": 1189
+      },
+      "domResultMs": {
+        "n": 6,
+        "min": 1058,
+        "p50": 1120,
+        "p95": 1192,
+        "max": 1192
+      },
+      "captureToShowMs": {
+        "n": 6,
+        "min": 37,
+        "p50": 52,
+        "p95": 103,
+        "max": 103
+      },
+      "afterCaptureToDomMs": {
+        "n": 6,
+        "min": 234,
+        "p50": 240,
+        "p95": 309,
+        "max": 309
+      },
+      "successful": 6
+    },
+    "warmSuccessful": {
+      "selectionMs": {
+        "n": 28,
+        "min": 826,
+        "p50": 877,
+        "p95": 995,
+        "max": 1021
+      },
+      "helperMs": {
+        "n": 28,
+        "min": 685,
+        "p50": 735,
+        "p95": 853,
+        "max": 889
+      },
+      "showMs": {
+        "n": 28,
+        "min": 843,
+        "p50": 902,
+        "p95": 1036,
+        "max": 1049
+      },
+      "popupDocumentMs": {
+        "n": 0
+      },
+      "backendResultMs": {
+        "n": 28,
+        "min": 911,
+        "p50": 962,
+        "p95": 1103,
+        "max": 1111
+      },
+      "domResultMs": {
+        "n": 28,
+        "min": 913,
+        "p50": 963,
+        "p95": 1104,
+        "max": 1112
+      },
+      "captureToShowMs": {
+        "n": 28,
+        "min": 3,
+        "p50": 23,
+        "p95": 41,
+        "max": 51
+      },
+      "afterCaptureToDomMs": {
+        "n": 28,
+        "min": 61,
+        "p50": 91,
+        "p95": 116,
+        "max": 117
+      },
+      "successful": 28
+    },
+    "empty": {
+      "selectionMs": {
+        "n": 1,
+        "min": 1812,
+        "p50": 1812,
+        "p95": 1812,
+        "max": 1812
+      },
+      "helperMs": {
+        "n": 1,
+        "min": 800,
+        "p50": 800,
+        "p95": 800,
+        "max": 800
+      },
+      "showMs": {
+        "n": 1,
+        "min": 1823,
+        "p50": 1823,
+        "p95": 1823,
+        "max": 1823
+      },
+      "popupDocumentMs": {
+        "n": 0
+      },
+      "backendResultMs": {
+        "n": 0
+      },
+      "domResultMs": {
+        "n": 0
+      },
+      "captureToShowMs": {
+        "n": 1,
+        "min": 11,
+        "p50": 11,
+        "p95": 11,
+        "max": 11
+      },
+      "afterCaptureToDomMs": {
+        "n": 0
+      },
+      "successful": 0
+    }
+  }
+}

@@ -5,7 +5,7 @@
       :type="visible ? 'text' : 'password'"
       :value="modelValue"
       :placeholder="placeholder"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="onInput"
     />
     <button
       type="button"
@@ -19,7 +19,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
 import { useLocale } from '../composables/useLocale'
@@ -28,7 +28,10 @@ defineProps({
   modelValue: { type: String, default: '' },
   placeholder: { type: String, default: '' }
 })
-defineEmits(['update:modelValue'])
+const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
+function onInput(event: Event) {
+  if (event.target instanceof HTMLInputElement) emit('update:modelValue', event.target.value)
+}
 
 const visible = ref(false)
 const { isEnglish } = useLocale()

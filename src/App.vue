@@ -60,37 +60,100 @@
     </main>
     <CommandPalette v-model:open="paletteOpen" />
   </div>
+  <div class="save-errors no-drag">
+    <div v-if="configSaveError" class="config-save-error" role="alert">
+      <span>{{ configSaveError }}</span>
+      <button type="button" class="icon-btn" :aria-label="isEnglish ? 'Dismiss' : '关闭'" @click="configSaveError = ''">×</button>
+    </div>
+    <div v-if="historySaveError" class="history-save-error" role="alert">
+      <span>{{ historySaveError }}</span>
+      <button type="button" class="icon-btn" :aria-label="isEnglish ? 'Dismiss' : '关闭'" @click="historySaveError = ''">×</button>
+    </div>
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Sun, Moon, Monitor } from 'lucide-vue-next'
+import type { Unsubscribe } from '../electron/shared/ipc-contract.cjs'
 import { useTheme } from './composables/useTheme'
 import { useLocale } from './composables/useLocale'
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { flushPendingSettings } from './composables/usePendingSettings'
+import { errorMessage } from './types'
 import { useRoute, useRouter } from 'vue-router'
 import CommandPalette from './components/CommandPalette.vue'
 import appMarkUrl from '../assets/icon-v3/easytranslate-mark.svg'
 
 const { mode, setMode } = useTheme()
-const { setLocale, t } = useLocale()
+const { setLocale, t, isEnglish } = useLocale()
+const configSaveError = ref('')
+const historySaveError = ref('')
 const paletteOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 const isPopupRoute = computed(() => route.path.startsWith('/popup') && route.query.window === 'popup')
-let offNavigate = null
+let offNavigate: Unsubscribe | undefined
+let offConfigUpdate: Unsubscribe | undefined
+let offConfigSaveError: Unsubscribe | undefined
+let offHistorySaveError: Unsubscribe | undefined
+let offHistoryUpdate: Unsubscribe | undefined
+let offBeforeQuit: Unsubscribe | undefined
+
+async function refreshLocale() {
+  const cfg = await window.api?.loadConfig?.()
+  if (cfg?.uiLanguage && cfg.uiLanguage !== 'system') setLocale(cfg.uiLanguage)
+}
 
 onMounted(async () => {
-  try {
-    const cfg = await window.api?.loadConfig?.()
-    if (cfg?.uiLanguage && cfg.uiLanguage !== 'system') setLocale(cfg.uiLanguage)
-  } catch (_) {}
+  const api = window.api
+  offBeforeQuit = api?.onBeforeQuit(async token => {
+    let saved = true
+    try {
+      await nextTick()
+      await flushPendingSettings()
+    } catch (error) {
+      saved = false
+      configSaveError.value = errorMessage(error, isEnglish.value ? 'Unable to finish saving settings' : '退出前保存配置失败')
+    } finally {
+      await api.completeQuitFlush(token, saved).catch(error => {
+        configSaveError.value = errorMessage(error, 'Unable to acknowledge settings save')
+      })
+    }
+  })
   offNavigate = window.api?.onNavigate?.((path) => router.push(path))
+  offConfigUpdate = window.api?.onConfigUpdate?.(() => { refreshLocale().catch(() => {}) })
+  offConfigSaveError = window.api?.onConfigSaveError?.((message) => { configSaveError.value = message })
+  offHistorySaveError = window.api?.onHistorySaveError?.((message) => { historySaveError.value = message })
+  offHistoryUpdate = window.api?.onHistoryUpdate?.(() => { historySaveError.value = '' })
+  await refreshLocale().catch(() => {})
 })
 
-onUnmounted(() => offNavigate?.())
+onUnmounted(() => { offBeforeQuit?.(); offNavigate?.(); offConfigUpdate?.(); offConfigSaveError?.(); offHistorySaveError?.(); offHistoryUpdate?.() })
 </script>
 
 <style scoped>
+.save-errors {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  right: 12px;
+  max-width: min(480px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.config-save-error, .history-save-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  color: var(--danger);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  font-size: var(--fs-sm);
+}
 .app-shell {
   display: grid;
   grid-template-columns: 200px 1fr;

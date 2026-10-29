@@ -1,0 +1,11 @@
+{
+  "providers": {
+    "deepseek": { "enabled": true, "apiKey": "synthetic-test-only", "endpoint": "https://controlled.invalid", "model": "deepseek-v4-flash" },
+    "bing": { "enabled": false },
+    "openai": { "enabled": false, "apiKey": "synthetic-test-only", "endpoint": "https://controlled.invalid", "model": "synthetic-slow" }
+  },
+  "raceMode": false,
+  "launchToTray": true,
+  "closeAction": "tray",
+  "shortcuts": { "translate": "Alt+Q", "show": "" }
+}

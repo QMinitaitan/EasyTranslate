@@ -5,7 +5,8 @@
 - 使用 Node.js 22 或更高版本执行干净安装：`npm ci`
 - `npm run check` 全部通过
 - Windows x64 安装包和 Debian x64 安装包均能完成安装、启动和卸载
-- 至少配置一个真实翻译服务，验证划词、竞速、复制、朗读和历史记录
+- 使用隔离配置、合成凭据及受控传输验证划词、竞速、复制、朗读和历史记录；原生应用必须在导入应用前验证隔离与拦截，不能启动日常安装进行自动验证
+- 真实付费翻译 API 的默认预算为零；只有用户新指令明确请求次数及 token 上限后才允许真实调用，DeepSeek 仅允许 `deepseek-v4-flash`，不得自动重试或回退
 - 检查托盘图标、任务栏图标、开机启动和两个全局快捷键
 - 确认仓库与安装包中不包含 API Key、Secret、证书或本地配置
 - 更新 `package.json` 版本号、应用内版本号和 `CHANGELOG.md`
@@ -16,8 +17,8 @@
 ```bash
 npm ci
 npm run check
-npm run dist:linux
-npm run dist:win
+npm run dist:linux -- --publish never
+npm run dist:win -- --publish never
 ```
 
 产物默认输出到 `release/`：

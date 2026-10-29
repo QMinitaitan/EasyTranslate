@@ -1,0 +1,51 @@
+// Read only explicitly named synthetic validation artifacts, never user profiles.
+const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto')
+const [raw, output] = process.argv.slice(2)
+if (!raw || !output || fs.existsSync(output)) throw new Error('RAW_ROOT FRESH_OUTPUT required')
+const read = name => JSON.parse(fs.readFileSync(path.join(raw, name), 'utf8'))
+const hash = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')
+const functional = read('functional-11-2e97ef0-guarded/summary.json')
+const post = read('native-post-startup-1-2e97ef0/native-driver.json')
+const mouse = read('mouse-2-2e97ef0-pinned/native-driver.json')
+const mouseApp = read('mouse-2-2e97ef0-pinned/summary.json')
+const installer = read('installer-lifecycle-2-2e97ef0/summary.json')
+const same = post.trials.find(trial => trial.id === 'same')
+const samples = fs.readFileSync(path.join(raw, 'native-post-startup-1-2e97ef0/source-samples.jsonl'), 'utf8').trim().split('\n').map(JSON.parse).filter(sample => sample.t >= same.trigger && sample.t <= same.captureEnd)
+const guardedRuns = ['functional-11-2e97ef0-guarded','native-6-2e97ef0-guarded','native-7-2e97ef0-diagnostic','native-8-2e97ef0-diagnostic','native-post-startup-1-2e97ef0','mouse-1-2e97ef0','mouse-2-2e97ef0-pinned','installer-lifecycle-2-2e97ef0/installed-startup']
+const transports = guardedRuns.map(run => {
+ const events = fs.readFileSync(path.join(raw, run, 'events.jsonl'), 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse)
+ return { run, preflightPassed: events.some(event => event.event === 'transport-preflight' && event.pass), inMemoryRequests: events.filter(event => event.event === 'request').length, unexpectedCaptureAborts: events.filter(event => event.event === 'unexpected-selection-redacted').length }
+})
+const report = {
+ sourceCommit: '2e97ef06d5b91de1ba929ad87425a083006039ce', rawRoot: raw,
+ status: 'Packaged functionality, installer and native mouse verified; packaged same-clipboard capture remains environment-limited',
+ identity: read('candidate-2e97ef0-identity.json'),
+ build: { offlineRegressionTests: 97, failedTests: 0, strictElectronAndVueTypes: 'passed', productionBuild: 'passed', productionWinUnpacked: 'passed', dependencies: 'Fresh git archive reuses private dependency tree from prior isolated npm ci; package-lock unchanged', buildLog: 'build-2e97ef0-2.txt', earlierBuildFailure: 'build-2e97ef0.txt: CLI config-option quoting, retained' },
+ safety: { realProviderRequestsAuthorized: 0, realProviderRequestsIssuedByControlledApplication: 0, basis: 'Pre-import synthetic-only controlled transport plus default-deny Node/Electron network guard; not a provider billing audit', deniedOperationSelfTestsPerSuccessfulPreflight: 12, transports, inMemoryRequestsTotal: transports.reduce((sum, run) => sum + run.inMemoryRequests, 0), currentGuardSha256: hash(path.join(__dirname, 'installed-product-injection.cjs')), currentControllerSha256: hash(path.join(__dirname, 'installed-product.cjs')), scriptIdentityScope: 'Current audited script hashes; late helper-PID logging and path/source-match safety assertions were added after native runs and did not change the transport block', personalProfilesRead: false, scheduledContinuation: 'remains disabled; not changed by this worker' },
+ functional: { status: functional.status, namedCheckCount: Object.keys(functional.functional.checks).length, checks: functional.functional.checks, preflight: functional.identity.preflight, naturalExit: functional.exit, outerClipboard: read('functional-11-2e97ef0-guarded/outer-clipboard-guard.json'), screenshot: 'functional-11-2e97ef0-guarded/final-visible.png' },
+ nativeCapture: { overallPass: post.pass, scope: post.native.scope, trials: post.trials.map(trial => ({ id: trial.id, assertionPassed: trial.pass, acceptance: trial.id === 'same' ? 'INVALID: foreground and native keyboard focus lost during copy' : 'passed', reason: trial.result.reason || null, fourFormatRestored: trial.restored, exactTextBoxFocusBeforeAltQ: trial.keyboardFocus === trial.expectedFocus, modifiersReleasedBeforeAltQ: !trial.altDown && !trial.ctrlDown && !trial.shiftDown })), sameClipboardFocus: { samples: samples.length, foregroundLost: samples.filter(sample => sample.foreground !== sample.expected).length, nativeKeyboardFocusLost: samples.filter(sample => sample.keyboardFocus !== sample.expectedFocus).length, unexpectedSelection: samples.filter(sample => !sample.expectedSelection).length }, outerClipboardRestored: post.outerClipboardRestored, priorComponentEvidence: 'Issue #9 same selection helper native 48/48 plus retained unit tests; does not replace a final packaged same-clipboard native pass' },
+ mouse: { pass: mouse.pass, scope: mouse.native.scope, attempt: mouse.native.mouseAttempt, drag: mouse.native.drag, resize: mouse.native.resize, naturalExit: mouseApp.exit, outerClipboardRestored: mouse.outerClipboardRestored, screenshot: 'mouse-2-2e97ef0-pinned/native-visible.png' },
+ installer: { pass: installer.pass, scope: installer.scope, installExit: installer.installExit, startupExit: installer.installedStartup.exit, uninstallExit: installer.uninstallExit, payloadSha256: installer.payloadSha256, validationRegistrationKey: installer.validationRegistration.key, dailyProgramPayloadUnchanged: installer.dailyPayloadUnchanged, registryAndShortcutsRestored: installer.registryAndShortcutsRestored, ownedInstallRemoved: installer.ownedInstallRemoved },
+ ordinaryStartup: { scope: 'Prior dd7a274 bare production executable; final startup components byte-identical, verified in identity table', hiddenApplication: { pass: read('unpaused-hidden-focus-2/summary.json').pass, nativeVisibleWindows: read('unpaused-hidden-focus-2/summary.json').nativeVisibleWindowCount, exit: read('unpaused-hidden-focus-2/summary.json').exit }, ordinaryForeground: read('unpaused-hidden-focus-2/focus-result-utf8.json'), shownApplication: { pass: read('unpaused-show-1/summary.json').pass, exit: read('unpaused-show-1/summary.json').exit }, freshUnpausedFinalPayload: 'Not run: historical unguarded runners are now disabled. Inspector-paused functional startup is not ordinary launch latency' },
+ retainedAttempts: [
+  { labels: 'functional-1 through functional-8', result: 'Earlier harness/functional failures retained. Missing outer clipboard guard caused irreversible clipboard incident below' },
+  { label: 'functional-9-guarded', result: 'Prior dd7a274 guarded functional pass; superseded by final functional-11' },
+  { label: 'functional-10-2e97ef0-guarded', result: 'Guard self-test failed before product resume: arrow deny was not constructable; corrected with ordinary function and local assertion' },
+  { labels: 'native-1 through native-5-physical-hwnd', result: 'Earlier source/foreground/selection setup failures retained; no complete native-pass claim' },
+  { label: 'native-6-2e97ef0-guarded', result: '33 prewarm foreground/selection samples stable; first capture copy-timeout; four-format and outer restore true' },
+  { label: 'native-7-2e97ef0-diagnostic', result: '33 prewarm samples stable; owned command-file read/write sharing race before any AltQ; fixed and independently checked' },
+  { label: 'native-8-2e97ef0-diagnostic', result: 'Selection disappeared while own foreground and native TextBox focus remained, before product resume; safety precondition aborted. Cause unresolved' },
+  { label: 'native-post-startup-1-2e97ef0', result: 'Source created after app ready: selected/empty/helper-failure pass; same-clipboard invalid after foreground loss; overall false' },
+  { label: 'copy-control-1', result: 'Standalone exact helper direct and after consumed AltQ+120ms both pass; no Electron/product; clipboard restored' },
+  { label: 'file-protocol-check-1', result: 'Local protocol test failed due PowerShell null-string overload binding; retained. Corrected held-reader replacement100/100 + STOP pass in check-2' },
+  { label: 'mouse-1-2e97ef0', result: 'Native ownership guard refused first mouse target; no mouse button issued' },
+  { label: 'mouse-2-2e97ef0-pinned', result: 'Pinned/visible/focused popup, DOM/native-scale point: actual header drag and edge resize pass' },
+  { label: 'installer-lifecycle-1', result: 'Prior candidate initial uninstaller-availability harness failure then explicit resume pass, both retained' },
+  { label: 'unpaused-hidden-focus-1', result: 'Fixture hit-test refusal before product launch' },
+  { label: 'unpaused-hidden-focus-2', result: 'Application startup/hidden/natural exit pass; foreground postprocessing false188/81 bad. Original UTF8 parse error also retained' }
+ ],
+ clipboardIncident: { affectedRuns: 'functional-1 through functional-8', verifiedEffect: 'Deliberate Copy probes replaced the original system clipboard with synthetic EDITED COPY AND SPEECH before an outer DataObject guard existed', originalClipboardRestored: false, recovery: 'Original clipboard content cannot be recovered from these fixtures; clipboard history was not inspected', subsequentProtection: 'From functional-9 onward outer STA memory-only DataObject snapshots restore in finally; every final applicable run reported restoration true; restoration failure makes driver fail' },
+ limits: ['Final packaged same-clipboard native case is invalid, not a semantic pass and not a confirmed product defect', 'Ordinary bare-executable foreground stability was not proved; old hidden focus record false188/81 is retained', 'Tray object/menu and actual menu callback exercised; no physical system-tray icon click claim', 'Speech invocation uses edited synthetic text; no audible system voice claim', 'Inspector-paused functional timing is not ordinary startup latency', 'Production app payload is unchanged in distinct validation installer; production installer metadata/registration were not installed', 'No main merge, release, version/tag change, autostart change or daily-install replacement']
+}
+fs.writeFileSync(output, JSON.stringify(report, null, 2))
+console.log(JSON.stringify({ output, functionalChecks: report.functional.namedCheckCount, inMemoryRequests: report.safety.inMemoryRequestsTotal, guardedProcesses: transports.length, mouse: report.mouse.pass, installer: report.installer.pass, nativeOverall: report.nativeCapture.overallPass }))

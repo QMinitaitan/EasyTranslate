@@ -8,15 +8,15 @@
         <img class="about-brand-mark" :src="appMarkUrl" alt="" />
         <div class="about-brand-copy">
           <div class="setting-row-title">EasyTranslate</div>
-          <div class="setting-row-desc">v0.0.1 (dev)</div>
-          <div class="setting-row-desc">Electron {{ platform }} · Vue 3.4 · Vite 5.4</div>
+          <div class="setting-row-desc">v0.0.2</div>
+          <div class="setting-row-desc">Electron {{ platform }} · Vue 3 · Vite</div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useLocale } from '../composables/useLocale'
 import appMarkUrl from '../../assets/icon-v3/easytranslate-mark.svg'
 

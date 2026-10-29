@@ -2,6 +2,7 @@
   <div class="page">
     <h2 class="page-title">{{ text.title }}</h2>
     <p class="page-sub">{{ text.subtitle }}</p>
+    <p v-if="saveError" class="shortcut-save-error" role="alert">{{ saveError }}</p>
 
     <SortableSettingList
       v-model="shortcutOrder"
@@ -44,15 +45,25 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
+import { errorMessage, savedOrder } from '../types'
+import { createSettingsMutation, registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
+import type { Shortcuts } from '../../electron/shared/ipc-contract.cjs'
+type ShortcutId = keyof Shortcuts
+interface ShortcutDraft { id: ShortcutId; name: string; desc: string; keys: string[] }
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { X } from 'lucide-vue-next'
 import SortableSettingList from '../components/SortableSettingList.vue'
 import { useLocale } from '../composables/useLocale'
 
-const recording = ref(null)
-const shortcutOrder = ref([])
-let recordingTarget = null
+const recording = ref<ShortcutId | null>(null)
+const shortcutOrder = ref<string[]>([])
+const saveError = ref('')
+let offConfigUpdate: Unsubscribe | undefined
+let saving = false
+let disposed = false
+let recordingTarget: ShortcutId | null = null
 const { isEnglish } = useLocale()
 const text = computed(() => isEnglish.value ? {
   title: 'Shortcuts',
@@ -81,19 +92,19 @@ const shortcutText = computed(() => isEnglish.value ? {
   show: { name: '显示/隐藏主窗口', desc: '快速唤出或隐藏程序' }
 })
 
-const DEFAULT_MAP = {
+const DEFAULT_MAP: Record<ShortcutId, string[]> = {
   translate: ['Alt', 'Q'],
   show: ['Alt', 'E']
 }
 
-const shortcuts = reactive([
+const shortcuts = reactive<ShortcutDraft[]>([
   { id: 'translate', name: '划词翻译', desc: '选中文本后弹悬浮窗显示译文', keys: [] },
   { id: 'show', name: '显示/隐藏主窗口', desc: '快速唤出或隐藏程序', keys: [] }
 ])
 
 const MODIFIER_KEYS = new Set(['Control', 'Alt', 'Shift', 'Meta'])
 
-function normalizeKey(e) {
+function normalizeKey(e: KeyboardEvent) {
   if (MODIFIER_KEYS.has(e.key)) return null
   if (e.code === 'Space') return 'Space'
   if (e.code.startsWith('Key')) return e.code.slice(3)
@@ -101,7 +112,7 @@ function normalizeKey(e) {
   return e.key.length === 1 ? e.key.toUpperCase() : e.key
 }
 
-function onKeydown(e) {
+function onKeydown(e: KeyboardEvent) {
   if (recording.value === null) return
   if (e.key === 'Escape') { cancelRecord(); return }
   e.preventDefault()
@@ -123,7 +134,7 @@ function onKeydown(e) {
   }
 }
 
-function startRecord(id) {
+function startRecord(id: ShortcutId) {
   recording.value = id
   recordingTarget = id
 }
@@ -132,18 +143,21 @@ function cancelRecord() {
   recordingTarget = null
 }
 
-function keysToAccel(keys) { return keys.join('+') }
+function keysToAccel(keys: string[]) { return keys.join('+') }
 
 async function loadShortcuts() {
+  const api = window.api
+  if (!api) { for (const s of shortcuts) s.keys = [...DEFAULT_MAP[s.id]]; return }
   try {
     const [map, cfg] = await Promise.all([
-      window.api.loadShortcuts(),
-      window.api.loadConfig()
+      api.loadShortcuts(),
+      api.loadConfig()
     ])
+    if (disposed) return
     for (const s of shortcuts) {
       s.keys = map[s.id] ? map[s.id].split('+') : []
     }
-    shortcutOrder.value = cfg.settingsOrder?.shortcuts || []
+    shortcutOrder.value = savedOrder(cfg.settingsOrder?.shortcuts)
   } catch (_) {
     for (const s of shortcuts) {
       s.keys = [...(DEFAULT_MAP[s.id] || [])]
@@ -151,41 +165,73 @@ async function loadShortcuts() {
   }
 }
 
-async function saveShortcuts() {
-  const map = {}
-  for (const s of shortcuts) {
-    map[s.id] = keysToAccel(s.keys)
-  }
-  try { await window.api.saveShortcuts(map) } catch (_) {}
+async function persistShortcuts(map: Shortcuts): Promise<boolean> {
+  const api = window.api
+  if (!api) return false
+  saving = true
+  try { await trackSettingsSave(api.saveShortcuts(map)); saveError.value = ''; return true }
+  catch (error) { saveError.value = errorMessage(error, (isEnglish.value ? 'Unable to save shortcuts' : '快捷键保存失败')); return false }
+  finally { saving = false }
 }
 
-function saveShortcutOrder(order) {
-  window.api?.saveConfig?.({
-    settingsOrder: { shortcuts: order }
-  }).catch(() => {})
+async function persistShortcutOrder(order: string[]): Promise<boolean> {
+  if (!window.api) return false
+  try { await trackSettingsSave(window.api.saveConfig({ settingsOrder: { shortcuts: order } })); saveError.value = ''; return true }
+  catch (error) { saveError.value = errorMessage(error, (isEnglish.value ? 'Unable to save settings' : '配置保存失败')); return false }
+}
+const shortcutKeysSave = createSettingsMutation('shortcuts', persistShortcuts)
+const shortcutOrderSave = createSettingsMutation('shortcut-order', persistShortcutOrder)
+
+function saveShortcuts() {
+  autoSaveTimer = undefined
+  return shortcutKeysSave.save()
 }
 
-function clearShortcut(s) {
+function saveShortcutOrder(order: string[]) {
+  shortcutOrderSave.update([...order])
+  void shortcutOrderSave.save()
+}
+
+function clearShortcut(s: ShortcutDraft) {
   s.keys = []
   autoSave()
 }
 
 function autoSave() {
+  const map: Shortcuts = { translate: '', show: '' }
+  for (const s of shortcuts) map[s.id] = keysToAccel(s.keys)
+  shortcutKeysSave.update(map)
   clearTimeout(autoSaveTimer)
-  autoSaveTimer = setTimeout(saveShortcuts, 100)
+  autoSaveTimer = window.setTimeout(saveShortcuts, 100)
 }
-let autoSaveTimer = null
+let autoSaveTimer: number | undefined
+
+const unregisterFlush = registerSettingsFlush(() => {
+  window.clearTimeout(autoSaveTimer)
+  autoSaveTimer = undefined
+})
 
 onMounted(() => {
+  offConfigUpdate = window.api?.onConfigUpdate?.(() => {
+    if (!autoSaveTimer && !saving && !shortcutKeysSave.isPending() && !shortcutOrderSave.isPending() && recording.value === null) loadShortcuts()
+  })
   loadShortcuts()
   window.addEventListener('keydown', onKeydown, true)
 })
 onUnmounted(() => {
+  unregisterFlush()
+  disposed = true
+  clearTimeout(autoSaveTimer)
+  void shortcutKeysSave.save()
+  shortcutKeysSave.release()
+  shortcutOrderSave.release()
+  offConfigUpdate?.()
   window.removeEventListener('keydown', onKeydown, true)
 })
 </script>
 
 <style scoped>
+.shortcut-save-error { color: var(--danger); font-size: var(--fs-sm); }
 .sc-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-3) var(--space-4);

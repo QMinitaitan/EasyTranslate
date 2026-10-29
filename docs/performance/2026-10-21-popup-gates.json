@@ -1,0 +1,257 @@
+{
+  "source": {
+    "sourceCommit": "6223e2e194fb07fa90550e4d1d48bf3cffd9148b",
+    "integrationBase": "3558c74",
+    "isolatedWindowSource": "eceae9dc3ccbf709a4376ecaadc5626663743afc",
+    "nativeHelper": "actual integrated Forms helper from issue 9",
+    "sampler": "causal-creation-v2",
+    "parameters": {
+      "cold": 7,
+      "warm": 30,
+      "idleSeconds": 30,
+      "controlledTransportMs": 50
+    },
+    "diagnosticWrapper": false,
+    "componentSha256": {
+      "electron/main.cjs": "6738fb4ca33c9fb118390815ce5cfe79b9789dca6d98fcd673f73436485be51f",
+      "electron/desktop-runtime.cts": "34b3216f93416851cb3551e73f8b4122b2577d5222c6cdf8907465a6a7b8fadc",
+      "electron/selection.cjs": "c6589542c5282d090d6f411c807301a179c21158eca877a0d114979944bebd7b",
+      "scripts/performance/process-sampler.cs": "899ee9392dc989b70f0a74d90fe7abb6fe961bc32c23c162c0c129887608303b",
+      "scripts/performance/run.ps1": "35f8fc49b9a1df576b031d5d46f18ebe234174c94c0d7628390ec5433a4da6cd",
+      "scripts/performance/launcher.cjs": "7deb818c28cb93bf82e67be75424416fbf0ff5062c7af45022453c264e7e6ad8"
+    }
+  },
+  "allPassed": true,
+  "checks": [
+    {
+      "name": "First successful show P50 improves",
+      "pass": true,
+      "observed": 830,
+      "limit": 923
+    },
+    {
+      "name": "First successful DOM P50 improves",
+      "pass": true,
+      "observed": 897,
+      "limit": 1120
+    },
+    {
+      "name": "Warm successful showMs p50",
+      "pass": true,
+      "observed": 757,
+      "limit": 1037.3
+    },
+    {
+      "name": "Warm successful showMs p95",
+      "pass": true,
+      "observed": 781,
+      "limit": 1191.4
+    },
+    {
+      "name": "Warm successful domResultMs p50",
+      "pass": true,
+      "observed": 823,
+      "limit": 1107.45
+    },
+    {
+      "name": "Warm successful domResultMs p95",
+      "pass": true,
+      "observed": 856,
+      "limit": 1269.6
+    },
+    {
+      "name": "No additional cold capture timeout count",
+      "pass": true,
+      "observed": 1,
+      "limit": 1
+    },
+    {
+      "name": "Every nonempty capture reaches a visible result",
+      "pass": true,
+      "observed": 34,
+      "limit": "all nonempty captures"
+    },
+    {
+      "name": "Clipboard text/HTML/RTF restored",
+      "pass": true,
+      "observed": 38,
+      "limit": "all captures"
+    },
+    {
+      "name": "Idle normalized CPU",
+      "pass": true,
+      "observed": 0.15802550433312956,
+      "limit": 1
+    },
+    {
+      "name": "Steady private MiB",
+      "pass": true,
+      "observed": 245.62890625,
+      "limit": 315.7828125
+    },
+    {
+      "name": "Two created/live windows per run",
+      "pass": true,
+      "observed": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "limit": 2
+    },
+    {
+      "name": "No retained process growth after 30 warm invocations",
+      "pass": true,
+      "observed": {
+        "n": 256,
+        "min": 5,
+        "p50": 5,
+        "p95": 5,
+        "max": 6,
+        "finalIdleCount": 5,
+        "finalIdleSampleTime": 1792596906577,
+        "transientMax": 6
+      },
+      "limit": "Final idle count and P50/P95 = 5; transient observed maximum 6 is not a max<=5 assertion"
+    },
+    {
+      "name": "Every run exits naturally with code zero",
+      "pass": true,
+      "observed": [
+        {
+          "run": "cold-1",
+          "code": 0
+        },
+        {
+          "run": "cold-2",
+          "code": 0
+        },
+        {
+          "run": "cold-3",
+          "code": 0
+        },
+        {
+          "run": "cold-4",
+          "code": 0
+        },
+        {
+          "run": "cold-5",
+          "code": 0
+        },
+        {
+          "run": "cold-6",
+          "code": 0
+        },
+        {
+          "run": "cold-7",
+          "code": 0
+        }
+      ],
+      "limit": 0
+    }
+  ],
+  "timeouts": [
+    {
+      "trial": "cold-1-invoke-2",
+      "reason": "copy-timeout",
+      "sourceWindow": 4786146,
+      "foregroundAtEmission": 4786146,
+      "samples": 15,
+      "observedForegrounds": [
+        4786146,
+        3933420
+      ],
+      "outsideSourceSamples": 10,
+      "observation": "Foreground sampling does not prove child-control focus or identify why Ctrl+C timed out."
+    },
+    {
+      "trial": "cold-1-invoke-30",
+      "reason": "copy-timeout",
+      "sourceWindow": 4786146,
+      "foregroundAtEmission": 3933420,
+      "samples": 15,
+      "observedForegrounds": [
+        3933420
+      ],
+      "outsideSourceSamples": 15,
+      "observation": "Foreground sampling does not prove child-control focus or identify why Ctrl+C timed out."
+    },
+    {
+      "trial": "cold-5-invoke-1",
+      "reason": "copy-timeout",
+      "sourceWindow": 7407148,
+      "foregroundAtEmission": 7407148,
+      "samples": 16,
+      "observedForegrounds": [
+        7407148,
+        3933420
+      ],
+      "outsideSourceSamples": 11,
+      "observation": "Foreground sampling does not prove child-control focus or identify why Ctrl+C timed out."
+    }
+  ],
+  "startup": [
+    {
+      "run": "cold-1",
+      "popupAppReadyMs": 1430
+    },
+    {
+      "run": "cold-2",
+      "popupAppReadyMs": 856
+    },
+    {
+      "run": "cold-3",
+      "popupAppReadyMs": 703
+    },
+    {
+      "run": "cold-4",
+      "popupAppReadyMs": 770
+    },
+    {
+      "run": "cold-5",
+      "popupAppReadyMs": 742
+    },
+    {
+      "run": "cold-6",
+      "popupAppReadyMs": 741
+    },
+    {
+      "run": "cold-7",
+      "popupAppReadyMs": 757
+    }
+  ],
+  "exits": [
+    {
+      "run": "cold-1",
+      "code": 0
+    },
+    {
+      "run": "cold-2",
+      "code": 0
+    },
+    {
+      "run": "cold-3",
+      "code": 0
+    },
+    {
+      "run": "cold-4",
+      "code": 0
+    },
+    {
+      "run": "cold-5",
+      "code": 0
+    },
+    {
+      "run": "cold-6",
+      "code": 0
+    },
+    {
+      "run": "cold-7",
+      "code": 0
+    }
+  ]
+}
