@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto'
 import { getSelection } from '../electron/selection.cjs'
 import { translateWith, inspectProvider, getProviderCapabilities, probeProvider } from './provider-service.cjs'
 import { getProvider, getAll as getAllProviders } from './providers.cjs'
+import { PROMPT_PRESETS, providerWithPreset } from './prompt-presets.cjs'
 import { load as loadConfig, save as saveConfig, flush as flushConfig, subscribe as subscribeConfig } from './config-store.cjs'
 import * as history from './history-store.cjs'
 import * as autoStart from '../electron/autostart.cjs'
@@ -338,8 +339,9 @@ app.whenReady().then(() => {
     requireRunning()
     const request = parseTranslationRequest(payload)
     if (!request) return { error: '无效的翻译请求' }
-    const { text, target, providerId, requestId } = request
+    const { text, target, providerId, requestId, promptPresetId } = request
     const cfg = loadConfig()
+    if (!Object.hasOwn(cfg.promptPresets, promptPresetId || cfg.selectedPromptPreset)) return { error: '提示词预设不存在，请重新选择', requestId }
     const providers = cfg.providers || {}
     const selected = providerId
       ? [providerId, providers[providerId]] as const
@@ -347,7 +349,7 @@ app.whenReady().then(() => {
     // An explicit unavailable engine still enters the session so it supersedes old work;
     // the shared execution capability returns its precise reason before any network call.
     const engine = selected?.[1]
-      ? { id: selected[0], provider: selected[1] }
+      ? { id: selected[0], provider: providerWithPreset(cfg, selected[0], promptPresetId) }
       : undefined
     const targetLang = target || (cfg.target || '中文(简体)')
     const { sessionId, completed } = await runSessionForSender(event.sender,
@@ -369,14 +371,18 @@ app.whenReady().then(() => {
       }
       return
     }
-    const { text, target, requestId } = request
+    const { text, target, requestId, promptPresetId } = request
     const cfg = loadConfig()
+    if (!Object.hasOwn(cfg.promptPresets, promptPresetId || cfg.selectedPromptPreset)) {
+      if (!event.sender.isDestroyed()) event.sender.send('translate:race:done', { requestId, error: '提示词预设不存在，请重新选择' })
+      return
+    }
     const providers = cfg.providers || {}
     const targetLang = target || (cfg.target || '中文(简体)')
     const enabled = Object.entries(providers).filter(([id, config]) => config && inspectProvider(id, config).available)
     const { sessionId, completed } = await runSessionForSender(event.sender, {
       text, target: targetLang, mode: 'race', requestId,
-      engines: enabled.map(([id, provider]) => ({ id, provider }))
+      engines: enabled.map(([id]) => ({ id, provider: providerWithPreset(cfg, id, promptPresetId) }))
     }, 'translate:race:progress')
     if (completed.status === 'superseded' || translationSessions.current()?.sessionId !== sessionId || event.sender.isDestroyed()) return
     event.sender.send('translate:race:done', {
@@ -386,6 +392,7 @@ app.whenReady().then(() => {
     })
   })
   ipcMain.handle('providers:list', () => getAllProviders())
+  ipcMain.handle('prompts:defaults', () => structuredClone(PROMPT_PRESETS))
   ipcMain.handle('providers:capabilities', (_event, input: unknown) => {
     const providers = input === undefined ? loadConfig().providers : parseProviderConfigs(input)
     if (!providers) throw new Error('无效的引擎配置')
@@ -397,13 +404,13 @@ app.whenReady().then(() => {
     if (!request) throw new Error('无效的引擎探测请求')
     return probeProvider(request.providerId, request.config || loadConfig().providers[request.providerId] || {})
   })
-  ipcMain.on('settings:open', () => {
+  ipcMain.on('settings:open', (_event, path: unknown) => {
     if (quitPhase !== 'running') return
     desktop.hide()
     if (mainWin && !mainWin.isDestroyed()) {
       mainWin.show()
       mainWin.focus()
-      mainWin.webContents.send('main:navigate', '/settings/general')
+      mainWin.webContents.send('main:navigate', path === '/settings/prompts' ? path : '/settings/general')
     }
   })
   ipcMain.on('main:open', () => {

@@ -67,9 +67,8 @@
             <input class="input" v-model="p.endpoint" :placeholder="text.officialEndpoint" />
           </div>
 
-          <div v-if="p.hasPrompt" class="field">
-            <label>{{ text.promptTemplate }}</label>
-            <textarea class="input" rows="2" v-model="p.prompt" :placeholder="text.promptHint"></textarea>
+          <div v-if="p.supportsPrompts" class="field">
+            <router-link to="/settings/prompts">{{ isEnglish ? 'Edit shared prompt presets' : '编辑共享提示词预设' }}</router-link>
           </div>
 
           <div style="display: flex; justify-content: flex-end; gap: var(--space-2); padding-top: var(--space-1);">
@@ -94,8 +93,8 @@ import { savedOrder } from '../types'
 import { createSettingsMutation, registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
 interface ProviderDraft extends ProviderConfig {
   id: string; name: string; color: string; desc?: string; builtin: boolean
-  endpoint: string; region: string; model: string; prompt: string; secret: string
-  hasEndpoint: boolean; hasRegion: boolean; hasModel: boolean; hasPrompt: boolean; hasSecret: boolean
+  endpoint: string; region: string; model: string; secret: string
+  hasEndpoint: boolean; hasRegion: boolean; hasModel: boolean; supportsPrompts: boolean; hasSecret: boolean
   keyHint: string; secretHint: string; models: string[]
   status: 'unknown' | 'success' | 'fail'
   testState: 'idle' | 'testing' | 'success' | 'fail'
@@ -119,8 +118,6 @@ const text = computed(() => isEnglish.value ? {
   model: 'Model',
   customEndpoint: 'Custom Endpoint',
   officialEndpoint: 'Leave blank to use the official endpoint',
-  promptTemplate: 'Prompt Template',
-  promptHint: 'Use {{target}} for the target language',
   untested: 'Not tested',
   testSuccess: 'Last test succeeded',
   testFailed: 'Last test failed',
@@ -137,8 +134,6 @@ const text = computed(() => isEnglish.value ? {
   model: '模型',
   customEndpoint: '自定义 Endpoint',
   officialEndpoint: '留空使用官方地址',
-  promptTemplate: 'Prompt 模板',
-  promptHint: '用 {{target}} 表示目标语言',
   untested: '未测试',
   testSuccess: '上次测试成功',
   testFailed: '上次测试失败',
@@ -198,7 +193,7 @@ function buildFromMeta(meta: ProviderMetadata[], saved: Record<string, ProviderC
       hasEndpoint: !!m.hasEndpoint, endpoint: savedConfig.endpoint ?? m.endpoint ?? '',
       hasRegion: !!m.hasRegion, region: savedConfig.region ?? m.region ?? 'eastasia',
       hasModel: !!m.hasModel, model: savedConfig.model ?? m.model ?? '', models: m.models || [],
-      hasPrompt: !!m.hasPrompt, prompt: savedConfig.prompt ?? m.prompt ?? '',
+      supportsPrompts: m.adapter === 'openai-compat',
       hasSecret: !!m.hasSecret, secret: savedConfig.secret ?? m.secret ?? '',
       secretHint: m.id === 'youdao' ? 'appSecret' : m.id === 'tencent' ? 'SecretKey' : m.id === 'baidu' ? 'Secret Key' : 'Secret',
       keyHint: m.id === 'youdao' ? 'appKey' : m.id === 'tencent' ? 'SecretId' : m.id === 'deepl' ? 'auth-key' : m.id === 'caiyun' ? 'token' : m.id === 'baidu' ? 'appid' : 'sk-...',
@@ -269,7 +264,6 @@ function providerDraft(): Record<string, Partial<ProviderConfig>> {
     if (p.hasEndpoint) item.endpoint = p.endpoint || ''
     if (p.hasRegion) item.region = p.region
     if (p.hasModel) item.model = p.model
-    if (p.hasPrompt) item.prompt = p.prompt
     if (p.hasSecret) item.secret = p.secret
     cfg[p.id] = item
   }

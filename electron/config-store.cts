@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { homedir } from 'node:os'
 import type { AppConfig, ConfigUpdate, ProviderConfig } from './shared/ipc-contract.cjs'
 import { getAll } from './providers.cjs'
+import { DEFAULT_PROMPT_PRESET, PROMPT_PRESETS, migratePromptPresets } from './prompt-presets.cjs'
 
 export const CONFIG_PATH = path.join(process.env.HOME || process.env.USERPROFILE || homedir(), '.translate-app.config.json')
 
@@ -25,7 +26,8 @@ function providerDefaults(): Record<string, ProviderConfig> {
 export const DEFAULTS: AppConfig = {
   providers: providerDefaults(), target: '中文(简体)', uiLanguage: 'system',
   closeAction: 'tray', launchToTray: false, autoLaunch: false, raceMode: true,
-  settingsOrder: {}, shortcut: 'Alt+Q', shortcuts: { translate: 'Alt+Q', show: 'Alt+E' }
+  settingsOrder: {}, shortcut: 'Alt+Q', shortcuts: { translate: 'Alt+Q', show: 'Alt+E' },
+  promptPresets: structuredClone(PROMPT_PRESETS), selectedPromptPreset: DEFAULT_PROMPT_PRESET
 }
 
 export interface ConfigStorage {
@@ -53,6 +55,7 @@ function fileStorage(filePath: string): ConfigStorage {
 
 function merge(current: AppConfig, partial: ConfigUpdate): AppConfig {
   const next = { ...current, ...partial, providers: { ...current.providers },
+    promptPresets: { ...current.promptPresets, ...partial.promptPresets },
     shortcuts: { ...current.shortcuts, ...partial.shortcuts },
     settingsOrder: { ...current.settingsOrder, ...partial.settingsOrder } }
   for (const [id, provider] of Object.entries(partial.providers || {})) {
@@ -82,10 +85,20 @@ function jsonValue(value: unknown, seen = new Set<object>()): boolean {
 export function isConfigUpdate(value: unknown): value is ConfigUpdate {
   if (!record(value) || !jsonValue(value)) return false
   const booleanFields = ['launchToTray', 'autoLaunch', 'raceMode']
-  const stringFields = ['target', 'uiLanguage', 'closeAction', 'shortcut', 'theme']
+  const stringFields = ['target', 'uiLanguage', 'closeAction', 'shortcut', 'theme', 'selectedPromptPreset']
   if (booleanFields.some(key => key in value && typeof value[key] !== 'boolean')) return false
   if (stringFields.some(key => key in value && typeof value[key] !== 'string')) return false
   if ('closeAction' in value && !['tray', 'quit'].includes(value.closeAction as string)) return false
+  if ('selectedPromptPreset' in value && !(value.selectedPromptPreset as string).trim()) return false
+  if ('promptPresets' in value) {
+    if (!record(value.promptPresets)) return false
+    for (const [id, preset] of Object.entries(value.promptPresets)) {
+      if (!id.trim() || !record(preset) || typeof preset.name !== 'string' || !preset.name.trim() ||
+        typeof preset.prompt !== 'string' || !preset.prompt.trim() ||
+        ('nameEn' in preset && typeof preset.nameEn !== 'string') ||
+        Object.keys(preset).some(key => !['name', 'nameEn', 'prompt'].includes(key))) return false
+    }
+  }
   if ('providers' in value) {
     if (!record(value.providers)) return false
     for (const provider of Object.values(value.providers)) {
@@ -119,7 +132,7 @@ function compatibleSavedConfig(value: unknown): ConfigUpdate {
           isConfigUpdate({ providers: { [id]: { [field]: item } } })))
       }
       result.providers = providers
-    } else if (['shortcuts', 'settingsOrder', 'popupBounds'].includes(key) && record(entry)) {
+    } else if (['shortcuts', 'settingsOrder', 'popupBounds', 'promptPresets'].includes(key) && record(entry)) {
       result[key] = Object.fromEntries(Object.entries(entry).filter(([field, item]) =>
         isConfigUpdate({ [key]: { [field]: item } })))
     } else if (isConfigUpdate({ [key]: entry })) {
@@ -140,6 +153,7 @@ export function createConfigStore({ filePath = CONFIG_PATH, storage = fileStorag
         const raw = storage.read()
         const saved = compatibleSavedConfig(raw ? JSON.parse(raw) : {})
         current = merge(structuredClone(DEFAULTS), saved)
+        current = migratePromptPresets(current, saved.promptPresets !== undefined)
         if (typeof saved.shortcut === 'string' && saved.shortcuts?.translate === undefined) current.shortcuts.translate = saved.shortcut
       } catch {
         readFailed = true
@@ -155,6 +169,7 @@ export function createConfigStore({ filePath = CONFIG_PATH, storage = fileStorag
     if (!isConfigUpdate(update)) return Promise.reject(new Error('无效的配置更新'))
     const result = pending.then(async () => {
       const next = merge(load(), update)
+      if (!Object.hasOwn(next.promptPresets, next.selectedPromptPreset)) throw new Error('提示词预设不存在，请重新选择')
       if (readFailed) throw new Error('现有配置读取失败，未覆盖原文件，请修复后重启应用')
       try { await storage.write(JSON.stringify(next, null, 2)) }
       catch { throw new Error('配置保存失败，请检查文件访问权限并重试') }

@@ -37,6 +37,20 @@ test('compiled preload translates a concrete typed request through the public IP
   ])
 })
 
+test('preload carries preset identity and opens the shared editor without local runtime imports', async () => {
+  const { api, requests } = loadPreload()
+  await api.listPromptDefaults()
+  await api.translate({ text: 'SYNTHETIC', promptPresetId: 'concise' })
+  api.startRaceTranslate({ text: 'SYNTHETIC', promptPresetId: 'natural', requestId: 'synthetic-race' })
+  api.openSettings('/settings/prompts')
+  assert.deepEqual(JSON.parse(JSON.stringify(requests)), [
+    { channel: 'prompts:defaults' },
+    { channel: 'translate:do', payload: { text: 'SYNTHETIC', promptPresetId: 'concise' } },
+    { channel: 'translate:race:start', payload: { text: 'SYNTHETIC', promptPresetId: 'natural', requestId: 'synthetic-race' } },
+    { channel: 'settings:open', payload: '/settings/prompts' }
+  ])
+})
+
 test('save failures expose the actionable message without Electron IPC implementation details', async () => {
   const { api, ipc } = loadPreload()
   ipc.invoke = async () => { throw new Error("Error invoking remote method 'config:save': Error: 配置保存失败，请重试") }

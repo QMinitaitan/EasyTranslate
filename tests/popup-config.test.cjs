@@ -6,6 +6,7 @@ const vm = require('node:vm')
 const ts = require('typescript')
 const vue = require('vue')
 const { parse, compileScript } = require('@vue/compiler-sfc')
+const { PROMPT_PRESETS } = require('../dist-electron/prompt-presets.cjs')
 
 const flush = () => new Promise(resolve => setImmediate(resolve))
 function deferred() {
@@ -14,15 +15,20 @@ function deferred() {
   return { promise, resolve, reject }
 }
 const metadata = [
-  { id: 'deepseek', name: 'DeepSeek', color: '#123456' },
-  { id: 'openai', name: 'OpenAI', color: '#654321' }
+  { id: 'deepseek', name: 'DeepSeek', color: '#123456', adapter: 'openai-compat' },
+  { id: 'openai', name: 'OpenAI', color: '#654321', adapter: 'openai-compat' }
 ]
 function popup() {
   const mounted = [], unmounted = [], updates = new Set(), raceProgress = new Set(), raceDone = new Set()
   const requests = [], history = []
   let config = { raceMode: false, providers: { deepseek: {}, openai: {} } }
+  config.promptPresets = structuredClone(PROMPT_PRESETS)
+  config.selectedPromptPreset = 'software-engineering'
   let capabilities = metadata.map(item => ({ id: item.id, available: true }))
   let loadConfig = () => Promise.resolve(structuredClone(config))
+  let saveConfig = async update => { Object.assign(config, update); return structuredClone(config) }
+  let cancelled = 0
+  let translate = async request => ({ requestId: request.requestId, text: 'SYNTHETIC RESULT', engine: request.providerId, ms: 5 })
   const api = {
     isPopup: () => true,
     loadConfig: () => loadConfig(),
@@ -31,16 +37,16 @@ function popup() {
     onConfigUpdate: callback => { updates.add(callback); return () => updates.delete(callback) },
     triggerTranslate: () => () => {},
     popupReady: async () => ({ pinned: true }),
-    popupNotReady() {}, cancelTranslation() {},
+    popupNotReady() {}, cancelTranslation() { cancelled++ },
     onTranslationProgress: () => () => {},
-    saveConfig: async () => true,
+    saveConfig: update => saveConfig(update),
     onRaceProgress: callback => { raceProgress.add(callback); return () => raceProgress.delete(callback) },
     onRaceDone: callback => { raceDone.add(callback); return () => raceDone.delete(callback) },
     startRaceTranslate: request => { requests.push(request); history.push({ src: request.text, engine: 'deepseek' }) },
     translate: async request => {
       requests.push(request)
       history.push({ src: request.text, engine: request.providerId })
-      return { requestId: request.requestId, text: 'SYNTHETIC RESULT', engine: request.providerId, ms: 5 }
+      return translate(request)
     }
   }
   const filename = path.join(__dirname, '../src/views/Popup.vue')
@@ -71,9 +77,12 @@ function popup() {
     change(nextConfig, nextCapabilities) { config = nextConfig; capabilities = nextCapabilities; for (const update of updates) update() },
     notify: () => { for (const update of updates) update() },
     setLoader: loader => { loadConfig = loader },
-    completeRace() {
-      const requestId = requests.at(-1).requestId
-      const result = { requestId, engine: 'deepseek', text: 'SYNTHETIC RACE RESULT', ms: 5 }
+    setSaver: saver => { saveConfig = saver },
+    setTranslate: handler => { translate = handler },
+    cancelled: () => cancelled,
+    config: () => config,
+    completeRace(requestId = requests.at(-1).requestId, text = 'SYNTHETIC RACE RESULT') {
+      const result = { requestId, engine: 'deepseek', text, ms: 5 }
       for (const progress of raceProgress) progress(result)
       for (const done of raceDone) done({ requestId, best: result, results: [result] })
     }
@@ -200,4 +209,99 @@ test('unmount before a queued notification refresh prevents another IPC read', a
   await flush()
   assert.equal(loads, 0)
   assert.equal(fixture.updates.size, 0)
+})
+
+test('popup persists a preset then re-translates the current source with a fresh request identity', async () => {
+  const fixture = popup()
+  await fixture.mount()
+  fixture.view.srcEl.value = { textContent: 'SYNTHETIC SOURCE' }
+  fixture.view.onSrcEdit()
+  await flush()
+  const previousRequest = fixture.requests[0]
+  await fixture.view.onPresetChange({ target: { value: 'concise' } })
+  await flush()
+  assert.equal(fixture.config().selectedPromptPreset, 'concise')
+  assert.equal(fixture.requests.length, 2)
+  assert.equal(fixture.requests[1].text, 'SYNTHETIC SOURCE')
+  assert.equal(fixture.requests[1].promptPresetId, 'concise')
+  assert.notEqual(fixture.requests[1].requestId, previousRequest.requestId)
+  assert.equal(fixture.view.resultPresetName.value, '简洁直译')
+  assert.ok(fixture.cancelled() > 0)
+  fixture.unmount()
+})
+
+test('empty popup remembers a preset without making a translation request', async () => {
+  const fixture = popup()
+  await fixture.mount()
+  await fixture.view.onPresetChange({ target: { value: 'natural' } })
+  assert.equal(fixture.config().selectedPromptPreset, 'natural')
+  assert.equal(fixture.requests.length, 0)
+  fixture.unmount()
+})
+
+test('failed preset selection retains durable selection and completed result without silently translating', async () => {
+  const fixture = popup()
+  await fixture.mount()
+  fixture.view.srcEl.value = { textContent: 'SYNTHETIC SOURCE' }
+  fixture.view.onSrcEdit()
+  await flush()
+  fixture.setSaver(async () => { throw new Error('synthetic failure') })
+  await fixture.view.onPresetChange({ target: { value: 'concise' } })
+  assert.equal(fixture.requests.length, 1)
+  assert.equal(fixture.view.selectedPromptPreset.value, 'software-engineering')
+  assert.equal(fixture.view.activeTranslation.value, 'SYNTHETIC RESULT')
+  assert.match(fixture.view.presetError.value, /保存失败/)
+  fixture.unmount()
+})
+
+test('a late old result cannot overwrite a new preset translation even if transport ignores cancellation', async () => {
+  const fixture = popup()
+  await fixture.mount()
+  const old = deferred()
+  fixture.setTranslate(request => fixture.requests.length === 1 ? old.promise : Promise.resolve({ requestId: request.requestId, text: 'SYNTHETIC NEW RESULT', engine: 'deepseek' }))
+  fixture.view.srcEl.value = { textContent: 'SYNTHETIC SOURCE' }
+  fixture.view.onSrcEdit()
+  await fixture.view.onPresetChange({ target: { value: 'natural' } })
+  await flush()
+  old.resolve({ requestId: fixture.requests[0].requestId, text: 'SYNTHETIC OLD RESULT', engine: 'deepseek' })
+  await flush()
+  assert.equal(fixture.view.activeTranslation.value, 'SYNTHETIC NEW RESULT')
+  assert.equal(fixture.view.resultPresetName.value, '自然表达')
+  fixture.unmount()
+})
+
+test('race preset change replaces the previous request and ignores its late completion', async () => {
+  const fixture = popup()
+  await fixture.mount()
+  fixture.view.onEngineChange({ race: true })
+  fixture.view.srcEl.value = { textContent: 'SYNTHETIC SOURCE' }
+  fixture.view.onSrcEdit()
+  const oldId = fixture.requests[0].requestId
+  await fixture.view.onPresetChange({ target: { value: 'concise' } })
+  assert.equal(fixture.requests[1].promptPresetId, 'concise')
+  assert.notEqual(fixture.requests[1].requestId, oldId)
+  fixture.completeRace(oldId, 'SYNTHETIC OLD RACE RESULT')
+  assert.equal(fixture.view.state.value, 'loading')
+  assert.equal(fixture.view.activeTranslation.value, '')
+  fixture.completeRace()
+  await flush()
+  assert.equal(fixture.view.activeTranslation.value, 'SYNTHETIC RACE RESULT')
+  assert.equal(fixture.view.resultPresetName.value, '简洁直译')
+  fixture.unmount()
+})
+
+test('a pending selection cannot make a newer translation use an unsaved preset or rerun stale intent', async () => {
+  const fixture = popup()
+  await fixture.mount()
+  const gate = deferred()
+  fixture.setSaver(() => gate.promise)
+  const saving = fixture.view.onPresetChange({ target: { value: 'natural' } })
+  fixture.view.srcEl.value = { textContent: 'SYNTHETIC NEW SOURCE' }
+  fixture.view.onSrcEdit()
+  await flush()
+  assert.equal(fixture.requests[0].promptPresetId, 'software-engineering')
+  gate.resolve({})
+  await saving
+  assert.equal(fixture.requests.length, 1)
+  fixture.unmount()
 })
