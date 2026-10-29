@@ -24,7 +24,7 @@
 import { reactive, ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
 import type { PromptPreset } from '../../electron/shared/ipc-contract.cjs'
 import { useLocale } from '../composables/useLocale'
-import { createSettingsMutation, registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
+import { createSettingsMutation, getPendingSettingsDraft, registerSettingsFlush, trackSettingsSave } from '../composables/usePendingSettings'
 
 const { isEnglish } = useLocale()
 const promptHint = computed(() => isEnglish.value
@@ -57,10 +57,17 @@ onMounted(async () => {
     if (!window.api) throw new Error()
     const [cfg, builtin] = await Promise.all([window.api.loadConfig(), window.api.listPromptDefaults()])
     if (disposed) return
-    Object.assign(drafts, cfg.promptPresets)
+    const retained = getPendingSettingsDraft<Record<string, PromptPreset>>('prompt-presets')
+    Object.assign(drafts, cfg.promptPresets, retained ? JSON.parse(JSON.stringify(retained)) : {})
     defaults.value = builtin
     await nextTick()
-    if (!disposed) hydrated.value = true
+    if (!disposed) {
+      if (retained) {
+        mutation.update(JSON.parse(JSON.stringify(drafts)))
+        saveError.value = isEnglish.value ? 'Unsaved prompt edits were restored. Save or retry to apply them.' : '已恢复未保存的提示词修改，请保存或重试。'
+      }
+      hydrated.value = true
+    }
   } catch {
     saveError.value = isEnglish.value ? 'Unable to load prompt presets' : '无法读取提示词预设'
   }

@@ -9,18 +9,19 @@ const { parse, compileScript } = require('@vue/compiler-sfc')
 const { createConfigStore } = require('../dist-electron/config-store.cjs')
 const { PROMPT_PRESETS } = require('../dist-electron/prompt-presets.cjs')
 
-function editor() {
+function editor(shared) {
   const mounted = [], unmounted = []
-  let fail = false, writes = 0, serialized = null
-  const store = createConfigStore({ storage: {
-    read: () => serialized,
-    write: async value => { if (fail) throw new Error('synthetic failure'); writes++; serialized = value }
+  const state = shared || { fail: false, writes: 0, serialized: null }
+  const store = state.store ||= createConfigStore({ storage: {
+    read: () => state.serialized,
+    write: async value => { if (state.fail) throw new Error('synthetic failure'); state.writes++; state.serialized = value }
   } })
-  const pendingExports = {}
+  const pendingExports = state.pending || {}
   const pendingCode = ts.transpileModule(fs.readFileSync(path.join(__dirname, '../src/composables/usePendingSettings.ts'), 'utf8'), {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS }
   }).outputText
-  vm.runInNewContext(pendingCode, { exports: pendingExports, Promise, AggregateError, Error })
+  if (!state.pending) vm.runInNewContext(pendingCode, { exports: pendingExports, Promise, AggregateError, Error })
+  state.pending = pendingExports
   const filename = path.join(__dirname, '../src/views/SettingsPrompts.vue')
   const { descriptor } = parse(fs.readFileSync(filename, 'utf8'), { filename })
   const script = compileScript(descriptor, { id: 'prompt-editor-regression' })
@@ -42,10 +43,10 @@ function editor() {
   const scope = vue.effectScope()
   const view = scope.run(() => exports.default.setup({}, { expose() {} }))
   return {
-    view, store, pending: pendingExports,
+    view, store, pending: pendingExports, shared: state,
     mount: async () => { await Promise.all(mounted.map(callback => callback())); await vue.nextTick() },
     unmount: () => { for (const callback of unmounted) callback(); scope.stop() },
-    fail: value => { fail = value }, writes: () => writes
+    fail: value => { state.fail = value }, writes: () => state.writes
   }
 }
 
@@ -91,4 +92,25 @@ test('an empty prompt stays in the editor draft but cannot erase the saved prese
   await fixture.view.saveNow()
   assert.equal(fixture.view.saveError.value, '')
   fixture.unmount()
+})
+
+test('reopening a failed editor restores its concrete draft before another preset edit can replace it', async () => {
+  const previous = editor()
+  await previous.mount()
+  previous.fail(true)
+  previous.view.drafts.concise.prompt = 'SYNTHETIC RETAINED CONCISE'
+  await previous.view.saveNow()
+  previous.unmount()
+  await new Promise(resolve => setImmediate(resolve))
+
+  const reopened = editor(previous.shared)
+  await reopened.mount()
+  assert.equal(reopened.view.drafts.concise.prompt, 'SYNTHETIC RETAINED CONCISE')
+  reopened.view.drafts.natural.prompt = 'SYNTHETIC NEW NATURAL'
+  reopened.fail(false)
+  await reopened.view.saveNow()
+  await reopened.pending.flushPendingSettings()
+  assert.equal(reopened.store.load().promptPresets.concise.prompt, 'SYNTHETIC RETAINED CONCISE')
+  assert.equal(reopened.store.load().promptPresets.natural.prompt, 'SYNTHETIC NEW NATURAL')
+  reopened.unmount()
 })

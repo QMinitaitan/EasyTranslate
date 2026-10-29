@@ -2,7 +2,8 @@
 type SaveFlush = () => void | Promise<unknown>
 const owners = new Set<SaveFlush>()
 const active = new Set<Promise<unknown>>()
-const mutationOwners = new Map<string, () => void>()
+interface MutationOwner { supersede(): void; draft(): unknown }
+const mutationOwners = new Map<string, MutationOwner>()
 let draining: Promise<void> | undefined
 let drainErrors: unknown[] | undefined
 
@@ -11,17 +12,23 @@ export function registerSettingsFlush(flush: SaveFlush): () => void {
   return () => { owners.delete(flush) }
 }
 
+/** A remounted settings view can restore the concrete draft before replacing its owner. */
+export function getPendingSettingsDraft<T>(key: string): T | undefined {
+  return mutationOwners.get(key)?.draft() as T | undefined
+}
+
 /** Own a concrete unsaved mutation independently of a debounce timer or view. */
 export function createSettingsMutation<T>(key: string, persist: (value: T) => Promise<boolean>) {
   let pending: { value: T } | undefined
   let running: Promise<boolean> | undefined
   let released = false
   const unregister = registerSettingsFlush(flush)
+  const owner: MutationOwner = { supersede, draft: () => pending?.value }
 
   function releaseIfSaved() {
     if (released && !pending && !running) {
       unregister()
-      if (mutationOwners.get(key) === supersede) mutationOwners.delete(key)
+      if (mutationOwners.get(key) === owner) mutationOwners.delete(key)
     }
   }
 
@@ -33,8 +40,8 @@ export function createSettingsMutation<T>(key: string, persist: (value: T) => Pr
 
   function update(value: T) {
     const previous = mutationOwners.get(key)
-    if (previous && previous !== supersede) previous()
-    mutationOwners.set(key, supersede)
+    if (previous && previous !== owner) previous.supersede()
+    mutationOwners.set(key, owner)
     pending = { value }
   }
 

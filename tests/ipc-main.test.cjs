@@ -5,8 +5,9 @@ const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
 const { EventEmitter } = require('node:events')
+const { PassThrough } = require('node:stream')
 
-async function withMain(run, { history = [], translate } = {}) {
+async function withMain(run, { history = [], request } = {}) {
   const temporaryHome = fs.mkdtempSync(path.join(os.tmpdir(), 'easytranslate-ipc-'))
   const originalHome = process.env.HOME
   const originalProfile = process.env.USERPROFILE
@@ -53,7 +54,7 @@ async function withMain(run, { history = [], translate } = {}) {
   process.env.USERPROFILE = temporaryHome
   Object.defineProperty(process, 'platform', { value: 'win32' })
   Module._load = function (name, parent, isMain) {
-    if (name === './provider-service.cjs' && translate) return { ...originalLoad.call(this, name, parent, isMain), translateWith: translate }
+    if (name === 'node:https' && request) return { ...originalLoad.call(this, name, parent, isMain), request }
     return name === 'electron' ? electron : originalLoad.call(this, name, parent, isMain)
   }
   fs.writeFileSync(path.join(temporaryHome, '.translate-app.history.json'), JSON.stringify(history))
@@ -62,11 +63,14 @@ async function withMain(run, { history = [], translate } = {}) {
   // Config/history capture the isolated home on require, never the developer's credentials.
   delete require.cache[require.resolve('../dist-electron/config-store.cjs')]
   delete require.cache[require.resolve('../dist-electron/history-store.cjs')]
+  // Bind the real adapter to this fixture's external transport before importing main.
+  delete require.cache[require.resolve('../dist-electron/provider-service.cjs')]
   try {
     require(mainPath)
     await ready()
     return await run({ handles, events, windows, notifications, appEvents, quitCount: () => quitCount })
   } finally {
+    delete require.cache[require.resolve('../dist-electron/provider-service.cjs')]
     Module._load = originalLoad
     Object.defineProperty(process, 'platform', originalPlatform)
     if (originalHome === undefined) delete process.env.HOME
@@ -185,6 +189,22 @@ test('untyped clipboard and history payloads are rejected without coercing them'
 
 test('single and race IPC apply the same saved preset while DeepL retains its translation protocol configuration', async () => {
   const calls = []
+  const request = (url, _options, callback) => {
+    const req = new EventEmitter()
+    const call = { url: String(url), body: null }
+    calls.push(call)
+    req.write = value => { call.body = JSON.parse(value) }
+    req.destroy = () => {}
+    req.end = () => queueMicrotask(() => {
+      const response = new PassThrough()
+      response.statusCode = 200
+      callback(response)
+      response.end(JSON.stringify(url.pathname === '/v2/translate'
+        ? { translations: [{ text: 'SYNTHETIC RESULT' }] }
+        : { choices: [{ message: { content: 'SYNTHETIC RESULT' } }] }))
+    })
+    return req
+  }
   await withMain(async ({ handles, events, windows, notifications }) => {
     const defaults = handles.get('prompts:defaults')({})
     assert.equal(Object.keys(defaults).length, 3)
@@ -198,14 +218,21 @@ test('single and race IPC apply the same saved preset while DeepL retains its tr
       }
     })
     const sender = windows[0].webContents
-    const single = await handles.get('translate:do')({ sender }, { text: 'SYNTHETIC SOURCE', providerId: 'deepseek', requestId: 'single-preset' })
+    const single = await handles.get('translate:do')({ sender }, { text: 'SYNTHETIC SOURCE', target: 'English', providerId: 'deepseek', requestId: 'single-preset' })
     assert.equal(single.text, 'SYNTHETIC RESULT')
-    assert.equal(calls[0].provider.prompt, 'SYNTHETIC SHARED {{target}}')
-    await events.get('translate:race:start')({ sender }, { text: 'SYNTHETIC SOURCE', promptPresetId: 'concise', requestId: 'race-preset' })
+    assert.equal(calls[0].url, 'https://api.deepseek.com/v1/chat/completions')
+    assert.equal(calls[0].body.model, 'deepseek-v4-flash')
+    await events.get('translate:race:start')({ sender }, { text: 'SYNTHETIC SOURCE', target: 'English', promptPresetId: 'concise', requestId: 'race-preset' })
     assert.equal(calls.length, 4)
-    for (const call of calls.filter(call => call.id !== 'deepl')) assert.equal(call.provider.prompt, 'SYNTHETIC SHARED {{target}}')
-    assert.equal(calls.find(call => call.id === 'deepl').provider.prompt, undefined)
-    assert.equal(notifications.findLast(event => event.channel === 'translate:race:done').payload.results.length, 3)
+    for (const call of calls.filter(call => call.body.messages)) assert.deepEqual(call.body.messages, [
+      { role: 'system', content: 'SYNTHETIC SHARED English' },
+      { role: 'user', content: 'SYNTHETIC SOURCE' }
+    ])
+    const deepl = calls.find(call => call.url === 'https://api-free.deepl.com/v2/translate')
+    assert.deepEqual(deepl.body, { text: ['SYNTHETIC SOURCE'], target_lang: 'EN' })
+    const race = notifications.findLast(event => event.channel === 'translate:race:done').payload
+    assert.equal(race.results.length, 3)
+    assert.ok(race.results.every(result => result.text === 'SYNTHETIC RESULT' && !result.error))
     const failed = await handles.get('translate:do')({ sender }, { text: 'SYNTHETIC SOURCE', promptPresetId: 'missing' })
     assert.match(failed.error, /预设不存在/)
     await events.get('translate:race:start')({ sender }, { text: 'SYNTHETIC SOURCE', promptPresetId: 'missing', requestId: 'bad-preset' })
@@ -213,5 +240,5 @@ test('single and race IPC apply the same saved preset while DeepL retains its tr
     assert.equal(calls.length, 4)
     events.get('settings:open')({ sender }, '/settings/prompts')
     assert.deepEqual(notifications.at(-1), { channel: 'main:navigate', payload: '/settings/prompts' })
-  }, { translate: async (provider, id) => { calls.push({ provider: structuredClone(provider), id }); return { text: 'SYNTHETIC RESULT' } } })
+  }, { request })
 })
