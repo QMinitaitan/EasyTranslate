@@ -24,6 +24,15 @@
             <button class="icon-btn" title="关闭" @click="close"><X :size="13" :stroke-width="1.75" /></button>
           </div>
         </div>
+        <div class="prompt-switch no-drag">
+          <label for="popup-prompt">提示词</label>
+          <select id="popup-prompt" class="input" :value="selectedPromptPreset" :disabled="presetSaving || !promptOptions.length" @change="onPresetChange">
+            <option v-for="preset in promptOptions" :key="preset.id" :value="preset.id">{{ preset.name }}</option>
+          </select>
+          <button class="icon-btn" type="button" title="编辑提示词预设" aria-label="编辑提示词预设" @click="openPromptSettings"><PenLine :size="13" /></button>
+        </div>
+        <p v-if="presetError" class="prompt-notice prompt-error no-drag" role="alert">{{ presetError }}</p>
+        <p v-if="promptSupportNotice" class="prompt-notice no-drag" role="status">{{ promptSupportNotice }}</p>
       </header>
 
       <section class="popup-body" @dblclick="togglePinFromBody">
@@ -69,6 +78,7 @@
           >
             <div class="box-label">
               <span>译文 · {{ sessionRaceMode ? engineDisplayName(raceActive.engine) : engineLabel }}</span>
+              <span v-if="resultPresetName" class="session-preset">{{ resultPresetName }}</span>
               <PenLine :size="11" :stroke-width="1.5" class="edit-hint" />
             </div>
             <div
@@ -160,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ProviderMetadata, RaceResult, TranslationResult, Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
+import type { PromptPreset, ProviderMetadata, RaceResult, TranslationResult, Unsubscribe } from '../../electron/shared/ipc-contract.cjs'
 import type { EngineOption, EngineSelection } from '../types'
 import { errorMessage } from '../types'
 import { trackSettingsSave } from '../composables/usePendingSettings'
@@ -190,6 +200,23 @@ const themeTitle = computed(() => {
 // Provider metadata and current capabilities share the backend availability decision.
 const providerMeta = ref<ProviderMetadata[]>([])
 const engines = ref<EngineOption[]>([])
+const promptPresets = ref<Record<string, PromptPreset>>({})
+const selectedPromptPreset = ref('')
+const savedPromptPreset = ref('')
+const presetSaving = ref(false)
+const presetError = ref('')
+const sessionPresetName = ref('')
+const resultPresetName = computed(() => {
+  const engine = sessionRaceMode.value ? raceActive.value.engine : engineLabel.value
+  const meta = providerMeta.value.find(item => item.id === engine || item.name === engine)
+  return meta?.adapter === 'openai-compat' ? sessionPresetName.value : ''
+})
+const promptOptions = computed(() => Object.entries(promptPresets.value).map(([id, preset]) => ({ id, name: preset.name })))
+const promptSupportNotice = computed(() => {
+  const ids = raceMode.value ? engines.value.map(engine => engine.id) : [currentEngineId.value]
+  const names = providerMeta.value.filter(meta => ids.includes(meta.id) && meta.adapter !== 'openai-compat').map(meta => meta.name)
+  return names.length ? `${names.join('、')} 不支持提示词预设，仍正常翻译` : ''
+})
 let engineRefreshSequence = 0
 let configRefreshQueued = false
 
@@ -216,6 +243,9 @@ async function loadEngines() {
     ])
     if (!popupMounted || refresh !== engineRefreshSequence) return
     providerMeta.value = meta
+    promptPresets.value = cfg.promptPresets || {}
+    savedPromptPreset.value = cfg.selectedPromptPreset || ''
+    if (!presetSaving.value) selectedPromptPreset.value = cfg.selectedPromptPreset || ''
     raceMode.value = cfg.raceMode !== false
     const providers = cfg.providers || {}
     const list: EngineOption[] = []
@@ -431,6 +461,31 @@ function onEngineChange(payload: EngineSelection) {
   }
 }
 
+async function onPresetChange(event: Event) {
+  const id = (event.target as HTMLSelectElement).value
+  if (!api || presetSaving.value || id === selectedPromptPreset.value || !Object.hasOwn(promptPresets.value, id)) return
+  const previous = selectedPromptPreset.value
+  selectedPromptPreset.value = id
+  presetSaving.value = true
+  presetError.value = ''
+  ++triggerSequence
+  const sequence = ++translationSequence
+  api.cancelTranslation()
+  stopSpeech()
+  try {
+    await trackSettingsSave(api.saveConfig({ selectedPromptPreset: id }))
+    savedPromptPreset.value = id
+    if (popupMounted && sequence === translationSequence && src.value) void doTranslate(src.value)
+  } catch {
+    selectedPromptPreset.value = previous
+    presetError.value = '提示词选择保存失败，请重试；仍使用上次已保存的预设。'
+    if (popupMounted && sequence === translationSequence && state.value === 'loading') {
+      state.value = 'error'
+      errorMsg.value = '提示词选择保存失败，请重试'
+    }
+  } finally { presetSaving.value = false }
+}
+
 async function doTranslate(text: string) {
   ++triggerSequence
   const sequence = ++translationSequence
@@ -445,6 +500,7 @@ async function doTranslate(text: string) {
   raceOffDone = null
   activeRaceRequestId = null
   sessionRaceMode.value = raceMode.value
+  sessionPresetName.value = promptPresets.value[savedPromptPreset.value]?.name || ''
   src.value = text
   dst.value = ''
   translationEdits.value = {}
@@ -504,7 +560,7 @@ async function doTranslate(text: string) {
       const selectedIndex = raceOk.value.findIndex(result => result.engine === selectedEngine)
       raceActiveIdx.value = selectedIndex >= 0 ? selectedIndex : 0
     })
-    api.startRaceTranslate({ text, target: targetLang.value, requestId })
+    api.startRaceTranslate({ text, target: targetLang.value, requestId, promptPresetId: savedPromptPreset.value || undefined })
     return
   } else {
     const requestId = `single-${Date.now()}-${sequence}`
@@ -520,7 +576,7 @@ async function doTranslate(text: string) {
     const offProgress = api.onTranslationProgress(showResult)
     singleOffProgress = offProgress
     try {
-      const r = await api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId })
+      const r = await api.translate({ text, target: targetLang.value, providerId: currentEngineId.value, requestId, promptPresetId: savedPromptPreset.value || undefined })
       showResult(r)
     } catch (error) {
       if (sequence !== translationSequence) return
@@ -541,6 +597,10 @@ function close() {
 function openSettings() {
   stopSpeech()
   api?.openSettings()
+}
+function openPromptSettings() {
+  stopSpeech()
+  api?.openSettings('/settings/prompts')
 }
 function togglePin() {
   pinned.value = !pinned.value
@@ -613,6 +673,11 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.prompt-switch { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); font-size: var(--fs-xs); color: var(--text-dim); }
+.prompt-switch select { flex: 1; min-width: 0; font-size: var(--fs-xs); padding: 4px 8px; }
+.prompt-notice { margin: 4px 0 0; font-size: var(--fs-xs); color: var(--text-dim); white-space: normal; }
+.prompt-error { color: var(--danger); }
+.session-preset { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 45%; }
 .popup-standalone {
   padding: var(--space-6);
   height: 100vh;
@@ -644,7 +709,7 @@ onUnmounted(() => {
   box-shadow: none;
 }
 .popup-head {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; flex-direction: column; align-items: stretch;
   padding: var(--space-2);
   border-bottom: 1px solid var(--border);
   background: var(--bg-subtle);

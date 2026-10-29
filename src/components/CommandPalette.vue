@@ -57,6 +57,7 @@ const commands = computed(() => [
   { key: 'go-popup', label: isEnglish.value ? 'Preview Translation Popup' : '悬浮窗预览', hint: '', icon: SquareArrowOutUpRight, run: () => router.push('/popup') },
   { key: 'go-general', label: isEnglish.value ? 'Settings · General' : '设置 · 通用', hint: '', icon: Settings2, run: () => router.push('/settings/general') },
   { key: 'go-api', label: isEnglish.value ? 'Settings · Translation APIs' : '设置 · 翻译接口', hint: '', icon: Plug, run: () => router.push('/settings/api') },
+  { key: 'go-prompts', label: isEnglish.value ? 'Settings · Prompt presets' : '设置 · 提示词预设', hint: '', icon: Settings2, run: () => router.push('/settings/prompts') },
   { key: 'go-shortcut', label: isEnglish.value ? 'Settings · Shortcuts' : '设置 · 快捷键', hint: '', icon: Keyboard, run: () => router.push('/settings/shortcut') },
   { key: 'go-appearance', label: isEnglish.value ? 'Settings · Appearance' : '设置 · 外观', hint: '', icon: Palette, run: () => router.push('/settings/appearance') },
   { key: 'go-about', label: isEnglish.value ? 'Settings · About' : '设置 · 关于', hint: '', icon: Info, run: () => router.push('/settings/about') },

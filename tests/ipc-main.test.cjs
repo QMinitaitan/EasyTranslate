@@ -6,7 +6,7 @@ const os = require('node:os')
 const path = require('node:path')
 const { EventEmitter } = require('node:events')
 
-async function withMain(run, { history = [] } = {}) {
+async function withMain(run, { history = [], translate } = {}) {
   const temporaryHome = fs.mkdtempSync(path.join(os.tmpdir(), 'easytranslate-ipc-'))
   const originalHome = process.env.HOME
   const originalProfile = process.env.USERPROFILE
@@ -53,6 +53,7 @@ async function withMain(run, { history = [] } = {}) {
   process.env.USERPROFILE = temporaryHome
   Object.defineProperty(process, 'platform', { value: 'win32' })
   Module._load = function (name, parent, isMain) {
+    if (name === './provider-service.cjs' && translate) return { ...originalLoad.call(this, name, parent, isMain), translateWith: translate }
     return name === 'electron' ? electron : originalLoad.call(this, name, parent, isMain)
   }
   fs.writeFileSync(path.join(temporaryHome, '.translate-app.history.json'), JSON.stringify(history))
@@ -180,4 +181,37 @@ test('untyped clipboard and history payloads are rejected without coercing them'
     await assert.rejects(handles.get('history:favorite:set')({}, 'old', 'false'), /无效/)
     assert.throws(() => handles.get('history:delete')({}, NaN), /无效/)
   })
+})
+
+test('single and race IPC apply the same saved preset while DeepL retains its translation protocol configuration', async () => {
+  const calls = []
+  await withMain(async ({ handles, events, windows, notifications }) => {
+    const defaults = handles.get('prompts:defaults')({})
+    assert.equal(Object.keys(defaults).length, 3)
+    await handles.get('config:save')({}, {
+      selectedPromptPreset: 'concise',
+      promptPresets: { concise: { ...defaults.concise, prompt: 'SYNTHETIC SHARED {{target}}' } },
+      providers: {
+        deepseek: { enabled: true, apiKey: 'synthetic-key', prompt: 'SYNTHETIC LEGACY' },
+        openai: { enabled: true, apiKey: 'synthetic-key', prompt: 'SYNTHETIC OTHER LEGACY' },
+        deepl: { enabled: true, apiKey: 'synthetic-key' }
+      }
+    })
+    const sender = windows[0].webContents
+    const single = await handles.get('translate:do')({ sender }, { text: 'SYNTHETIC SOURCE', providerId: 'deepseek', requestId: 'single-preset' })
+    assert.equal(single.text, 'SYNTHETIC RESULT')
+    assert.equal(calls[0].provider.prompt, 'SYNTHETIC SHARED {{target}}')
+    await events.get('translate:race:start')({ sender }, { text: 'SYNTHETIC SOURCE', promptPresetId: 'concise', requestId: 'race-preset' })
+    assert.equal(calls.length, 4)
+    for (const call of calls.filter(call => call.id !== 'deepl')) assert.equal(call.provider.prompt, 'SYNTHETIC SHARED {{target}}')
+    assert.equal(calls.find(call => call.id === 'deepl').provider.prompt, undefined)
+    assert.equal(notifications.findLast(event => event.channel === 'translate:race:done').payload.results.length, 3)
+    const failed = await handles.get('translate:do')({ sender }, { text: 'SYNTHETIC SOURCE', promptPresetId: 'missing' })
+    assert.match(failed.error, /预设不存在/)
+    await events.get('translate:race:start')({ sender }, { text: 'SYNTHETIC SOURCE', promptPresetId: 'missing', requestId: 'bad-preset' })
+    assert.match(notifications.at(-1).payload.error, /预设不存在/)
+    assert.equal(calls.length, 4)
+    events.get('settings:open')({ sender }, '/settings/prompts')
+    assert.deepEqual(notifications.at(-1), { channel: 'main:navigate', payload: '/settings/prompts' })
+  }, { translate: async (provider, id) => { calls.push({ provider: structuredClone(provider), id }); return { text: 'SYNTHETIC RESULT' } } })
 })

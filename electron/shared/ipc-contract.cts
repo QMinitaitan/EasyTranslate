@@ -4,6 +4,7 @@ export interface TranslationRequest {
   target?: string
   providerId?: string | null
   requestId?: string
+  promptPresetId?: string
 }
 
 export interface RaceRequest extends TranslationRequest {
@@ -102,6 +103,8 @@ export interface PopupBounds {
 
 export interface Shortcuts { translate: string; show: string }
 
+export interface PromptPreset { name: string; nameEn?: string; prompt: string }
+
 export interface AppConfig {
   providers: Record<string, ProviderConfig>
   target: string
@@ -115,6 +118,8 @@ export interface AppConfig {
   popupBounds?: PopupBounds
   popupBoundsVersion?: number
   settingsOrder?: Record<string, unknown>
+  promptPresets: Record<string, PromptPreset>
+  selectedPromptPreset: string
 }
 
 export type ConfigUpdate = Partial<Omit<AppConfig, 'providers' | 'shortcuts'>> & {
@@ -141,6 +146,7 @@ export interface InvokeChannels {
   'config:load': { args: []; result: AppConfig }
   'config:save': { args: [ConfigUpdate]; result: AppConfig }
   'providers:list': { args: []; result: ProviderMetadata[] }
+  'prompts:defaults': { args: []; result: Record<string, PromptPreset> }
   'providers:capabilities': { args: [Record<string, Partial<ProviderConfig>>?]; result: ProviderCapability[] }
   'providers:probe': { args: [ProviderProbeRequest]; result: ProviderProbeResult }
   'autostart:get': { args: []; result: boolean }
@@ -160,7 +166,7 @@ export interface SendChannels {
   'app:flush:register': [boolean]
   'translate:cancel': []
   'translate:race:start': [RaceRequest]
-  'settings:open': []
+  'settings:open': [path?: '/settings/prompts']
   'main:open': []
   'popup:close': []
   'popup:pin': [boolean]
@@ -197,6 +203,7 @@ export interface EasyTranslateApi {
   onRaceDone(cb: (data: RaceDone) => void): Unsubscribe
   loadConfig(): Promise<AppConfig>
   listProviders(): Promise<ProviderMetadata[]>
+  listPromptDefaults(): Promise<Record<string, PromptPreset>>
   providerCapabilities(config?: Record<string, Partial<ProviderConfig>>): Promise<ProviderCapability[]>
   testProvider(providerId: string, config?: Partial<ProviderConfig>): Promise<ProviderProbeResult>
   saveConfig(cfg: ConfigUpdate): Promise<AppConfig>
@@ -216,7 +223,7 @@ export interface EasyTranslateApi {
   clearHistory(): Promise<HistoryEntry[]>
   onHistoryUpdate(cb: () => void): Unsubscribe
   onHistorySaveError(cb: (message: string) => void): Unsubscribe
-  openSettings(): void
+  openSettings(path?: '/settings/prompts'): void
   openMain(): void
   onNavigate(cb: (path: string) => void): Unsubscribe
   closePopup(): void
@@ -232,7 +239,8 @@ export function parseTranslationRequest(input: unknown): TranslationRequest | nu
   if (value.target !== undefined && typeof value.target !== 'string') return null
   if (value.providerId !== undefined && value.providerId !== null && typeof value.providerId !== 'string') return null
   if (value.requestId !== undefined && typeof value.requestId !== 'string') return null
-  return { text: value.text, target: value.target as string | undefined, providerId: value.providerId as string | null | undefined, requestId: value.requestId as string | undefined }
+  if (value.promptPresetId !== undefined && (typeof value.promptPresetId !== 'string' || !value.promptPresetId)) return null
+  return { text: value.text, target: value.target as string | undefined, providerId: value.providerId as string | null | undefined, requestId: value.requestId as string | undefined, promptPresetId: value.promptPresetId as string | undefined }
 }
 
 export function parseRaceRequest(input: unknown): RaceRequest | null {

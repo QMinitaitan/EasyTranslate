@@ -4,6 +4,7 @@ const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
 const { createConfigStore } = require('../dist-electron/config-store.cjs')
+const { PROMPT_PRESETS } = require('../dist-electron/prompt-presets.cjs')
 
 function fixture(t, initial) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'easytranslate-config-'))
@@ -158,4 +159,63 @@ test('exit flushing also waits for saves queued while an earlier write is comple
   await Promise.all([first, second, flush])
   assert.equal(premature, false)
   assert.equal(store.load().uiLanguage, 'en')
+})
+
+test('legacy defaults upgrade while all custom provider prompts survive as selectable presets exactly once', async t => {
+  const { store, filePath } = fixture(t, { providers: {
+    deepseek: { enabled: true, apiKey: 'synthetic-key', prompt: '请将以下{{src}}文本翻译为{{target}},仅输出译文,不要添加任何解释或注释' },
+    openai: { enabled: true, apiKey: 'synthetic-key', prompt: 'SYNTHETIC CUSTOM {{target}}' },
+    google: { enabled: false, apiKey: '', prompt: 'SYNTHETIC OTHER CUSTOM' }
+  } })
+  const config = store.load()
+  assert.equal(config.selectedPromptPreset, 'software-engineering')
+  assert.equal(config.promptPresets['legacy-deepseek'], undefined)
+  assert.equal(config.promptPresets['legacy-openai'].prompt, 'SYNTHETIC CUSTOM {{target}}')
+  assert.equal(config.promptPresets['legacy-google'].prompt, 'SYNTHETIC OTHER CUSTOM')
+  assert.equal(config.providers.openai.prompt, 'SYNTHETIC CUSTOM {{target}}')
+  await store.save({ selectedPromptPreset: 'legacy-openai' })
+  await store.save({ promptPresets: { 'legacy-openai': { ...config.promptPresets['legacy-openai'], prompt: 'SYNTHETIC EDITED IMPORT' } } })
+  const reopened = createConfigStore({ filePath }).load()
+  assert.equal(reopened.selectedPromptPreset, 'legacy-openai')
+  assert.equal(reopened.promptPresets['legacy-openai'].prompt, 'SYNTHETIC EDITED IMPORT')
+  assert.equal(Object.keys(reopened.promptPresets).length, 5)
+  assert.equal(reopened.providers.deepseek.apiKey, 'synthetic-key')
+})
+
+test('preset edits and selection merge independently, persist across restart and restore only the chosen built-in', async t => {
+  const { store, filePath } = fixture(t)
+  await Promise.all([
+    store.save({ promptPresets: { concise: { ...PROMPT_PRESETS.concise, prompt: 'SYNTHETIC CONCISE EDIT' } } }),
+    store.save({ selectedPromptPreset: 'natural' })
+  ])
+  let reopened = createConfigStore({ filePath })
+  assert.equal(reopened.load().selectedPromptPreset, 'natural')
+  assert.equal(reopened.load().promptPresets.concise.prompt, 'SYNTHETIC CONCISE EDIT')
+  assert.equal(reopened.load().promptPresets.natural.prompt, PROMPT_PRESETS.natural.prompt)
+  await reopened.save({ promptPresets: { concise: PROMPT_PRESETS.concise } })
+  reopened = createConfigStore({ filePath })
+  assert.equal(reopened.load().selectedPromptPreset, 'natural')
+  assert.deepEqual(reopened.load().promptPresets, PROMPT_PRESETS)
+})
+
+test('malformed presets and unknown selection cannot overwrite durable configuration', async t => {
+  const { store } = fixture(t)
+  for (const update of [
+    { selectedPromptPreset: 1 }, { selectedPromptPreset: '' }, { selectedPromptPreset: 'missing' },
+    { promptPresets: [] }, { promptPresets: { concise: { name: 'Synthetic', prompt: '' } } },
+    { promptPresets: { concise: { name: 2, prompt: 'Synthetic' } } },
+    { promptPresets: { concise: { name: 'Synthetic', prompt: 'Synthetic', unexpected: true } } }
+  ]) await assert.rejects(store.save(update))
+  assert.equal(store.load().selectedPromptPreset, 'software-engineering')
+  assert.deepEqual(store.load().promptPresets, PROMPT_PRESETS)
+})
+
+test('malformed saved preset preferences do not discard credentials or disable usable defaults', async t => {
+  const { store } = fixture(t, {
+    selectedPromptPreset: 'missing', promptPresets: { concise: { prompt: 42 } },
+    providers: { deepseek: { enabled: true, apiKey: 'synthetic-preserved' } }
+  })
+  assert.equal(store.load().providers.deepseek.apiKey, 'synthetic-preserved')
+  assert.equal(store.load().selectedPromptPreset, 'software-engineering')
+  assert.deepEqual(store.load().promptPresets, PROMPT_PRESETS)
 })

@@ -18,6 +18,9 @@
         <router-link class="nav-item" to="/settings/api" active-class="active">
           {{ t('api') }}
         </router-link>
+        <router-link class="nav-item" to="/settings/prompts" active-class="active">
+          {{ t('prompts') }}
+        </router-link>
         <router-link class="nav-item" to="/settings/shortcut" active-class="active">
           {{ t('shortcuts') }}
         </router-link>
