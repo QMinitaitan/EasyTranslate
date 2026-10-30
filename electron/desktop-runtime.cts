@@ -9,7 +9,7 @@ interface Dependencies {
   frontend: { htmlPath: string; preloadPath: string; devServerUrl?: string }
   loadConfig(): Partial<AppConfig>
   saveConfig(partial: ConfigUpdate): unknown
-  screen: Pick<Screen, 'getCursorScreenPoint' | 'getDisplayNearestPoint'>
+  screen: Pick<Screen, 'getCursorScreenPoint' | 'getDisplayNearestPoint' | 'screenToDipPoint'>
   platform?: NodeJS.Platform
   env?: NodeJS.ProcessEnv
   schedule?(callback: () => void, delay: number): Timer
@@ -82,6 +82,7 @@ export function createDesktopRuntime({ createWindow, frontend, screen, loadConfi
       ...(cursorPositioningSupported ? { x: stored.x, y: stored.y } : {}),
       minWidth: MIN_POPUP_BOUNDS.width, minHeight: MIN_POPUP_BOUNDS.height,
       frame: false, transparent: false, alwaysOnTop: true, skipTaskbar: true,
+      ...(platform === 'win32' ? { maximizable: false } : {}),
       resizable: true, show: false, paintWhenInitiallyHidden: false, backgroundColor: '#fafafa',
       webPreferences: { preload: frontend.preloadPath, contextIsolation: true, nodeIntegration: false }
     })
@@ -96,6 +97,21 @@ export function createDesktopRuntime({ createWindow, frontend, screen, loadConfi
     })
     const record: Popup = { window: win, ready: false, cleanup: [], autoHide, geometryTimer: null, geometry: null, ignoreBounds: null }
     popup = record
+    if (platform === 'win32') {
+      // Native drag regions swallow DOM pointer events. Observe the Windows
+      // caption message, then let the renderer distinguish header from footer
+      // and use the same close path (including stopping speech) as its button.
+      // The hook cannot cancel the default message; maximizable:false does that.
+      const captionDoubleClick = 0x00a3 // WM_NCLBUTTONDBLCLK
+      win.hookWindowMessage(captionDoubleClick, (hit, position) => {
+        if (!record.ready || win.isDestroyed() || hit.readUInt32LE(0) !== 2) return // HTCAPTION
+        const point = screen.screenToDipPoint({ x: position.readInt16LE(0), y: position.readInt16LE(2) })
+        const bounds = win.getContentBounds()
+        const zoom = contents.getZoomFactor()
+        contents.send('popup:titlebar-double-click', { x: (point.x - bounds.x) / zoom, y: (point.y - bounds.y) / zoom })
+      })
+      record.cleanup.push(() => { if (!win.isDestroyed()) win.unhookWindowMessage(captionDoubleClick) })
+    }
     const loading = () => { record.ready = false }
     const navigating = ({ isMainFrame, isSameDocument }: WebContentsDidStartNavigationEventParams) => {
       // Spinner activity also accompanies same-document history changes, including

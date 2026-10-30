@@ -22,6 +22,7 @@ function on<C extends keyof EventChannels>(channel: C, cb: (payload: EventChanne
 
 const api: EasyTranslateApi = {
   platform: process.platform,
+  setThemeMode: (mode) => send('theme:mode', mode),
   onBeforeQuit: (cb) => {
     const off = on('app:before-quit', cb)
     send('app:flush:register', true)
@@ -49,6 +50,7 @@ const api: EasyTranslateApi = {
   resetPopupBounds: () => invoke('popup:bounds:reset'),
   popupReady: () => invoke('popup:ready'),
   popupNotReady: () => send('popup:unready'),
+  onPopupTitlebarDoubleClick: (cb) => on('popup:titlebar-double-click', cb),
   copyText: (text) => invoke('clipboard:write', text),
   loadShortcuts: () => invoke('shortcuts:load'),
   saveShortcuts: (shortcuts) => invoke('shortcuts:save', shortcuts),

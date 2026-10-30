@@ -20,6 +20,8 @@ function fixture({ platform = 'win32', env = {}, initial = {} } = {}) {
       this.focuses = 0
       this.dead = false
       this.topmost = options.alwaysOnTop
+      this.hooks = new Map()
+      this.contents.getZoomFactor = () => 1.25
       windows.push(this)
     }
     get webContents() { if (this.dead) throw new Error('Object has been destroyed'); return this.contents }
@@ -27,6 +29,9 @@ function fixture({ platform = 'win32', env = {}, initial = {} } = {}) {
     loadURL(url) { this.loaded = url; this.webContents.emit('did-start-loading'); return Promise.resolve() }
     isDestroyed() { return this.dead }
     getBounds() { const { x = 0, y = 0, width, height } = this.bounds; return { x, y, width, height } }
+    getContentBounds() { return this.getBounds() }
+    hookWindowMessage(message, listener) { this.hooks.set(message, listener) }
+    unhookWindowMessage(message) { this.hooks.delete(message) }
     setBounds(bounds) { this.bounds = { ...this.bounds, ...bounds }; this.emit('move'); this.emit('resize') }
     setSize(width, height) { this.setBounds({ width, height }) }
     setAlwaysOnTop(on) { this.topmost = on }
@@ -49,6 +54,7 @@ function fixture({ platform = 'win32', env = {}, initial = {} } = {}) {
     frontend: { htmlPath: '/test/index.html', preloadPath: '/test/preload.cjs' },
     platform, env,
     screen: {
+      screenToDipPoint: ({ x, y }) => ({ x: x / 2, y: y / 2 }),
       getCursorScreenPoint: () => { if (platform === 'linux') throw new Error('Wayland has no global cursor'); return { x: 100, y: 100 } },
       getDisplayNearestPoint: () => ({ bounds: { x: 0, y: 0, width: 1200, height: 800 } })
     },
@@ -59,6 +65,33 @@ function fixture({ platform = 'win32', env = {}, initial = {} } = {}) {
   })
   return { desktop, windows, advance, pending: () => tasks.size, config: () => structuredClone(config), failSaves: () => { saveFailure = true }, errors }
 }
+
+test('Windows caption double-click reaches the renderer with DPI/zoom-correct local coordinates and cannot maximize', () => {
+  const f = fixture()
+  f.desktop.prewarm()
+  const win = f.windows[0]
+  assert.equal(win.options.maximizable, false)
+  const doubleClick = win.hooks.get(0x00a3)
+  assert.equal(typeof doubleClick, 'function')
+  const hit = Buffer.alloc(8)
+  hit.writeUInt32LE(2)
+  const position = Buffer.alloc(8)
+  position.writeInt16LE(-200, 0)
+  position.writeInt16LE(160, 2)
+  win.setBounds({ x: -140, y: 40 })
+  doubleClick(hit, position)
+  assert.equal(win.messages.length, 0, 'a prewarmed renderer is not ready')
+  f.desktop.markReady(win.webContents)
+  f.desktop.setPinned(true)
+  doubleClick(hit, position)
+  assert.deepEqual(win.messages, [{ channel: 'popup:titlebar-double-click', payload: { x: 32, y: 32 } }])
+  hit.writeUInt32LE(12)
+  doubleClick(hit, position)
+  assert.equal(win.messages.length, 1, 'resize borders are not title bar double-clicks')
+  f.desktop.dispose()
+  doubleClick(hit, position)
+  assert.equal(win.messages.length, 1, 'a destroyed popup cannot receive a caption message')
+})
 
 test('idle prewarm stays hidden and only the authenticated application-ready popup receives the latest queued trigger', () => {
   const f = fixture()

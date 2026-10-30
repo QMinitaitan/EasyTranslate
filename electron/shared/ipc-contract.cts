@@ -103,6 +103,8 @@ export interface PopupBounds {
 
 export interface Shortcuts { translate: string; show: string }
 
+export type ThemeMode = 'system' | 'light' | 'dark'
+
 export interface PromptPreset { name: string; nameEn?: string; prompt: string }
 
 export interface AppConfig {
@@ -164,6 +166,7 @@ export interface InvokeChannels {
 
 export interface SendChannels {
   'app:flush:register': [boolean]
+  'theme:mode': [ThemeMode]
   'translate:cancel': []
   'translate:race:start': [RaceRequest]
   'settings:open': [path?: '/settings/prompts']
@@ -175,6 +178,7 @@ export interface SendChannels {
 }
 
 export interface EventChannels {
+  'popup:titlebar-double-click': { x: number; y: number }
   'app:before-quit': string
   'translate:trigger': TranslationTrigger
   'translate:progress': TranslationResult
@@ -191,6 +195,7 @@ export type Unsubscribe = () => void
 
 export interface EasyTranslateApi {
   platform: NodeJS.Platform
+  setThemeMode(mode: ThemeMode): void
   onBeforeQuit(cb: (token: string) => void): Unsubscribe
   completeQuitFlush(token: string, saved?: boolean): Promise<void>
   isPopup(): boolean
@@ -214,6 +219,7 @@ export interface EasyTranslateApi {
   resetPopupBounds(): Promise<PopupBounds>
   popupReady(): Promise<{ pinned: boolean }>
   popupNotReady(): void
+  onPopupTitlebarDoubleClick(cb: (point: { x: number; y: number }) => void): Unsubscribe
   copyText(text: string): Promise<boolean>
   loadShortcuts(): Promise<Shortcuts>
   saveShortcuts(shortcuts: Partial<Shortcuts>): Promise<void>
