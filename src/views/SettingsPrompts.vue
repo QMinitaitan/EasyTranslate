@@ -107,5 +107,12 @@ onUnmounted(() => {
 .preset-title h3 { font-size: var(--fs-base); margin: 0; }
 .preset-card label { display: block; margin-bottom: var(--space-2); color: var(--text-dim); font-size: var(--fs-sm); }
 .preset-card textarea { width: 100%; resize: vertical; line-height: 1.6; }
+@supports (field-sizing: content) {
+  .preset-card textarea {
+    field-sizing: content;
+    min-height: calc(4lh + var(--space-2) * 2 + 2px);
+    resize: none;
+  }
+}
 .preset-save { display: flex; align-items: center; gap: var(--space-3); color: var(--text-dim); font-size: var(--fs-sm); }
 </style>

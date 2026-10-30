@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, ipcMain, clipboard, screen, Tray, nativeImage, globalShortcut } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain, clipboard, screen, Tray, nativeImage, nativeTheme, globalShortcut } from 'electron'
 import type { WebContents } from 'electron'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
@@ -320,6 +320,11 @@ app.whenReady().then(() => {
 
   ipcMain.on('app:flush:register', (event, registered: unknown) => {
     if (typeof registered === 'boolean') setQuitParticipant(event.sender, registered)
+  })
+  ipcMain.on('theme:mode', (event, mode: unknown) => {
+    if (mode !== 'system' && mode !== 'light' && mode !== 'dark') return
+    if (!BrowserWindow.getAllWindows().some(win => !win.isDestroyed() && win.webContents === event.sender)) return
+    nativeTheme.themeSource = mode
   })
   ipcMain.handle('app:flush:done', (event, token: unknown, saved: unknown) => {
     const waiter = quitWaiters.get(event.sender)

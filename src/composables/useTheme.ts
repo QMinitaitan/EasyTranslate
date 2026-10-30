@@ -1,7 +1,8 @@
 import { ref, onMounted, onUnmounted } from 'vue'
+import type { ThemeMode } from '../../electron/shared/ipc-contract.cjs'
 
 const STORAGE_KEY = 'translate-app.theme'
-export type ThemeMode = 'system' | 'light' | 'dark'
+export type { ThemeMode } from '../../electron/shared/ipc-contract.cjs'
 
 const mode = ref<ThemeMode>('system')
 const resolvedTheme = ref<'light' | 'dark'>('light')
@@ -20,6 +21,8 @@ function resolveTheme() {
 function applyTheme() {
   resolvedTheme.value = resolveTheme()
   document.documentElement.dataset.theme = resolvedTheme.value
+  // Keep the system mode intact so Electron can clear a previous native override.
+  window.api?.setThemeMode(mode.value)
 }
 
 function normalizeMode(value: unknown): ThemeMode {

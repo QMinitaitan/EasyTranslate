@@ -18,6 +18,7 @@ async function withMain(run, { history = [], request } = {}) {
   const windows = []
   const notifications = []
   const appEvents = new Map()
+  const nativeTheme = { themeSource: 'system' }
   let quitCount = 0
   let ready
   class Window extends EventEmitter {
@@ -37,6 +38,7 @@ async function withMain(run, { history = [], request } = {}) {
     static getAllWindows() { return windows }
   }
   const electron = {
+    nativeTheme,
     app: {
       setName() {}, setAppUserModelId() {}, on: (name, callback) => appEvents.set(name, callback),
       quit: () => { quitCount++ },
@@ -68,7 +70,7 @@ async function withMain(run, { history = [], request } = {}) {
   try {
     require(mainPath)
     await ready()
-    return await run({ handles, events, windows, notifications, appEvents, quitCount: () => quitCount })
+    return await run({ handles, events, windows, notifications, appEvents, nativeTheme, quitCount: () => quitCount })
   } finally {
     delete require.cache[require.resolve('../dist-electron/provider-service.cjs')]
     Module._load = originalLoad
@@ -80,6 +82,27 @@ async function withMain(run, { history = [], request } = {}) {
     fs.rmSync(temporaryHome, { recursive: true, force: true })
   }
 }
+
+test('app windows synchronize native theme mode and reject invalid values and unknown senders', async () => {
+  await withMain(async ({ events, windows, nativeTheme }) => {
+    const update = events.get('theme:mode')
+    assert.equal(typeof update, 'function')
+    const main = { sender: windows[0].webContents }
+    update(main, 'dark')
+    assert.equal(nativeTheme.themeSource, 'dark')
+    update(main, 'light')
+    assert.equal(nativeTheme.themeSource, 'light')
+    update(main, 'system')
+    assert.equal(nativeTheme.themeSource, 'system')
+    for (const invalid of [null, undefined, 'auto', {}, 1]) update(main, invalid)
+    assert.equal(nativeTheme.themeSource, 'system')
+    update({ sender: new EventEmitter() }, 'dark')
+    assert.equal(nativeTheme.themeSource, 'system')
+    const popup = new windows[0].constructor({})
+    update({ sender: popup.webContents }, 'dark')
+    assert.equal(nativeTheme.themeSource, 'dark')
+  })
+})
 
 test('main IPC returns a controlled error for untyped malformed translation input', async () => {
   await withMain(async ({ handles }) => {

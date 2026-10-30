@@ -394,7 +394,40 @@ const popupFontStyle = computed(() => ({ '--popup-font-scale': fontScale.value }
 const zoomNotice = ref(false)
 let zoomNoticeTimer: number | undefined
 
+function isEditableNode(node: Element | null): boolean {
+  if (!node) return false
+  if ((node as HTMLElement).isContentEditable === true) return true
+  const tag = typeof node.tagName === 'string' ? node.tagName.toUpperCase() : ''
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+}
+
+function currentSelection(): Selection | null {
+  return typeof document.getSelection === 'function' ? document.getSelection() : window.getSelection?.() || null
+}
+
+// Ctrl/Cmd+C copies the visible translation when nothing is selected and the
+// pointer is over the result. A real selection keeps its native copy behavior.
+function onCopyShortcut(e: KeyboardEvent): boolean {
+  if (e.isComposing) return false
+  if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return false
+  if (e.key?.toLowerCase() !== 'c') return false
+  const selection = currentSelection()
+  if (selection && !selection.isCollapsed) return false
+  const el = dstEl.value
+  if (!el) return false
+  if (state.value !== 'idle') return false
+  if (typeof el.matches !== 'function' || !el.matches(':hover')) return false
+  const active = document.activeElement
+  if (active && active !== el && isEditableNode(active)) return false
+  const text = el.innerText ?? el.textContent ?? ''
+  if (!text.trim()) return false
+  e.preventDefault()
+  void copyText(text)
+  return true
+}
+
 function onKeyDown(e: KeyboardEvent) {
+  if (onCopyShortcut(e)) return
   if (e.altKey) {
     if (e.key === '=' || e.key === '+') {
       e.preventDefault()
@@ -434,6 +467,7 @@ function setFontScale(value: number) {
 
 let offTrigger: Unsubscribe | null = null
 let offConfigUpdate: Unsubscribe | null = null
+let offTitlebarDoubleClick: Unsubscribe | null = null
 let raceOffProgress: Unsubscribe | null = null
 let raceOffDone: Unsubscribe | null = null
 let singleOffProgress: Unsubscribe | null = null
@@ -594,6 +628,11 @@ function close() {
   stopSpeech()
   api?.closePopup()
 }
+function onTitlebarDoubleClick(point: { x: number; y: number }) {
+  const target = document.elementFromPoint(point.x, point.y)
+  if (!target?.closest('.popup-head') || target.closest('.no-drag, button, select, input, textarea, a')) return
+  close()
+}
 function openSettings() {
   stopSpeech()
   api?.openSettings()
@@ -619,8 +658,7 @@ async function writeClipboard(text: string) {
   if (api?.copyText) await api.copyText(text)
   else await navigator.clipboard.writeText(text)
 }
-async function copyDst() {
-  const text = activeTranslation.value
+async function copyText(text: string) {
   if (!text) return
   try {
     await writeClipboard(text)
@@ -629,8 +667,12 @@ async function copyDst() {
     copiedTimer = window.setTimeout(() => { copied.value = false }, 1000)
   } catch (_) {}
 }
+async function copyDst() {
+  await copyText(activeTranslation.value)
+}
 onMounted(async () => {
   popupMounted = true
+  offTitlebarDoubleClick = api?.onPopupTitlebarDoubleClick?.(onTitlebarDoubleClick) || null
   offConfigUpdate = api?.onConfigUpdate(queueEngineRefresh) || null
   await loadEngines()
   if (!popupMounted) return
@@ -653,6 +695,7 @@ onMounted(async () => {
 })
 onUnmounted(() => {
   popupMounted = false
+  offTitlebarDoubleClick?.()
   ++engineRefreshSequence
   if (isWindow.value) api?.popupNotReady?.()
   ++translationSequence

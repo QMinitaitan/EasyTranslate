@@ -21,6 +21,11 @@ const metadata = [
 function popup() {
   const mounted = [], unmounted = [], updates = new Set(), raceProgress = new Set(), raceDone = new Set()
   const requests = [], history = []
+  const keydownListeners = new Set()
+  const clipboard = []
+  const titlebarListeners = new Set()
+  let closes = 0, speechStops = 0
+  let selection = { isCollapsed: true, toString: () => '' }
   let config = { raceMode: false, providers: { deepseek: {}, openai: {} } }
   config.promptPresets = structuredClone(PROMPT_PRESETS)
   config.selectedPromptPreset = 'software-engineering'
@@ -43,6 +48,9 @@ function popup() {
     onRaceProgress: callback => { raceProgress.add(callback); return () => raceProgress.delete(callback) },
     onRaceDone: callback => { raceDone.add(callback); return () => raceDone.delete(callback) },
     startRaceTranslate: request => { requests.push(request); history.push({ src: request.text, engine: 'deepseek' }) },
+    copyText: async text => { clipboard.push(text) },
+    closePopup: () => { closes++ },
+    onPopupTitlebarDoubleClick: handler => { titlebarListeners.add(handler); return () => titlebarListeners.delete(handler) },
     translate: async request => {
       requests.push(request)
       history.push({ src: request.text, engine: request.providerId })
@@ -54,16 +62,24 @@ function popup() {
   const script = compileScript(descriptor, { id: 'popup-config-regression' })
   const code = ts.transpileModule(script.content, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText
   const exports = {}
+  const documentStub = {
+    activeElement: null,
+    elementFromPoint: () => documentStub.hitTarget,
+    hitTarget: null,
+    getSelection: () => selection,
+    addEventListener: (type, handler) => { if (type === 'keydown') keydownListeners.add(handler) },
+    removeEventListener: (type, handler) => { if (type === 'keydown') keydownListeners.delete(handler) }
+  }
   vm.runInNewContext(code, {
     exports, setTimeout, clearTimeout,
-    window: { api, localStorage: { getItem: () => null }, setTimeout },
-    document: { addEventListener() {}, removeEventListener() {} },
+    window: { api, localStorage: { getItem: () => null }, setTimeout, getSelection: () => selection },
+    document: documentStub,
     require(id) {
       if (id === 'vue') return { ...vue, onMounted: callback => mounted.push(callback), onUnmounted: callback => unmounted.push(callback) }
       if (id === 'vue-router') return { useRoute: () => ({ query: { window: 'popup' } }) }
       if (id.endsWith('useTheme')) return { useTheme: () => ({ mode: vue.ref('light'), resolvedTheme: vue.ref('light'), toggleLightDark() {} }) }
       if (id.endsWith('useBrand')) return { setBrand() {} }
-      if (id.endsWith('useSpeech')) return { useSpeech: () => ({ speaking: vue.ref(false), stop() {}, toggle() {} }) }
+      if (id.endsWith('useSpeech')) return { useSpeech: () => ({ speaking: vue.ref(false), stop() { speechStops++ }, toggle() {} }) }
       if (id.endsWith('usePendingSettings')) return { trackSettingsSave: promise => promise }
       if (id === '../types') return { errorMessage: error => error.message }
       return {}
@@ -71,7 +87,27 @@ function popup() {
   }, { filename })
   const view = exports.default.setup({}, { expose() {} })
   return {
-    view, requests, history, updates,
+    view, requests, history, updates, clipboard,
+    titlebarListeners,
+    closes: () => closes, speechStops: () => speechStops,
+    nativeDoubleClick(target) {
+      documentStub.hitTarget = target
+      for (const handler of titlebarListeners) handler({ x: 40, y: 20 })
+    },
+    keydownCount: () => keydownListeners.size,
+    setSelection(next) { selection = next },
+    setActiveElement(element) { documentStub.activeElement = element },
+    pressCopy(overrides = {}) {
+      let prevented = false
+      const event = {
+        key: 'c', ctrlKey: true, metaKey: false, altKey: false, shiftKey: false,
+        isComposing: false,
+        preventDefault() { prevented = true }
+      }
+      Object.assign(event, overrides)
+      for (const handler of keydownListeners) handler(event)
+      return { event, prevented }
+    },
     mount: async () => { await Promise.all(mounted.map(callback => callback())); await flush() },
     unmount: () => unmounted.forEach(callback => callback()),
     change(nextConfig, nextCapabilities) { config = nextConfig; capabilities = nextCapabilities; for (const update of updates) update() },
@@ -88,6 +124,22 @@ function popup() {
     }
   }
 }
+
+test('native caption double-click closes only the header, stops speech, and releases its listener', async () => {
+  const fixture = popup()
+  await fixture.mount()
+  const header = { closest: selector => selector === '.popup-head' ? header : null }
+  fixture.nativeDoubleClick(header)
+  assert.equal(fixture.closes(), 1)
+  assert.equal(fixture.speechStops(), 1)
+  const footer = { closest: () => null }
+  fixture.nativeDoubleClick(footer)
+  const control = { closest: selector => selector === '.popup-head' ? header : control }
+  fixture.nativeDoubleClick(control)
+  assert.equal(fixture.closes(), 1)
+  fixture.unmount()
+  assert.equal(fixture.titlebarListeners.size, 0)
+})
 
 test('a pinned popup refreshes engine availability after settings save without altering edited result provenance or creating translation/history', async () => {
   const fixture = popup()
@@ -304,4 +356,138 @@ test('a pending selection cannot make a newer translation use an unsaved preset 
   await saving
   assert.equal(fixture.requests.length, 1)
   fixture.unmount()
+})
+
+async function translatedFixture() {
+  const fixture = popup()
+  await fixture.mount()
+  const view = fixture.view
+  view.srcEl.value = { textContent: 'SYNTHETIC SOURCE' }
+  view.onSrcEdit()
+  await flush()
+  assert.equal(fixture.requests.length, 1)
+  return fixture
+}
+
+function hoveredDst(text) {
+  // Real DOM elements are not made reactive when held by a Vue ref.
+  return vue.markRaw({ innerText: text, isContentEditable: true, matches: selector => selector === ':hover' })
+}
+
+test('Ctrl+C over the hovered translation copies the full uncommitted displayed text without another request', async () => {
+  const fixture = await translatedFixture()
+  const view = fixture.view
+  assert.equal(view.activeTranslation.value, 'SYNTHETIC RESULT')
+  const displayed = '第一行 CURRENT 编辑\n第二行 SECOND LINE'
+  const dst = hoveredDst(displayed)
+  view.dstEl.value = dst
+  fixture.setActiveElement(dst)
+
+  const { prevented } = fixture.pressCopy()
+  await flush()
+
+  assert.equal(prevented, true)
+  assert.deepEqual(fixture.clipboard, [displayed])
+  assert.equal(view.activeTranslation.value, 'SYNTHETIC RESULT')
+  assert.equal(fixture.requests.length, 1)
+  assert.equal(fixture.history.length, 1)
+  fixture.unmount()
+})
+
+test('Ctrl+C keeps native copy for any noncollapsed selection', async () => {
+  const fixture = await translatedFixture()
+  const view = fixture.view
+  view.dstEl.value = hoveredDst('HOVERED TRANSLATION')
+  fixture.setActiveElement(null)
+  fixture.setSelection({ isCollapsed: false, toString: () => 'NATIVE SELECTION' })
+
+  const { prevented } = fixture.pressCopy()
+  await flush()
+
+  assert.equal(prevented, false)
+  assert.deepEqual(fixture.clipboard, [])
+  fixture.unmount()
+})
+
+test('Ctrl+C never replaces a focused source or other editable target but still works from a noneditable body', async () => {
+  const fixture = await translatedFixture()
+  const view = fixture.view
+  view.dstEl.value = hoveredDst('HOVERED TRANSLATION')
+  for (const active of [{ isContentEditable: true }, { tagName: 'INPUT' }, { tagName: 'TEXTAREA' }]) {
+    fixture.setActiveElement(active)
+    const { prevented } = fixture.pressCopy()
+    await flush()
+    assert.equal(prevented, false)
+    assert.deepEqual(fixture.clipboard, [])
+  }
+  fixture.setActiveElement({ tagName: 'BODY' })
+  const { prevented } = fixture.pressCopy()
+  await flush()
+  assert.equal(prevented, true)
+  assert.deepEqual(fixture.clipboard, ['HOVERED TRANSLATION'])
+  fixture.unmount()
+})
+
+test('Ctrl+C does not copy when the pointer is outside, the content is not ready, or no translation is visible', async () => {
+  const fixture = await translatedFixture()
+  const view = fixture.view
+  const dst = { innerText: 'HOVERED TRANSLATION', matches: () => false }
+  view.dstEl.value = dst
+  fixture.setActiveElement(null)
+  assert.equal(fixture.pressCopy().prevented, false)
+
+  dst.matches = () => true
+  for (const state of ['loading', 'error', 'empty']) {
+    view.state.value = state
+    assert.equal(fixture.pressCopy().prevented, false)
+  }
+
+  view.state.value = 'idle'
+  dst.innerText = '   '
+  assert.equal(fixture.pressCopy().prevented, false)
+  dst.innerText = 'HOVERED TRANSLATION'
+  view.dstEl.value = null
+  assert.equal(fixture.pressCopy().prevented, false)
+  await flush()
+
+  assert.deepEqual(fixture.clipboard, [])
+  fixture.unmount()
+})
+
+test('other Ctrl combinations and IME composition stay native', async () => {
+  const fixture = await translatedFixture()
+  const view = fixture.view
+  view.dstEl.value = hoveredDst('HOVERED TRANSLATION')
+  fixture.setActiveElement(null)
+  for (const overrides of [{ shiftKey: true }, { altKey: true }, { key: 'v' }, { isComposing: true }]) {
+    assert.equal(fixture.pressCopy(overrides).prevented, false)
+  }
+  await flush()
+  assert.deepEqual(fixture.clipboard, [])
+  fixture.unmount()
+})
+
+test('a race engine switch copies the translation currently displayed after switching', async () => {
+  const fixture = await translatedFixture()
+  const view = fixture.view
+  view.sessionRaceMode.value = true
+  view.raceResults.value = [
+    { engine: 'deepseek', text: 'FIRST ENGINE RESULT', ms: 4 },
+    { engine: 'openai', text: 'SECOND ENGINE RESULT', ms: 7 }
+  ]
+  view.raceActiveIdx.value = 1
+  view.state.value = 'idle'
+  const displayed = 'SECOND ENGINE 编辑 CONTENT'
+  view.dstEl.value = hoveredDst(displayed)
+  fixture.setActiveElement(null)
+
+  const { prevented } = fixture.pressCopy()
+  await flush()
+
+  assert.equal(prevented, true)
+  assert.deepEqual(fixture.clipboard, [displayed])
+  assert.equal(view.activeTranslation.value, 'SECOND ENGINE RESULT')
+  assert.equal(fixture.requests.length, 1)
+  fixture.unmount()
+  assert.equal(fixture.keydownCount(), 0)
 })

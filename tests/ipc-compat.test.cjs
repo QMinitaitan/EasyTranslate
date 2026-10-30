@@ -37,6 +37,16 @@ test('compiled preload translates a concrete typed request through the public IP
   ])
 })
 
+test('preload sends the application theme mode to the native title bar bridge', () => {
+  const { api, requests } = loadPreload()
+  api.setThemeMode('dark')
+  api.setThemeMode('system')
+  assert.deepEqual(JSON.parse(JSON.stringify(requests)), [
+    { channel: 'theme:mode', payload: 'dark' },
+    { channel: 'theme:mode', payload: 'system' }
+  ])
+})
+
 test('preload carries preset identity and opens the shared editor without local runtime imports', async () => {
   const { api, requests } = loadPreload()
   await api.listPromptDefaults()
